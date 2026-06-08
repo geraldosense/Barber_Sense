@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sense Barbearia - Cortes profissionais com estilo e qualidade. Agende o seu corte online.">
+    <meta name="keywords" content="Barbearia, Sense, Corte, Barba, Agendamento, Fundão">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Sense Barbearia">
+    <meta property="og:description" content="Cortes profissionais com estilo e qualidade">
+    <meta property="og:image" content="assets/logo.png">
+
+    <title>Sense Barbearia - Agendamento Online</title>
+
+    <link rel="icon" type="image/png" href="assets/logo.png">
+
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="logo">
+                <a href="#home">
+                    <img src="assets/logo.png" alt="Sense Barbearia">
+                </a>
+            </div>
+
+            <div class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="#home">Início</a></li>
+                    <li><a href="#servicos">Serviços</a></li>
+                    <li><a href="#barbeiros">Barbeiros</a></li>
+                    <li><a href="#galeria">Galeria</a></li>
+                    <li><a href="#contato">Contactos</a></li>
+                    <li><a href="#minha-area" id="navMinhaArea" style="display:none;">Minha Área</a></li>
+                </ul>
+            </div>
+
+            <div class="auth-buttons" id="authButtons">
+                <a href="#" class="login-btn" id="btnLogin">Login</a>
+                <a href="#" class="register-btn-outline" id="btnRegistar">Registar</a>
+                <a href="#" class="register-btn" id="btnAgendarNav">Agendar Corte</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <img src="assets/logo.png" alt="Sense Barbearia" class="hero-logo">
+            <h1 class="gold-text">Sense Barbearia</h1>
+            <p>Cortes profissionais com estilo e qualidade</p>
+            <a href="#" class="cta-button" id="btnAgendar">Agendar Agora</a>
+        </div>
+    </section>
+
+    <main>
+        <!-- Área privada (visível após login) -->
+        <section id="minha-area" class="minha-area hidden">
+            <div class="area-wrapper">
+                <div class="area-top">
+                    <div>
+                        <h2><i class="fas fa-user-circle"></i> Olá, <span id="dash-nome">Utilizador</span>!</h2>
+                        <span id="dash-perfil" class="dash-perfil-badge cliente"></span>
+                    </div>
+                    <p class="area-top-hint">Esta é a sua área privada — só você vê este conteúdo.</p>
+                </div>
+                <div class="area-layout">
+                    <nav class="area-tabs" id="area-tabs"></nav>
+                    <div class="area-main" id="area-main-content"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Info rápida -->
+        <section class="info-bar">
+            <div class="info-bar-content">
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <h4>Localização</h4>
+                        <p>Rua Principal, 123</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <h4>Horário</h4>
+                        <p>Seg-Sex: 9h-20h | Sáb: 9h-18h</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <h4>Telefone</h4>
+                        <p>+351 960 075 690</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Serviços -->
+        <section class="courses-section" id="servicos">
+            <h2>Nossos Serviços</h2>
+            <div class="course-grid" id="servicosGrid">
+                <!-- Carregado via JavaScript -->
+            </div>
+        </section>
+
+        <!-- Barbeiros -->
+        <section class="barbeiros-section" id="barbeiros">
+            <h2>Nossos Barbeiros</h2>
+            <div class="barbeiros-grid" id="barbeirosGrid">
+                <!-- Carregado via JavaScript -->
+            </div>
+        </section>
+
+        <!-- Galeria de Cortes -->
+        <section class="galeria-section" id="galeria">
+            <h2>Galeria de Cortes</h2>
+            <p class="galeria-intro">Trabalhos publicados pelos nossos barbeiros profissionais</p>
+            <div class="galeria-grid" id="galeriaGrid">
+                <p class="galeria-empty"><i class="fas fa-spinner fa-spin"></i> A carregar galeria...</p>
+            </div>
+        </section>
+
+        <!-- Contacto -->
+        <section class="contato-section" id="contato">
+            <div class="contato-content">
+                <h2>Fale Connosco</h2>
+                <p>Estamos prontos para o receber. Entre em contacto ou agende o seu corte online.</p>
+                <div class="contato-detalhes">
+                    <p><i class="fas fa-envelope"></i> contato@barbeariasense.pt</p>
+                    <p><i class="fas fa-phone"></i> +351 960 075 690</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Rua Principal, Caminho Nossa Senhora da Luz n6</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h3>Sense Barbearia</h3>
+                <p>Rua Principal, Caminho Nossa Senhora da Luz n6</p>
+                <p>Telefone: +351 960 075 690</p>
+                <p>Email: sensegeraldo2@gmail.com</p>
+            </div>
+            <div class="footer-links">
+                <h4>Links Rápidos</h4>
+                <ul>
+                    <li><a href="#home">Início</a></li>
+                    <li><a href="#servicos">Serviços</a></li>
+                    <li><a href="#barbeiros">Barbeiros</a></li>
+                    <li><a href="#galeria">Galeria</a></li>
+                    <li><a href="#contato">Contactos</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Redes Sociais</h4>
+                <div class="social-icons">
+                    <a href="#" class="social-icon facebook" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                        <span class="social-tooltip">Facebook</span>
+                    </a>
+                    <a href="#" class="social-icon instagram" aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                        <span class="social-tooltip">Instagram</span>
+                    </a>
+                    <a href="#" class="social-icon whatsapp" aria-label="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                        <span class="social-tooltip">WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sense Barbearia. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Autenticação -->
+    <div class="modal auth-modal" id="modalAuth">
+        <div class="modal-content auth-modal-content">
+            <span class="close-modal" id="closeAuthModal">&times;</span>
+
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" data-tab="login">Login</button>
+                <button type="button" class="auth-tab" data-tab="registo">Registar</button>
+                <button type="button" class="auth-tab" data-tab="recuperar">Recuperar</button>
+            </div>
+
+            <!-- Login -->
+            <div class="auth-panel active" id="panel-login">
+                <h2><i class="fas fa-sign-in-alt"></i> Entrar na sua conta</h2>
+                <p class="auth-subtitle">Aceda para agendar, consultar histórico e gerir marcações.</p>
+                <form id="formLogin">
+                    <div class="form-group">
+                        <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="loginEmail" required placeholder="seu@email.com" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword"><i class="fas fa-lock"></i> Palavra-passe</label>
+                        <div class="password-input">
+                            <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
+                            <button type="button" class="toggle-password" aria-label="Mostrar palavra-passe">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Entrar</button>
+                    <p class="auth-switch">
+                        <a href="#" id="linkEsqueciPassword">Esqueci a palavra-passe</a>
+                    </p>
+                </form>
+                <div class="perfil-info">
+                    <p><strong>Tipos de conta:</strong></p>
+                    <span class="perfil-badge cliente"><i class="fas fa-user"></i> Cliente</span>
+                    <span class="perfil-badge barbeiro"><i class="fas fa-cut"></i> Barbeiro</span>
+                    <span class="perfil-badge admin"><i class="fas fa-cog"></i> Administrador</span>
+                </div>
+            </div>
+
+            <!-- Registo -->
+            <div class="auth-panel" id="panel-registo">
+                <h2><i class="fas fa-user-plus"></i> Criar conta</h2>
+                <p class="auth-subtitle">Registe-se para agendar cortes e gerir as suas marcações.</p>
+                <form id="formRegisto">
+                    <div class="form-group">
+                        <label for="regNome"><i class="fas fa-user"></i> Nome</label>
+                        <input type="text" id="regNome" required placeholder="Nome completo" autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail"><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="regEmail" required placeholder="seu@email.com" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="regTelefone"><i class="fas fa-phone"></i> Telefone</label>
+                        <input type="tel" id="regTelefone" required placeholder="+351 9XX XXX XXX" autocomplete="tel">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword"><i class="fas fa-lock"></i> Palavra-passe</label>
+                        <div class="password-input">
+                            <input type="password" id="regPassword" required placeholder="Mínimo 6 caracteres" autocomplete="new-password" minlength="6">
+                            <button type="button" class="toggle-password" aria-label="Mostrar palavra-passe">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPasswordConfirm"><i class="fas fa-lock"></i> Confirmar palavra-passe</label>
+                        <input type="password" id="regPasswordConfirm" required placeholder="Repita a palavra-passe" autocomplete="new-password" minlength="6">
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Criar Conta</button>
+                </form>
+                <p class="auth-nota"><i class="fas fa-info-circle"></i> Após o registo, receberá um email de confirmação. A conta fica pendente até confirmar.</p>
+            </div>
+
+            <!-- Recuperar -->
+            <div class="auth-panel" id="panel-recuperar">
+                <h2><i class="fas fa-key"></i> Recuperar palavra-passe</h2>
+                <p class="auth-subtitle">Informe o seu email. Enviaremos um link e um código temporário.</p>
+                <form id="formRecuperar">
+                    <div class="form-group">
+                        <label for="recEmail"><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="recEmail" required placeholder="seu@email.com">
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Enviar instruções</button>
+                </form>
+                <div class="auth-divider"><span>ou use o código</span></div>
+                <form id="formRecuperarCodigo">
+                    <div class="form-group">
+                        <label for="recEmailCodigo">Email</label>
+                        <input type="email" id="recEmailCodigo" required placeholder="seu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="recCodigo">Código temporário</label>
+                        <input type="text" id="recCodigo" required placeholder="000000" maxlength="6" pattern="[0-9]{6}">
+                    </div>
+                    <div class="form-group">
+                        <label for="recNovaPassword">Nova palavra-passe</label>
+                        <input type="password" id="recNovaPassword" required placeholder="Mínimo 6 caracteres" minlength="6">
+                    </div>
+                    <button type="submit" class="auth-submit-btn secondary">Redefinir com código</button>
+                </form>
+            </div>
+
+            <div class="auth-message hidden" id="authMessage"></div>
+        </div>
+    </div>
+
+    <!-- Modal Painel Barbeiro / Admin -->
+    <div class="modal" id="modalPainel">
+        <div class="modal-content painel-modal-content">
+            <span class="close-modal" id="closePainel">&times;</span>
+            <h2 id="painel-titulo"><i class="fas fa-cut"></i> Painel de Publicação</h2>
+
+            <div class="painel-nav">
+                <button type="button" class="painel-nav-btn active" data-view="publicar">
+                    <i class="fas fa-plus-circle"></i> Novo Corte
+                </button>
+                <button type="button" class="painel-nav-btn" data-view="pendentes" id="tab-pendentes-wrap">
+                    <i class="fas fa-clock"></i> Pendentes <span id="adm-pend-count"></span>
+                </button>
+            </div>
+
+            <div class="painel-view active" id="view-publicar">
+                <p class="auth-subtitle">Submeta um novo corte para a galeria. Barbeiros aguardam aprovação do administrador.</p>
+                <form id="formNovoCorte">
+                    <div class="form-group">
+                        <label for="corteTitulo">Nome do Corte *</label>
+                        <input type="text" id="corteTitulo" required placeholder="Ex: Degradê Moderno">
+                    </div>
+                    <div class="form-group">
+                        <label for="corteTipo">Tipo de Corte *</label>
+                        <select id="corteTipo" required>
+                            <option value="">Selecione...</option>
+                            <option value="Degradê">Degradê</option>
+                            <option value="Corte Clássico">Corte Clássico</option>
+                            <option value="Barba">Barba</option>
+                            <option value="Corte + Barba">Corte + Barba</option>
+                            <option value="Fade">Fade</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="corteDesc">Descrição</label>
+                        <textarea id="corteDesc" rows="2" placeholder="Detalhes do trabalho..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="corteImg">URL da Fotografia</label>
+                        <input type="url" id="corteImg" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label for="corteVideo">URL do Vídeo (opcional)</label>
+                        <input type="url" id="corteVideo" placeholder="https://youtube.com/...">
+                    </div>
+                    <div class="form-group">
+                        <label for="corteDuracao">Duração estimada</label>
+                        <input type="text" id="corteDuracao" placeholder="Ex: 40 min">
+                    </div>
+                    <button type="submit" class="auth-submit-btn"><i class="fas fa-upload"></i> Publicar Corte</button>
+                </form>
+            </div>
+
+            <div class="painel-view" id="view-pendentes">
+                <p class="auth-subtitle">Cortes à espera de aprovação do administrador.</p>
+                <div id="pending-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Agendamento -->
+    <div class="modal" id="modalAgendamento">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2>Sistema de Agendamento</h2>
+
+            <form id="formAgendamento">
+                <div class="form-step" id="step1">
+                    <h3>Passo 1: Escolha o Serviço</h3>
+                    <div class="servicos-lista" id="servicosLista"></div>
+                    <button type="button" class="btn-next" onclick="proximoPasso(2)">Próximo</button>
+                </div>
+
+                <div class="form-step hidden" id="step2">
+                    <h3>Passo 2: Escolha o Barbeiro</h3>
+                    <div class="barbeiros-lista" id="barbeirosLista"></div>
+                    <div class="form-buttons">
+                        <button type="button" class="btn-back" onclick="proximoPasso(1)">Voltar</button>
+                        <button type="button" class="btn-next" onclick="proximoPasso(3)">Próximo</button>
+                    </div>
+                </div>
+
+                <div class="form-step hidden" id="step3">
+                    <h3>Passo 3: Escolha a Data e Hora</h3>
+                    <label for="data">Data:</label>
+                    <input type="date" id="data" required>
+
+                    <label for="hora">Horário Disponível:</label>
+                    <select id="hora" required>
+                        <option value="">Selecione um horário</option>
+                    </select>
+                    <div class="form-buttons">
+                        <button type="button" class="btn-back" onclick="proximoPasso(2)">Voltar</button>
+                        <button type="button" class="btn-next" onclick="proximoPasso(4)">Próximo</button>
+                    </div>
+                </div>
+
+                <div class="form-step hidden" id="step4">
+                    <h3>Passo 4: Dados Pessoais</h3>
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" required>
+
+                    <label for="telefone">Número de Telefone:</label>
+                    <input type="tel" id="telefone" required>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required>
+
+                    <div class="form-buttons">
+                        <button type="button" class="btn-back" onclick="proximoPasso(3)">Voltar</button>
+                        <button type="submit" class="btn-submit">Confirmar Agendamento</button>
+                    </div>
+                </div>
+
+                <div class="form-step hidden" id="step5">
+                    <h3>✓ Agendamento Confirmado!</h3>
+                    <div class="confirmation-message" id="confirmationMessage"></div>
+                    <button type="button" class="cta-button" onclick="fecharModal()">Fechar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/galeria.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/agendamento.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "barbearia-sense-backend",
+  "version": "1.0.0",
+  "description": "Backend para sistema de agendamentos de barbearia",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "init-db": "node scripts/initDatabase.js"
+  },
+  "keywords": [
+    "barbearia",
+    "agendamentos",
+    "cortes"
+  ],
+  "author": "Sense Barbershop",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sqlite3": "^5.1.6",
+    "nodemailer": "^6.9.1",
+    "dotenv": "^16.0.3",
+    "body-parser": "^1.20.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}

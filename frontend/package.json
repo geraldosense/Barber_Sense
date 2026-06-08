@@ -1,0 +1,23 @@
+{
+  "name": "barbearia-sense-frontend",
+  "version": "1.0.0",
+  "description": "Frontend do sistema de agendamentos para barbearia Sense",
+  "main": "index.html",
+  "scripts": {
+    "serve": "npx http-server -p 5500 -c-1",
+    "build": "echo 'Frontend é puro HTML/CSS/JS - nenhum build necessário'",
+    "dev": "npx live-server --port=5500"
+  },
+  "keywords": [
+    "barbearia",
+    "agendamentos",
+    "cortes",
+    "frontend"
+  ],
+  "author": "Sense Barbershop",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  }
+}
