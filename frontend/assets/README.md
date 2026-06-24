@@ -1,4 +1,4 @@
-# 📸 Guia de Imagens - Barbearia Sense
+# 📸 Guia de Imagens - Sense Barbershop
 
 ## Logotipo
 
@@ -10,7 +10,7 @@ frontend/assets/logo.png
 **Características do logotipo fornecido:**
 - Imagem professional com tesoura, barba e pincél
 - Cores: Preto, Dourado, Branco
-- Texto "Sense" com "BARBEARIA"
+- Texto "Sense" com "BARBERSHOP"
 - Pronto para uso
 
 **Como adicionar:**

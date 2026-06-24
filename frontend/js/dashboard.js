@@ -67,6 +67,7 @@ function renderizarTabsArea() {
         tabs.push(
             { id: 'aprovar', icon: 'fa-check-circle', label: 'Aprovar Cortes' },
             { id: 'publicar', icon: 'fa-camera', label: 'Publicar' },
+            { id: 'precos', icon: 'fa-euro-sign', label: 'Preços' },
             { id: 'agendamentos', icon: 'fa-chart-bar', label: 'Agendamentos' }
         );
     }
@@ -98,6 +99,7 @@ function mudarTabArea(tab) {
         case 'publicar': renderDashPublicar(main); break;
         case 'pendentes': renderDashPendentes(main); break;
         case 'aprovar': renderDashAprovar(main); break;
+        case 'precos': renderDashPrecos(main); break;
         default: renderDashInicio(main);
     }
 }
@@ -147,7 +149,7 @@ function renderDashInicio(el) {
                 <h3>Agendamentos</h3>
                 <p>Ver todas as marcações</p>
             </div>
-            <div class="dash-card" onclick="abrirPainel()">
+            <div class="dash-card" onclick="window.location.href='painel.html'">
                 <i class="fas fa-cog"></i>
                 <h3>Painel Admin</h3>
                 <p>Gestão completa do sistema</p>
@@ -212,9 +214,14 @@ async function renderDashAgendamentos(el) {
 function renderDashAgendar(el) {
     el.innerHTML = `
         <h3 class="area-main-title">Agendar Novo Corte</h3>
-        <p class="area-main-sub">Os seus dados já estão preenchidos com a conta <strong>${escDash(utilizadorAtual.email)}</strong></p>
+        <div class="dash-user-readonly">
+            <p><i class="fas fa-user"></i> ${escDash(utilizadorAtual.nome)}</p>
+            <p><i class="fas fa-envelope"></i> ${escDash(utilizadorAtual.email)}</p>
+            <p><i class="fas fa-phone"></i> ${escDash(utilizadorAtual.telefone || '—')}</p>
+        </div>
+        <p class="area-main-sub">Escolha serviço, barbeiro, data e hora no formulário profissional de marcação.</p>
         <button type="button" class="cta-button" id="dashBtnAgendar">
-            <i class="fas fa-calendar-plus"></i> Abrir Agendamento
+            <i class="fas fa-calendar-plus"></i> Iniciar Marcação
         </button>`;
 
     document.getElementById('dashBtnAgendar')?.addEventListener('click', () => {
@@ -225,13 +232,29 @@ function renderDashAgendar(el) {
 function renderDashPublicar(el) {
     el.innerHTML = `
         <h3 class="area-main-title">Publicar Novo Corte</h3>
-        <p class="area-main-sub">Submeta um trabalho para a galeria pública.</p>
+        <p class="area-main-sub">Adicione fotografias dos seus trabalhos com preço definido por si.</p>
         <button type="button" class="cta-button" id="dashBtnPublicar">
             <i class="fas fa-upload"></i> Abrir Painel de Publicação
         </button>`;
 
     document.getElementById('dashBtnPublicar')?.addEventListener('click', () => {
         if (typeof abrirPainel === 'function') abrirPainel();
+    });
+}
+
+function renderDashPrecos(el) {
+    el.innerHTML = `
+        <h3 class="area-main-title">Gerir Preços dos Serviços</h3>
+        <p class="area-main-sub">Defina o valor de cada tipo de corte disponível para marcação.</p>
+        <button type="button" class="cta-button" id="dashBtnPrecos">
+            <i class="fas fa-euro-sign"></i> Abrir Gestão de Preços
+        </button>`;
+
+    document.getElementById('dashBtnPrecos')?.addEventListener('click', () => {
+        if (typeof abrirPainel === 'function') {
+            abrirPainel();
+            if (typeof showView === 'function') showView('precos');
+        }
     });
 }
 
@@ -297,7 +320,8 @@ async function renderDashAprovar(el) {
                 </div>
                 <div class="pending-card-body">
                     <strong class="pending-titulo">${escDash(f.titulo)}</strong>
-                    ${f.imagem_url ? `<img src="${escDash(f.imagem_url)}" class="pending-preview" alt="" onerror="this.style.display='none'">` : ''}
+                    ${f.imagem_url ? `<img src="${escDash(typeof resolveMediaUrl === 'function' ? resolveMediaUrl(f.imagem_url) : f.imagem_url)}" class="pending-preview" alt="" onerror="this.style.display='none'">` : ''}
+                    ${f.preco ? `<p class="galeria-preco">${Number(f.preco).toFixed(2)}€</p>` : ''}
                     <div class="pending-actions">
                         <button type="button" onclick="approvePending(${f.id})" class="btn-approve">Aprovar</button>
                         <button type="button" onclick="rejectPending(${f.id})" class="btn-reject">Rejeitar</button>

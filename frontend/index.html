@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sense Barbearia - Cortes profissionais com estilo e qualidade. Agende o seu corte online.">
-    <meta name="keywords" content="Barbearia, Sense, Corte, Barba, Agendamento, Fundão">
+    <meta name="description" content="Sense Barbershop - Cortes profissionais com estilo e qualidade. Agende o seu corte online.">
+    <meta name="keywords" content="Barbershop, Sense, Corte, Barba, Agendamento, Fundão">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Sense Barbearia">
+    <meta property="og:title" content="Sense Barbershop">
     <meta property="og:description" content="Cortes profissionais com estilo e qualidade">
     <meta property="og:image" content="assets/logo.svg">
 
-    <title>Sense Barbearia - Agendamento Online</title>
+    <title>Sense Barbershop - Agendamento Online</title>
 
     <link rel="icon" type="image/png" href="assets/logo.png">
 
@@ -31,7 +31,7 @@
 
             <div class="logo">
                 <a href="#home">
-                    <img src="assets/logo.png" alt="Sense Barbearia">
+                    <img src="assets/logo.png" alt="Sense Barbershop">
                 </a>
             </div>
 
@@ -39,100 +39,49 @@
                 <ul>
                     <li><a href="#home">Início</a></li>
                     <li><a href="#servicos">Serviços</a></li>
-                    <li><a href="#barbeiros">Barbeiros</a></li>
+                    <li><a href="#barbeiro">Barbeiro</a></li>
                     <li><a href="#galeria">Galeria</a></li>
                     <li><a href="#contato">Contactos</a></li>
                     <li><a href="#minha-area" id="navMinhaArea" style="display:none;">Minha Área</a></li>
                 </ul>
             </div>
 
-            <div class="auth-buttons" id="authButtons">
-                <a href="#" class="login-btn" id="btnLogin">Login</a>
-                <a href="#" class="register-btn-outline" id="btnRegistar">Registar</a>
-                <a href="#" class="register-btn" id="btnAgendarNav">Agendar Corte</a>
-            </div>
+            <div class="auth-buttons" id="authButtons"></div>
         </nav>
     </header>
 
     <!-- Hero -->
     <section class="hero" id="home">
-        <div class="hero-content">
-            <img src="assets/logo.png" alt="Sense Barbearia" class="hero-logo">
-            <h1 class="gold-text">Sense Barbearia</h1>
-            <p>Cortes profissionais com estilo e qualidade</p>
-            <a href="#" class="cta-button" id="btnAgendar">Agendar Agora</a>
-        </div>
-
-        <div class="hero-showcase" aria-label="Destaques dos nossos trabalhos">
-            <div class="hero-showcase-inner">
-                <div class="hero-showcase-header">
-                    <span class="hero-showcase-label">Portfólio</span>
-                    <h2>Estilo &amp; Precisão</h2>
-                    <p>Veja alguns dos nossos cortes e acabamentos profissionais</p>
-                </div>
-
-                <div class="hero-showcase-grid">
-                    <article class="hero-showcase-item hero-showcase-feature">
-                        <video
-                            class="hero-showcase-media"
-                            src="assets/anuncios/corte-1.mp4"
-                            poster="assets/anuncios/corte-fade-lateral.png"
-                            muted
-                            loop
-                            playsinline
-                            preload="metadata"
-                            aria-label="Vídeo de corte fade profissional">
-                        </video>
-                        <div class="hero-showcase-overlay">
-                            <span class="hero-showcase-tag"><i class="fas fa-play-circle"></i> Fade Premium</span>
-                        </div>
-                        <button type="button" class="hero-showcase-play" aria-label="Reproduzir vídeo" data-video-play>
-                            <i class="fas fa-play"></i>
-                        </button>
-                    </article>
-
-                    <article class="hero-showcase-item">
-                        <img class="hero-showcase-media" src="assets/anuncios/corte-fade-lateral.png" alt="Fade lateral com line-up preciso">
-                        <div class="hero-showcase-overlay">
-                            <span class="hero-showcase-tag"><i class="fas fa-cut"></i> Line-up</span>
-                        </div>
-                    </article>
-
-                    <article class="hero-showcase-item">
-                        <img class="hero-showcase-media" src="assets/anuncios/corte-espelho.png" alt="Corte moderno visto no espelho">
-                        <div class="hero-showcase-overlay">
-                            <span class="hero-showcase-tag"><i class="fas fa-star"></i> Acabamento</span>
-                        </div>
-                    </article>
-
-                    <article class="hero-showcase-item">
-                        <img class="hero-showcase-media" src="assets/anuncios/corte-nuca.png" alt="Degradê limpo na nuca">
-                        <div class="hero-showcase-overlay">
-                            <span class="hero-showcase-tag"><i class="fas fa-check-circle"></i> Degradê</span>
-                        </div>
-                    </article>
-
-                    <article class="hero-showcase-item hero-showcase-video-sm">
-                        <video
-                            class="hero-showcase-media"
-                            src="assets/anuncios/corte-2.mp4"
-                            poster="assets/anuncios/corte-nuca.png"
-                            muted
-                            loop
-                            playsinline
-                            preload="metadata"
-                            aria-label="Vídeo de trabalho na barbearia">
-                        </video>
-                        <div class="hero-showcase-overlay">
-                            <span class="hero-showcase-tag"><i class="fas fa-play-circle"></i> Em Ação</span>
-                        </div>
-                        <button type="button" class="hero-showcase-play" aria-label="Reproduzir vídeo" data-video-play>
-                            <i class="fas fa-play"></i>
-                        </button>
-                    </article>
-                </div>
+        <div class="hero-bg" aria-hidden="true">
+            <div class="hero-slide hero-slide--image active" data-type="image" data-duration="5000">
+                <img src="assets/anuncios/corte-fade-lateral.png" alt="">
+            </div>
+            <div class="hero-slide hero-slide--image" data-type="image" data-duration="5000">
+                <img src="assets/anuncios/corte-espelho.png" alt="">
+            </div>
+            <div class="hero-slide hero-slide--video" data-type="video">
+                <video muted playsinline preload="auto">
+                    <source src="assets/anuncios/corte-1.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="hero-slide hero-slide--image" data-type="image" data-duration="5000">
+                <img src="assets/anuncios/corte-nuca.png" alt="">
+            </div>
+            <div class="hero-slide hero-slide--video" data-type="video">
+                <video muted playsinline preload="auto">
+                    <source src="assets/anuncios/corte-2.mp4" type="video/mp4">
+                </video>
             </div>
         </div>
+
+        <div class="hero-overlay" aria-hidden="true"></div>
+
+        <div class="hero-content">
+            <h1 class="gold-text">Sense Barbershop</h1>
+            <a href="marcacao.html" class="cta-button" id="btnAgendar">Reservar Marcação</a>
+        </div>
+
+        <div class="hero-indicators" id="heroIndicators" aria-label="Slides de publicidade"></div>
     </section>
 
     <main>
@@ -188,9 +137,9 @@
             </div>
         </section>
 
-        <!-- Barbeiros -->
-        <section class="barbeiros-section" id="barbeiros">
-            <h2>Nossos Barbeiros</h2>
+        <!-- Barbeiro principal -->
+        <section class="barbeiros-section" id="barbeiro">
+            <h2>O Barbeiro</h2>
             <div class="barbeiros-grid" id="barbeirosGrid">
                 <!-- Carregado via JavaScript -->
             </div>
@@ -199,7 +148,7 @@
         <!-- Galeria de Cortes -->
         <section class="galeria-section" id="galeria">
             <h2>Galeria de Cortes</h2>
-            <p class="galeria-intro">Trabalhos publicados pelos nossos barbeiros profissionais</p>
+            <p class="galeria-intro">Trabalhos publicados na Sense Barbershop</p>
             <div class="galeria-grid" id="galeriaGrid">
                 <p class="galeria-empty"><i class="fas fa-spinner fa-spin"></i> A carregar galeria...</p>
             </div>
@@ -223,7 +172,7 @@
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-info">
-                <h3>Sense Barbearia</h3>
+                <h3>Sense Barbershop</h3>
                 <p>Rua Principal, Caminho Nossa Senhora da Luz n6</p>
                 <p>Telefone: +351 960 075 690</p>
                 <p>Email: sensegeraldo2@gmail.com</p>
@@ -233,7 +182,7 @@
                 <ul>
                     <li><a href="#home">Início</a></li>
                     <li><a href="#servicos">Serviços</a></li>
-                    <li><a href="#barbeiros">Barbeiros</a></li>
+                    <li><a href="#barbeiro">Barbeiro</a></li>
                     <li><a href="#galeria">Galeria</a></li>
                     <li><a href="#contato">Contactos</a></li>
                 </ul>
@@ -241,15 +190,15 @@
             <div class="footer-social">
                 <h4>Redes Sociais</h4>
                 <div class="social-icons">
-                    <a href="#" class="social-icon facebook" aria-label="Facebook">
+                    <a href="https://www.facebook.com/people/Geraldo-De-Assun%C3%A7%C3%A3o/pfbid0EZsz9R6EauiSC1JbNyjtnJEh8BsPz21VbpjJB8gwT3FhUw7QJzhTi6FU5Y825esvl/" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
                         <i class="fab fa-facebook-f"></i>
                         <span class="social-tooltip">Facebook</span>
                     </a>
-                    <a href="#" class="social-icon instagram" aria-label="Instagram">
+                    <a href="https://www.instagram.com/geraldo_sense/?hl=pt" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
                         <i class="fab fa-instagram"></i>
                         <span class="social-tooltip">Instagram</span>
                     </a>
-                    <a href="#" class="social-icon whatsapp" aria-label="WhatsApp">
+                    <a href="https://wa.me/+351960075690" target="_blank" rel="noopener noreferrer" class="social-icon whatsapp" aria-label="WhatsApp">
                         <i class="fab fa-whatsapp"></i>
                         <span class="social-tooltip">WhatsApp</span>
                     </a>
@@ -257,7 +206,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 Sense Barbearia. Todos os direitos reservados.</p>
+            <p>&copy; 2026 Sense Barbershop. Todos os direitos reservados. · <a href="admin-login.html" class="footer-admin-link">Admin</a></p>
         </div>
     </footer>
 
@@ -266,20 +215,43 @@
         <div class="modal-content auth-modal-content">
             <span class="close-modal" id="closeAuthModal">&times;</span>
 
-            <div class="auth-tabs">
-                <button type="button" class="auth-tab active" data-tab="login">Login</button>
+            <div class="auth-brand">
+                <img src="assets/logo.png" alt="Sense Barbershop" class="auth-brand-logo">
+                <h2>A sua conta Sense Barbershop</h2>
+                <p class="auth-subtitle">Entre com a sua conta Google para agendar cortes e gerir marcações.</p>
+            </div>
+
+            <div id="googleSignInWrap" class="google-signin-wrap">
+                <div id="googleSignInBtn"></div>
+                <p class="auth-google-nota"><i class="fab fa-google"></i> Apenas contas Google verificadas</p>
+            </div>
+
+            <div id="panelCompletarPerfil" class="auth-panel hidden">
+                <h3><i class="fas fa-phone"></i> Complete o seu perfil</h3>
+                <p class="auth-subtitle">Para marcações, precisamos do seu contacto telefónico.</p>
+                <form id="formCompletarPerfil">
+                    <div class="form-group">
+                        <label for="googleTelefone">Telefone *</label>
+                        <input type="tel" id="googleTelefone" required placeholder="+351 9XX XXX XXX" autocomplete="tel">
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Concluir e Entrar</button>
+                </form>
+            </div>
+
+            <div class="auth-divider"><span>acesso alternativo</span></div>
+
+            <div class="auth-tabs auth-tabs-compact">
+                <button type="button" class="auth-tab active" data-tab="login">Entrar</button>
                 <button type="button" class="auth-tab" data-tab="registo">Registar</button>
                 <button type="button" class="auth-tab" data-tab="recuperar">Recuperar</button>
             </div>
 
-            <!-- Login -->
+            <!-- Login email (legado / admin) -->
             <div class="auth-panel active" id="panel-login">
-                <h2><i class="fas fa-sign-in-alt"></i> Entrar na sua conta</h2>
-                <p class="auth-subtitle">Aceda para agendar, consultar histórico e gerir marcações.</p>
                 <form id="formLogin">
                     <div class="form-group">
                         <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="loginEmail" required placeholder="seu@email.com" autocomplete="email">
+                        <input type="email" id="loginEmail" required placeholder="seu@gmail.com" autocomplete="email">
                     </div>
                     <div class="form-group">
                         <label for="loginPassword"><i class="fas fa-lock"></i> Palavra-passe</label>
@@ -290,64 +262,23 @@
                             </button>
                         </div>
                     </div>
-                    <button type="submit" class="auth-submit-btn">Entrar</button>
+                    <button type="submit" class="auth-submit-btn secondary">Entrar com Email</button>
                     <p class="auth-switch">
                         <a href="#" id="linkEsqueciPassword">Esqueci a palavra-passe</a>
                     </p>
                 </form>
-                <div class="perfil-info">
-                    <p><strong>Tipos de conta:</strong></p>
-                    <span class="perfil-badge cliente"><i class="fas fa-user"></i> Cliente</span>
-                    <span class="perfil-badge barbeiro"><i class="fas fa-cut"></i> Barbeiro</span>
-                    <span class="perfil-badge admin"><i class="fas fa-cog"></i> Administrador</span>
-                </div>
-            </div>
-
-            <!-- Registo -->
-            <div class="auth-panel" id="panel-registo">
-                <h2><i class="fas fa-user-plus"></i> Criar conta</h2>
-                <p class="auth-subtitle">Registe-se para agendar cortes e gerir as suas marcações.</p>
-                <form id="formRegisto">
-                    <div class="form-group">
-                        <label for="regNome"><i class="fas fa-user"></i> Nome</label>
-                        <input type="text" id="regNome" required placeholder="Nome completo" autocomplete="name">
-                    </div>
-                    <div class="form-group">
-                        <label for="regEmail"><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="regEmail" required placeholder="seu@email.com" autocomplete="email">
-                    </div>
-                    <div class="form-group">
-                        <label for="regTelefone"><i class="fas fa-phone"></i> Telefone</label>
-                        <input type="tel" id="regTelefone" required placeholder="+351 9XX XXX XXX" autocomplete="tel">
-                    </div>
-                    <div class="form-group">
-                        <label for="regPassword"><i class="fas fa-lock"></i> Palavra-passe</label>
-                        <div class="password-input">
-                            <input type="password" id="regPassword" required placeholder="Mínimo 6 caracteres" autocomplete="new-password" minlength="6">
-                            <button type="button" class="toggle-password" aria-label="Mostrar palavra-passe">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="regPasswordConfirm"><i class="fas fa-lock"></i> Confirmar palavra-passe</label>
-                        <input type="password" id="regPasswordConfirm" required placeholder="Repita a palavra-passe" autocomplete="new-password" minlength="6">
-                    </div>
-                    <button type="submit" class="auth-submit-btn">Criar Conta</button>
-                </form>
-                <p class="auth-nota"><i class="fas fa-info-circle"></i> Após o registo, receberá um email de confirmação. A conta fica pendente até confirmar.</p>
             </div>
 
             <!-- Recuperar -->
             <div class="auth-panel" id="panel-recuperar">
-                <h2><i class="fas fa-key"></i> Recuperar palavra-passe</h2>
-                <p class="auth-subtitle">Informe o seu email. Enviaremos um link e um código temporário.</p>
+                <h3><i class="fas fa-key"></i> Recuperar palavra-passe</h3>
+                <p class="auth-subtitle">Apenas para contas criadas com email e palavra-passe.</p>
                 <form id="formRecuperar">
                     <div class="form-group">
                         <label for="recEmail"><i class="fas fa-envelope"></i> Email</label>
                         <input type="email" id="recEmail" required placeholder="seu@email.com">
                     </div>
-                    <button type="submit" class="auth-submit-btn">Enviar instruções</button>
+                    <button type="submit" class="auth-submit-btn secondary">Enviar instruções</button>
                 </form>
                 <div class="auth-divider"><span>ou use o código</span></div>
                 <form id="formRecuperarCodigo">
@@ -368,67 +299,6 @@
             </div>
 
             <div class="auth-message hidden" id="authMessage"></div>
-        </div>
-    </div>
-
-    <!-- Modal Painel Barbeiro / Admin -->
-    <div class="modal" id="modalPainel">
-        <div class="modal-content painel-modal-content">
-            <span class="close-modal" id="closePainel">&times;</span>
-            <h2 id="painel-titulo"><i class="fas fa-cut"></i> Painel de Publicação</h2>
-
-            <div class="painel-nav">
-                <button type="button" class="painel-nav-btn active" data-view="publicar">
-                    <i class="fas fa-plus-circle"></i> Novo Corte
-                </button>
-                <button type="button" class="painel-nav-btn" data-view="pendentes" id="tab-pendentes-wrap">
-                    <i class="fas fa-clock"></i> Pendentes <span id="adm-pend-count"></span>
-                </button>
-            </div>
-
-            <div class="painel-view active" id="view-publicar">
-                <p class="auth-subtitle">Submeta um novo corte para a galeria. Barbeiros aguardam aprovação do administrador.</p>
-                <form id="formNovoCorte">
-                    <div class="form-group">
-                        <label for="corteTitulo">Nome do Corte *</label>
-                        <input type="text" id="corteTitulo" required placeholder="Ex: Degradê Moderno">
-                    </div>
-                    <div class="form-group">
-                        <label for="corteTipo">Tipo de Corte *</label>
-                        <select id="corteTipo" required>
-                            <option value="">Selecione...</option>
-                            <option value="Degradê">Degradê</option>
-                            <option value="Corte Clássico">Corte Clássico</option>
-                            <option value="Barba">Barba</option>
-                            <option value="Corte + Barba">Corte + Barba</option>
-                            <option value="Fade">Fade</option>
-                            <option value="Outro">Outro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="corteDesc">Descrição</label>
-                        <textarea id="corteDesc" rows="2" placeholder="Detalhes do trabalho..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="corteImg">URL da Fotografia</label>
-                        <input type="url" id="corteImg" placeholder="https://...">
-                    </div>
-                    <div class="form-group">
-                        <label for="corteVideo">URL do Vídeo (opcional)</label>
-                        <input type="url" id="corteVideo" placeholder="https://youtube.com/...">
-                    </div>
-                    <div class="form-group">
-                        <label for="corteDuracao">Duração estimada</label>
-                        <input type="text" id="corteDuracao" placeholder="Ex: 40 min">
-                    </div>
-                    <button type="submit" class="auth-submit-btn"><i class="fas fa-upload"></i> Publicar Corte</button>
-                </form>
-            </div>
-
-            <div class="painel-view" id="view-pendentes">
-                <p class="auth-subtitle">Cortes à espera de aprovação do administrador.</p>
-                <div id="pending-list"></div>
-            </div>
         </div>
     </div>
 
@@ -495,6 +365,7 @@
         </div>
     </div>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>

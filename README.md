@@ -1,4 +1,4 @@
-# 🧔 Barbearia Sense - Sistema de Agendamento Online
+# 🧔 Sense Barbershop - Sistema de Agendamento Online
 
 Bem-vindo ao projeto completo de um **site profissional para agendamento de cortes de cabelo** online! Este é um sistema completo com frontend moderno e backend robusto.
 
@@ -234,7 +234,7 @@ O site funciona perfeitamente em:
 
 ## 🎨 Customização
 
-### Alterar Nome da Barbearia
+### Alterar Nome (Sense Barbershop)
 1. `frontend/index.html` - Linha 7: `<title>`
 2. `frontend/index.html` - Linha 42: `<h1>`
 3. `backend/server.js` - Linha 57: console.log
@@ -332,7 +332,7 @@ MIT - Livre para usar, modificar e distribuir
 
 ## 🎉 Créditos
 
-Desenvolvido para **Barbearia Sense** com ❤️
+Desenvolvido para **Sense Barbershop** com ❤️
 
 ---
 
@@ -357,5 +357,6 @@ Desenvolvido para **Barbearia Sense** com ❤️
 ---
 
 Última atualização: **Junho de 2026** 🧔✨
-#   B a r b e r _ S e n s e  
+#   B a r b e r _ S e n s e 
+ 
  

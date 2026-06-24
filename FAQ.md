@@ -382,4 +382,4 @@ Para customizar muito: Um pouco de HTML/CSS/JavaScript
 
 **Última atualização**: Junho 2026
 
-Desenvolvido para **Barbearia Sense** 🧔✨
+Desenvolvido para **Sense Barbershop** 🧔✨

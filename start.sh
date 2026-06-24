@@ -1,23 +1,35 @@
 #!/bin/bash
 
-# ===== SCRIPT DE INICIALIZAÇÃO - BARBEARIA SENSE =====
-# Este script inicia o projeto completo
+# ===== SCRIPT DE INICIALIZAÇÃO - SENSE BARBERSHOP =====
 
 echo ""
 echo "╔════════════════════════════════════════╗"
-echo "║  🧔 Barbearia Sense - Quick Start      ║"
+echo "║  🧔 Sense Barbershop - Quick Start      ║"
 echo "║  Sistema de Agendamento Online         ║"
 echo "╚════════════════════════════════════════╝"
 echo ""
 
+# Carregar nvm (Node) se existir
+export NVM_DIR="$HOME/.nvm"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$NVM_DIR/nvm.sh"
+fi
+
 # Verificar se Node.js está instalado
 if ! command -v node &> /dev/null; then
-    echo "❌ Node.js não está instalado!"
-    echo "Baixe em: https://nodejs.org"
+    echo "❌ Node.js / npm não encontrado no PATH!"
+    echo ""
+    echo "   Opção 1 — Instalar Node: https://nodejs.org"
+    echo "   Opção 2 — Com nvm:"
+    echo "     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash"
+    echo "     nvm install 24"
+    echo "     nvm use 24"
+    echo ""
     exit 1
 fi
 
-echo "✓ Node.js detectado"
+echo "✓ Node $(node -v) / npm $(npm -v)"
 echo ""
 
 # Ir para pasta backend
@@ -66,17 +78,17 @@ echo "Opção 1: Use editor favorito"
 echo "   1. Abra frontend/index.html"
 echo "   2. Abra com Live Server ou similar"
 echo ""
-echo "Opção 2: Use linha de comando"
-echo "   cd frontend"
-echo "   python3 -m http.server 5500"
+echo "Opção 2: Backend apenas (recomendado)"
+echo "   cd backend"
+echo "   ./start.sh"
 echo ""
-echo "Opção 3: Abra diretamente"
-echo "   Abra: http://localhost:5500 no navegador"
+echo "Opção 3: Site completo no mesmo servidor"
+echo "   Abra: http://localhost:3000"
 echo ""
 echo "📍 Endereços:"
 echo "════════════════════════════════════════"
 echo "Backend:  http://localhost:3000"
-echo "Frontend: http://localhost:5500"
+echo "Admin:    http://localhost:3000/admin-login.html"
 echo ""
 echo "✅ Tudo pronto! O backend está rodando."
 echo ""

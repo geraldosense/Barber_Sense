@@ -8,8 +8,23 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
     try {
+        const { principal } = req.query;
+
+        if (principal === '1') {
+            const barbeiro = await req.db.get(
+                `SELECT id, nome, experiencia, especialidades, foto, email, telefone, ativo, principal
+                 FROM barbeiros WHERE ativo = 1 AND principal = 1
+                 ORDER BY id LIMIT 1`
+            ) || await req.db.get(
+                `SELECT id, nome, experiencia, especialidades, foto, email, telefone, ativo, principal
+                 FROM barbeiros WHERE ativo = 1 ORDER BY id LIMIT 1`
+            );
+            return res.json(barbeiro ? [barbeiro] : []);
+        }
+
         const barbeiros = await req.db.all(
-            'SELECT id, nome, experiencia, especialidades, foto, email, telefone, ativo FROM barbeiros WHERE ativo = 1 ORDER BY nome'
+            `SELECT id, nome, experiencia, especialidades, foto, email, telefone, ativo, principal
+             FROM barbeiros WHERE ativo = 1 ORDER BY principal DESC, nome`
         );
         res.json(barbeiros);
     } catch (error) {
@@ -77,7 +92,7 @@ router.get('/:id/agendamentos', async (req, res) => {
  */
 router.post('/', async (req, res) => {
     try {
-        const { nome, experiencia, especialidades, foto, telefone, email } = req.body;
+        const { nome, experiencia, especialidades, foto, telefone, email, principal } = req.body;
 
         if (!nome) {
             return res.status(400).json({
@@ -86,8 +101,8 @@ router.post('/', async (req, res) => {
         }
 
         const resultado = await req.db.run(
-            'INSERT INTO barbeiros (nome, experiencia, especialidades, foto, telefone, email) VALUES (?, ?, ?, ?, ?, ?)',
-            [nome, experiencia || '', especialidades || '', foto || 'assets/default-barbeiro.jpg', telefone || '', email || '']
+            'INSERT INTO barbeiros (nome, experiencia, especialidades, foto, telefone, email, principal) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [nome, experiencia || '', especialidades || '', foto || 'assets/default-barbeiro.jpg', telefone || '', email || '', principal ? 1 : 0]
         );
 
         res.status(201).json({

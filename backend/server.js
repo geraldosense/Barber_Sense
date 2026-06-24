@@ -12,6 +12,8 @@ const agendamentosRoutes = require('./routes/agendamentos');
 const emailRoutes = require('./routes/email');
 const authRoutes = require('./routes/auth');
 const galeriaRoutes = require('./routes/galeria');
+const uploadRoutes = require('./routes/upload');
+const configRoutes = require('./routes/config');
 
 // ===== CONFIGURAÇÃO DA APLICAÇÃO =====
 const app = express();
@@ -34,6 +36,8 @@ app.use((req, res, next) => {
 
 // ===== FRONTEND (mesmo servidor = sem erro de ligação) =====
 const frontendPath = path.join(__dirname, '..', 'frontend');
+const uploadsPath = path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadsPath));
 app.use(express.static(frontendPath));
 
 // ===== ROTAS API =====
@@ -43,11 +47,13 @@ app.use('/api/agendamentos', agendamentosRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/galeria', galeriaRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/config', configRoutes);
 
 // ===== ROTA DE TESTE =====
 app.get('/api', (req, res) => {
     res.json({
-        mensagem: 'API da Barbearia Sense',
+        mensagem: 'API da Sense Barbershop',
         versao: '1.0.0',
         status: 'Online'
     });
@@ -77,7 +83,7 @@ app.get('*', (req, res, next) => {
 app.listen(PORT, () => {
     console.log(`
     ╔═══════════════════════════════════════╗
-    ║  🧔 Barbearia Sense - Backend         ║
+    ║  🧔 Sense Barbershop - Backend         ║
     ║  Servidor iniciado em porta ${PORT}       ║
     ║  URL: http://localhost:${PORT}              ║
     ╚═══════════════════════════════════════╝

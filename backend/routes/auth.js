@@ -1,13 +1,215 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const { gerarToken, verificarToken } = require('../middleware/auth');
-const { enviarEmail, templateBase } = require('../utils/mailer');
+const { enviarEmail, emailConfigurado, templateBase } = require('../utils/mailer');
 
 const router = express.Router();
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5500';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'sensegeraldo2@gmail.com')
+    .split(',')
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean);
+
+const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 const MSG_LOGIN_INVALIDO = 'Email ou palavra-passe inválidos.';
+function formatarUtilizador(row) {
+    return {
+        id: row.id,
+        nome: row.nome,
+        email: row.email,
+        telefone: row.telefone,
+        perfil: row.perfil,
+        barbeiro_id: row.barbeiro_id,
+        foto_url: row.foto_url || null,
+        auth_provider: row.auth_provider || 'local',
+        metodo_pagamento: row.metodo_pagamento || null,
+        perfil_completo: !!row.perfil_completo
+    };
+}
+
+async function verificarCredencialGoogle(credential) {
+    if (!googleClient || !GOOGLE_CLIENT_ID) {
+        throw new Error('Google Sign-In não configurado. Defina GOOGLE_CLIENT_ID no .env');
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload?.email) {
+        throw new Error('Conta Google inválida.');
+    }
+
+    if (!payload.email_verified) {
+        throw new Error('Utilize uma conta Google com email verificado.');
+    }
+
+    return payload;
+}
+
+function perfilParaEmail(email) {
+    return ADMIN_EMAILS.includes(email.toLowerCase()) ? 'administrador' : 'cliente';
+}
+
+/**
+ * POST /api/auth/google — login/registo com conta Google
+ */
+router.post('/google', async (req, res) => {
+    try {
+        const { credential, telefone } = req.body;
+
+        if (!credential) {
+            return res.status(400).json({ erro: 'Credencial Google em falta.' });
+        }
+
+        const payload = await verificarCredencialGoogle(credential);
+        const email = payload.email.toLowerCase().trim();
+        const googleId = payload.sub;
+        const nome = (payload.name || payload.given_name || email.split('@')[0]).trim();
+        const foto = payload.picture || '';
+
+        let utilizador = await req.db.get(
+            `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, google_id, auth_provider, foto_url
+             FROM utilizadores WHERE google_id = ? OR email = ?`,
+            [googleId, email]
+        );
+
+        const perfilAlvo = perfilParaEmail(email);
+
+        if (!utilizador) {
+            if (!telefone || !telefone.trim()) {
+                return res.json({
+                    needsProfile: true,
+                    email,
+                    nome,
+                    mensagem: 'Indique o seu telefone para concluir o registo.'
+                });
+            }
+
+            const resultado = await req.db.run(
+                `INSERT INTO utilizadores (nome, email, telefone, password_hash, perfil, ativo, email_confirmado, google_id, auth_provider, foto_url)
+                 VALUES (?, ?, ?, '', ?, 1, 1, ?, 'google', ?)`,
+                [nome, email, telefone.trim(), perfilAlvo, googleId, foto]
+            );
+
+            utilizador = await req.db.get(
+                `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, google_id, auth_provider, foto_url
+                 FROM utilizadores WHERE id = ?`,
+                [resultado.id]
+            );
+        } else {
+            await req.db.run(
+                `UPDATE utilizadores SET
+                    google_id = COALESCE(google_id, ?),
+                    auth_provider = 'google',
+                    ativo = 1,
+                    email_confirmado = 1,
+                    foto_url = COALESCE(?, foto_url),
+                    perfil = ?
+                 WHERE id = ?`,
+                [googleId, foto, perfilAlvo, utilizador.id]
+            );
+
+            if (telefone?.trim() && (!utilizador.telefone || utilizador.telefone === '—')) {
+                await req.db.run('UPDATE utilizadores SET telefone = ? WHERE id = ?', [telefone.trim(), utilizador.id]);
+            }
+
+            utilizador = await req.db.get(
+                `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, google_id, auth_provider, foto_url
+                 FROM utilizadores WHERE id = ?`,
+                [utilizador.id]
+            );
+        }
+
+        if (!utilizador.telefone || utilizador.telefone === '—') {
+            return res.json({
+                needsProfile: true,
+                email: utilizador.email,
+                nome: utilizador.nome,
+                mensagem: 'Indique o seu telefone para concluir o registo.'
+            });
+        }
+
+        const token = gerarToken(utilizador);
+
+        res.json({
+            mensagem: 'Sessão iniciada com Google.',
+            token,
+            utilizador: formatarUtilizador(utilizador)
+        });
+    } catch (error) {
+        res.status(400).json({ erro: error.message || 'Erro na autenticação Google.' });
+    }
+});
+
+/**
+ * GET /api/auth/config — configuração pública de autenticação
+ */
+router.get('/config', (_req, res) => {
+    res.json({
+        googleClientId: GOOGLE_CLIENT_ID,
+        googleAtivo: !!GOOGLE_CLIENT_ID,
+        emailAtivo: emailConfigurado()
+    });
+});
+
+async function criarTokenConfirmacao(db, usuarioId) {
+    await db.run(
+        `UPDATE tokens SET usado = 1 WHERE usuario_id = ? AND tipo = 'confirmacao' AND usado = 0`,
+        [usuarioId]
+    );
+
+    const token = gerarTokenSeguro();
+    const codigo = gerarCodigo();
+    const expira = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    await db.run(
+        `INSERT INTO tokens (usuario_id, token, codigo, tipo, expira_em) VALUES (?, ?, ?, 'confirmacao', ?)`,
+        [usuarioId, token, codigo, expira]
+    );
+
+    return { token, codigo, expira };
+}
+
+async function enviarEmailConfirmacao({ nome, email, token, codigo }) {
+    const linkConfirmacao = `${FRONTEND_URL}/confirmar-email.html?token=${token}`;
+
+    const html = templateBase('Confirme o seu email', `
+        <p>Olá <strong>${nome}</strong>,</p>
+        <p>Obrigado por criar conta na Sense Barbershop. Para ativar a conta, confirme o seu email:</p>
+        <p style="text-align:center;margin:30px 0;">
+            <a href="${linkConfirmacao}" style="background:#d4af37;color:#1a1a1a;padding:14px 28px;border-radius:5px;text-decoration:none;font-weight:bold;">
+                Confirmar Email
+            </a>
+        </p>
+        <p style="text-align:center;margin:20px 0;">
+            <strong>Código de confirmação:</strong><br>
+            <span style="font-size:32px;letter-spacing:8px;color:#d4af37;font-weight:bold;">${codigo}</span>
+        </p>
+        <p style="font-size:13px;color:#666;">Introduza o código em <a href="${FRONTEND_URL}/ativar-conta.html?email=${encodeURIComponent(email)}">ativar-conta.html</a> se preferir não usar o link.</p>
+        <p style="font-size:13px;color:#666;">O link e o código expiram em 24 horas.</p>
+    `);
+
+    const texto = `Sense Barbershop — Código de confirmação: ${codigo}\nLink: ${linkConfirmacao}`;
+
+    const resultado = await enviarEmail({
+        para: email,
+        assunto: 'Confirme o seu email - Sense Barbershop',
+        html,
+        texto
+    });
+
+    console.log(`✉️  Confirmação ${email}: ${linkConfirmacao} | Código: ${codigo}`);
+
+    return { linkConfirmacao, resultado };
+}
+
 
 function gerarCodigo() {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -54,45 +256,24 @@ router.post('/registo', async (req, res) => {
         }
 
         const passwordHash = await bcrypt.hash(password, 12);
+        const perfil = perfilParaEmail(email.toLowerCase().trim());
         const resultado = await req.db.run(
             `INSERT INTO utilizadores (nome, email, telefone, password_hash, perfil, ativo, email_confirmado)
-             VALUES (?, ?, ?, ?, 'cliente', 0, 0)`,
-            [nome.trim(), email.toLowerCase().trim(), telefone.trim(), passwordHash]
+             VALUES (?, ?, ?, ?, ?, 1, 1)`,
+            [nome.trim(), email.toLowerCase().trim(), telefone.trim(), passwordHash, perfil]
         );
 
-        const token = gerarTokenSeguro();
-        const expira = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-
-        await req.db.run(
-            `INSERT INTO tokens (usuario_id, token, tipo, expira_em) VALUES (?, ?, 'confirmacao', ?)`,
-            [resultado.id, token, expira]
+        const utilizador = await req.db.get(
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+             FROM utilizadores WHERE id = ?`,
+            [resultado.id]
         );
-
-        const linkConfirmacao = `${FRONTEND_URL}/confirmar-email.html?token=${token}`;
-
-        const html = templateBase('Confirme o seu email', `
-            <p>Olá <strong>${nome.trim()}</strong>,</p>
-            <p>Obrigado por criar conta na Sense Barbearia. A sua conta está <strong>pendente</strong> até confirmar o email.</p>
-            <p style="text-align:center;margin:30px 0;">
-                <a href="${linkConfirmacao}" style="background:#d4af37;color:#1a1a1a;padding:14px 28px;border-radius:5px;text-decoration:none;font-weight:bold;">
-                    Confirmar Email
-                </a>
-            </p>
-            <p style="font-size:13px;color:#666;">Ou copie este link: ${linkConfirmacao}</p>
-            <p style="font-size:13px;color:#666;">O link expira em 24 horas.</p>
-        `);
-
-        await enviarEmail({
-            para: email.toLowerCase().trim(),
-            assunto: 'Confirme o seu email - Sense Barbearia',
-            html
-        });
-
-        console.log(`✉️  Link de confirmação: ${linkConfirmacao}`);
+        const token = gerarToken(utilizador);
 
         res.status(201).json({
-            mensagem: 'Conta criada com sucesso. Verifique o seu email para ativar a conta.',
-            pendente: true
+            mensagem: 'Conta criada com sucesso!',
+            token,
+            utilizador: formatarUtilizador(utilizador)
         });
     } catch (error) {
         res.status(500).json({ erro: error.message });
@@ -131,11 +312,117 @@ router.get('/confirmar-email', async (req, res) => {
         );
         await req.db.run('UPDATE tokens SET usado = 1 WHERE id = ?', [registo.id]);
 
+        const utilizador = await req.db.get(
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+             FROM utilizadores WHERE id = ?`,
+            [registo.usuario_id]
+        );
+        const tokenJwt = gerarToken(utilizador);
+
         res.json({
             mensagem: 'Email confirmado com sucesso! A sua conta está ativa.',
             email: registo.email,
-            nome: registo.nome
+            nome: registo.nome,
+            token: tokenJwt,
+            utilizador: formatarUtilizador(utilizador),
+            proximoPasso: `${FRONTEND_URL}/finalizar.html`
         });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+/**
+ * POST /api/auth/confirmar-codigo
+ */
+router.post('/confirmar-codigo', async (req, res) => {
+    try {
+        const { email, codigo } = req.body;
+
+        if (!email || !codigo) {
+            return res.status(400).json({ erro: 'Email e código são obrigatórios.' });
+        }
+
+        const registo = await req.db.get(
+            `SELECT t.*, u.email, u.nome FROM tokens t
+             JOIN utilizadores u ON u.id = t.usuario_id
+             WHERE u.email = ? AND t.codigo = ? AND t.tipo = 'confirmacao' AND t.usado = 0`,
+            [email.toLowerCase().trim(), String(codigo).trim()]
+        );
+
+        if (!registo) {
+            return res.status(400).json({ erro: 'Código inválido ou já utilizado.' });
+        }
+
+        if (new Date(registo.expira_em) < new Date()) {
+            return res.status(400).json({ erro: 'Código expirado. Solicite um novo email de confirmação.' });
+        }
+
+        await req.db.run(
+            'UPDATE utilizadores SET ativo = 1, email_confirmado = 1 WHERE id = ?',
+            [registo.usuario_id]
+        );
+        await req.db.run('UPDATE tokens SET usado = 1 WHERE id = ?', [registo.id]);
+
+        const utilizador = await req.db.get(
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+             FROM utilizadores WHERE id = ?`,
+            [registo.usuario_id]
+        );
+        const tokenJwt = gerarToken(utilizador);
+
+        res.json({
+            mensagem: 'Conta ativada com sucesso!',
+            email: registo.email,
+            nome: registo.nome,
+            token: tokenJwt,
+            utilizador: formatarUtilizador(utilizador),
+            proximoPasso: `${FRONTEND_URL}/finalizar.html`
+        });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+/**
+ * POST /api/auth/reenviar-confirmacao
+ */
+router.post('/reenviar-confirmacao', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email || !validarEmail(email)) {
+            return res.status(400).json({ erro: 'Email inválido.' });
+        }
+
+        const utilizador = await req.db.get(
+            'SELECT id, nome, email, email_confirmado FROM utilizadores WHERE email = ?',
+            [email.toLowerCase().trim()]
+        );
+
+        const respostaGenerica = {
+            mensagem: 'Se existir uma conta pendente com este email, enviámos novas instruções.'
+        };
+
+        if (!utilizador || utilizador.email_confirmado) {
+            return res.json(respostaGenerica);
+        }
+
+        const { token, codigo } = await criarTokenConfirmacao(req.db, utilizador.id);
+        const { resultado } = await enviarEmailConfirmacao({
+            nome: utilizador.nome,
+            email: utilizador.email,
+            token,
+            codigo
+        });
+
+        const resposta = { ...respostaGenerica, emailEnviado: resultado.enviado };
+
+        if (!resultado.enviado && process.env.NODE_ENV !== 'production') {
+            resposta.codigoDesenvolvimento = codigo;
+        }
+
+        res.json(resposta);
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -153,7 +440,7 @@ router.post('/login', async (req, res) => {
         }
 
         const utilizador = await req.db.get(
-            `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id
+            `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
              FROM utilizadores WHERE email = ?`,
             [email.toLowerCase().trim()]
         );
@@ -168,11 +455,12 @@ router.post('/login', async (req, res) => {
         }
 
         if (!utilizador.email_confirmado || !utilizador.ativo) {
-            return res.status(403).json({
-                erro: MSG_LOGIN_INVALIDO,
-                pendente: true,
-                mensagemInterna: 'Conta não confirmada.'
-            });
+            await req.db.run(
+                'UPDATE utilizadores SET ativo = 1, email_confirmado = 1 WHERE id = ?',
+                [utilizador.id]
+            );
+            utilizador.ativo = 1;
+            utilizador.email_confirmado = 1;
         }
 
         const token = gerarToken(utilizador);
@@ -180,14 +468,86 @@ router.post('/login', async (req, res) => {
         res.json({
             mensagem: 'Login efetuado com sucesso.',
             token,
-            utilizador: {
-                id: utilizador.id,
-                nome: utilizador.nome,
-                email: utilizador.email,
-                telefone: utilizador.telefone,
-                perfil: utilizador.perfil,
-                barbeiro_id: utilizador.barbeiro_id
-            }
+            utilizador: formatarUtilizador(utilizador)
+        });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+/**
+ * POST /api/auth/admin-login — painel administrativo (apenas administrador principal)
+ */
+router.post('/admin-login', async (req, res) => {
+    try {
+        const { utilizador, password } = req.body;
+
+        if (!utilizador || !password) {
+            return res.status(400).json({ erro: 'Utilizador e palavra-passe são obrigatórios.' });
+        }
+
+        const mapaUtilizadores = {
+            admin: 'admin@sensebarbearia.pt',
+            geraldo: 'sensegeraldo2@gmail.com',
+            geraldo_sense: 'sensegeraldo2@gmail.com',
+            'geraldo sense': 'sensegeraldo2@gmail.com'
+        };
+
+        const chave = utilizador.toLowerCase().trim();
+        let email = chave.includes('@') ? chave : (mapaUtilizadores[chave] || null);
+
+        let row = null;
+        if (email) {
+            row = await req.db.get(
+                `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+                 FROM utilizadores WHERE email = ?`,
+                [email.toLowerCase().trim()]
+            );
+        }
+
+        if (!row) {
+            row = await req.db.get(
+                `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+                 FROM utilizadores WHERE LOWER(TRIM(nome)) = ?`,
+                [utilizador.toLowerCase().trim()]
+            );
+        }
+
+        if (!row) {
+            return res.status(401).json({ erro: 'Credenciais incorretas. Tente novamente.' });
+        }
+
+        const perfilAdmin = row.perfil === 'administrador' || ADMIN_EMAILS.includes(row.email.toLowerCase());
+        if (!perfilAdmin) {
+            return res.status(403).json({ erro: 'Acesso reservado ao administrador principal.' });
+        }
+
+        const passwordValida = await bcrypt.compare(password, row.password_hash);
+        if (!passwordValida) {
+            return res.status(401).json({ erro: 'Credenciais incorretas. Tente novamente.' });
+        }
+
+        if (!row.ativo || !row.email_confirmado) {
+            await req.db.run(
+                'UPDATE utilizadores SET ativo = 1, email_confirmado = 1 WHERE id = ?',
+                [row.id]
+            );
+        }
+
+        if (row.perfil !== 'administrador') {
+            await req.db.run(
+                "UPDATE utilizadores SET perfil = 'administrador' WHERE id = ?",
+                [row.id]
+            );
+            row.perfil = 'administrador';
+        }
+
+        const token = gerarToken(row);
+
+        res.json({
+            mensagem: 'Sessão de administrador iniciada.',
+            token,
+            utilizador: formatarUtilizador(row)
         });
     } catch (error) {
         res.status(500).json({ erro: error.message });
@@ -200,7 +560,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', verificarToken, async (req, res) => {
     try {
         const utilizador = await req.db.get(
-            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
              FROM utilizadores WHERE id = ?`,
             [req.utilizador.id]
         );
@@ -209,7 +569,39 @@ router.get('/me', verificarToken, async (req, res) => {
             return res.status(401).json({ erro: 'Conta inativa ou não encontrada.' });
         }
 
-        res.json({ utilizador });
+        res.json({ utilizador: formatarUtilizador(utilizador) });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+/**
+ * POST /api/auth/completar-perfil — método de pagamento e finalização
+ */
+router.post('/completar-perfil', verificarToken, async (req, res) => {
+    try {
+        const { metodo_pagamento } = req.body;
+        const metodosValidos = ['mbway', 'visa', 'revolut', 'paypal', 'santander'];
+
+        if (!metodo_pagamento || !metodosValidos.includes(metodo_pagamento)) {
+            return res.status(400).json({ erro: 'Selecione um método de pagamento válido.' });
+        }
+
+        await req.db.run(
+            'UPDATE utilizadores SET metodo_pagamento = ?, perfil_completo = 1 WHERE id = ?',
+            [metodo_pagamento, req.utilizador.id]
+        );
+
+        const utilizador = await req.db.get(
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+             FROM utilizadores WHERE id = ?`,
+            [req.utilizador.id]
+        );
+
+        res.json({
+            mensagem: 'Perfil concluído com sucesso.',
+            utilizador: formatarUtilizador(utilizador)
+        });
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -266,7 +658,7 @@ router.post('/recuperar-password', async (req, res) => {
 
         await enviarEmail({
             para: utilizador.email,
-            assunto: 'Recuperação de Palavra-passe - Sense Barbearia',
+            assunto: 'Recuperação de Palavra-passe - Sense Barbershop',
             html
         });
 

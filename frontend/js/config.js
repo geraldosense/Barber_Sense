@@ -19,6 +19,13 @@
 // Global — outros scripts (main.js, auth.js, etc.) usam API_URL
 var API_URL = window.API_URL;
 
+window.resolveMediaUrl = function (path) {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    const base = (window.API_URL || 'http://localhost:3000/api').replace(/\/api\/?$/, '');
+    return base + (path.startsWith('/') ? path : `/${path}`);
+};
+
 function mostrarAvisoProtocolo() {
     if (window.location.protocol !== 'file:') return;
 

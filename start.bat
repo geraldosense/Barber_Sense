@@ -1,10 +1,10 @@
 @echo off
-REM ===== SCRIPT DE INICIALIZAÇÃO - BARBEARIA SENSE =====
+REM ===== SCRIPT DE INICIALIZAÇÃO - SENSE BARBERSHOP =====
 REM Este script inicia o projeto completo
 
 echo.
 echo ╔════════════════════════════════════════╗
-echo ║  🧔 Barbearia Sense - Quick Start      ║
+echo ║  🧔 Sense Barbershop - Quick Start      ║
 echo ║  Sistema de Agendamento Online         ║
 echo ╚════════════════════════════════════════╝
 echo.

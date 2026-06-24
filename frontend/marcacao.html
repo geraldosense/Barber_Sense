@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservar Marcação - Sense Barbershop</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/marcacao.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body class="marcacao-page">
+    <header class="marcacao-header">
+        <div class="marcacao-header-inner">
+            <a href="index.html" class="marcacao-brand">
+                <img src="assets/logo.png" alt="Sense Barbershop">
+                <span>Sense Barbershop</span>
+            </a>
+            <div class="marcacao-user" id="marcacaoUser">
+                <div class="marcacao-user-info">
+                    <span class="marcacao-user-name" id="marcacaoNome">—</span>
+                    <span class="marcacao-user-email" id="marcacaoEmail">—</span>
+                </div>
+                <button type="button" class="marcacao-logout" id="btnLogoutMarcacao"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="marcacao-layout">
+        <aside class="marcacao-sidebar">
+            <h2><i class="fas fa-calendar-alt"></i> As Minhas Marcações</h2>
+            <div id="listaMarcacoes" class="marcacao-lista">
+                <p class="marcacao-empty"><i class="fas fa-spinner fa-spin"></i> A carregar...</p>
+            </div>
+        </aside>
+
+        <main class="marcacao-main">
+            <div class="marcacao-intro">
+                <h1>Reservar Marcação</h1>
+                <p>Escolha o serviço e horário — com Geraldo Sense.</p>
+            </div>
+
+            <div class="booking-progress" id="bookingProgress">
+                <div class="booking-step active" data-step="1"><span>1</span> Serviço</div>
+                <div class="booking-step" data-step="2"><span>2</span> Barbeiro</div>
+                <div class="booking-step" data-step="3"><span>3</span> Data & Hora</div>
+                <div class="booking-step" data-step="4"><span>4</span> Confirmar</div>
+            </div>
+
+            <form id="formMarcacao" class="booking-form">
+                <section class="booking-panel active" id="bkStep1">
+                    <h3><i class="fas fa-cut"></i> Escolha o Serviço</h3>
+                    <div class="booking-grid" id="bkServicos"></div>
+                    <div class="booking-nav">
+                        <button type="button" class="btn-next" id="bkNext1">Continuar <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </section>
+
+                <section class="booking-panel" id="bkStep2">
+                    <h3><i class="fas fa-user-tie"></i> Escolha o Barbeiro</h3>
+                    <div class="booking-grid booking-grid-barbeiros" id="bkBarbeiros"></div>
+                    <div class="booking-nav">
+                        <button type="button" class="btn-back" data-goto="1"><i class="fas fa-arrow-left"></i> Voltar</button>
+                        <button type="button" class="btn-next" id="bkNext2">Continuar <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </section>
+
+                <section class="booking-panel" id="bkStep3">
+                    <h3><i class="fas fa-clock"></i> Data e Horário</h3>
+                    <div class="booking-datetime">
+                        <div class="form-group">
+                            <label for="bkData">Data</label>
+                            <input type="date" id="bkData" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bkHora">Horário disponível</label>
+                            <select id="bkHora" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="booking-nav">
+                        <button type="button" class="btn-back" data-goto="2"><i class="fas fa-arrow-left"></i> Voltar</button>
+                        <button type="button" class="btn-next" id="bkNext3">Continuar <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </section>
+
+                <section class="booking-panel" id="bkStep4">
+                    <h3><i class="fas fa-check-circle"></i> Confirmar Reserva</h3>
+                    <div class="booking-summary" id="bkResumo"></div>
+                    <div class="booking-user-card" id="bkUserCard"></div>
+                    <div class="booking-nav">
+                        <button type="button" class="btn-back" data-goto="3"><i class="fas fa-arrow-left"></i> Voltar</button>
+                        <button type="submit" class="btn-submit"><i class="fas fa-calendar-check"></i> Confirmar Marcação</button>
+                    </div>
+                </section>
+
+                <section class="booking-panel" id="bkStep5">
+                    <div class="booking-success">
+                        <div class="booking-success-icon"><i class="fas fa-check"></i></div>
+                        <h3>Marcação Confirmada!</h3>
+                        <div id="bkConfirmacao"></div>
+                        <button type="button" class="cta-button" id="bkNovaMarcacao">Nova Marcação</button>
+                        <a href="index.html" class="btn-back-link">Voltar ao site</a>
+                    </div>
+                </section>
+            </form>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/marcacao.js"></script>
+</body>
+</html>

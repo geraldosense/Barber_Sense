@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirmar Email - Sense Barbearia</title>
+    <title>Confirmar Email - Sense Barbershop</title>
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
@@ -12,17 +12,17 @@
 </head>
 <body class="auth-page">
     <div class="auth-page-container">
-        <img src="assets/logo.svg" alt="Sense Barbearia" class="auth-page-logo">
+        <img src="assets/logo.svg" alt="Sense Barbershop" class="auth-page-logo">
         <div class="auth-page-card" id="resultado">
             <div class="auth-loading">
                 <i class="fas fa-spinner fa-spin"></i>
                 <p>A confirmar o seu email...</p>
             </div>
         </div>
-        <a href="index.html" class="auth-page-link"><i class="fas fa-arrow-left"></i> Voltar ao site</a>
+        <a href="conta.html" class="auth-page-link"><i class="fas fa-arrow-left"></i> Ir para login</a>
     </div>
+    <script src="js/config.js"></script>
     <script>
-        const API_URL = 'http://localhost:3000/api';
         const token = new URLSearchParams(window.location.search).get('token');
         const resultado = document.getElementById('resultado');
 
@@ -32,7 +32,7 @@
                     <div class="auth-result error">
                         <i class="fas fa-times-circle"></i>
                         <h2>Link inválido</h2>
-                        <p>O link de confirmação não é válido.</p>
+                        <p>O link de confirmação não é válido. Use o código em <a href="ativar-conta.html">ativar-conta.html</a>.</p>
                     </div>`;
                 return;
             }
@@ -42,12 +42,16 @@
                 const data = await res.json();
 
                 if (res.ok) {
+                    if (data.token && data.utilizador) {
+                        localStorage.setItem('authToken', data.token);
+                        localStorage.setItem('utilizador', JSON.stringify(data.utilizador));
+                    }
                     resultado.innerHTML = `
                         <div class="auth-result success">
                             <i class="fas fa-check-circle"></i>
                             <h2>Conta ativada!</h2>
                             <p>${data.mensagem}</p>
-                            <a href="index.html" class="cta-button">Fazer Login</a>
+                            <a href="finalizar.html" class="cta-button">Continuar</a>
                         </div>`;
                 } else {
                     resultado.innerHTML = `
@@ -55,6 +59,7 @@
                             <i class="fas fa-times-circle"></i>
                             <h2>Erro na confirmação</h2>
                             <p>${data.erro}</p>
+                            <a href="ativar-conta.html" class="cta-button" style="margin-top:1rem;display:inline-block;">Ativar com código</a>
                         </div>`;
                 }
             } catch {

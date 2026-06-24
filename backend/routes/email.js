@@ -61,7 +61,7 @@ router.post('/confirmacao', async (req, res) => {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🧔 Barbearia Sense</h1>
+                        <h1>🧔 Sense Barbershop</h1>
                     </div>
                     <div class="content">
                         <div class="confirmation">
@@ -70,7 +70,7 @@ router.post('/confirmacao', async (req, res) => {
                         
                         <p>Olá ${agendamento.nome},</p>
                         
-                        <p>Seu agendamento para a Barbearia Sense foi confirmado com sucesso.</p>
+                        <p>Seu agendamento para a Sense Barbershop foi confirmado com sucesso.</p>
                         
                         <div class="details">
                             <h3 style="margin-top: 0; color: #1a1a1a;">Detalhes do Agendamento:</h3>
@@ -126,7 +126,7 @@ router.post('/confirmacao', async (req, res) => {
                     </div>
                     
                     <div class="footer">
-                        <p>© 2026 Barbearia Sense. Todos os direitos reservados.</p>
+                        <p>© 2026 Sense Barbershop. Todos os direitos reservados.</p>
                         <p>Este é um email automático, por favor não responda.</p>
                     </div>
                 </div>
@@ -138,7 +138,7 @@ router.post('/confirmacao', async (req, res) => {
         const mailOptions = {
             from: process.env.EMAIL_FROM || 'nao-responda@barbeariasense.pt',
             to: email,
-            subject: `Agendamento Confirmado - Barbearia Sense #${agendamento.id}`,
+            subject: `Agendamento Confirmado - Sense Barbershop #${agendamento.id}`,
             html: htmlConteudo
         };
 
@@ -191,7 +191,7 @@ router.post('/lembrete', async (req, res) => {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🧔 Barbearia Sense</h1>
+                        <h1>🧔 Sense Barbershop</h1>
                     </div>
                     <div class="content">
                         <div class="alert">
@@ -219,7 +219,7 @@ router.post('/lembrete', async (req, res) => {
         const mailOptions = {
             from: process.env.EMAIL_FROM || 'nao-responda@barbeariasense.pt',
             to: email,
-            subject: `Lembrete - Seu agendamento na Barbearia Sense`,
+            subject: `Lembrete - Seu agendamento na Sense Barbershop`,
             html: htmlConteudo
         };
 
@@ -266,7 +266,7 @@ router.post('/cancelamento', async (req, res) => {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🧔 Barbearia Sense</h1>
+                        <h1>🧔 Sense Barbershop</h1>
                     </div>
                     <div class="content">
                         <p>Olá ${agendamento.nome},</p>
@@ -292,7 +292,7 @@ router.post('/cancelamento', async (req, res) => {
         const mailOptions = {
             from: process.env.EMAIL_FROM || 'nao-responda@barbeariasense.pt',
             to: email,
-            subject: `Agendamento Cancelado - Barbearia Sense`,
+            subject: `Agendamento Cancelado - Sense Barbershop`,
             html: htmlConteudo
         };
 

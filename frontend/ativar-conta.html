@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ativar Conta - Sense Barbershop</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/conta.css">
+    <link rel="stylesheet" href="css/ativar-conta.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body class="ativar-page">
+    <div class="ativar-card">
+        <a href="conta.html" class="conta-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+        <h1><i class="fas fa-envelope-open-text"></i> Ativar Conta</h1>
+        <p>Introduza o código de 6 dígitos que enviámos para o seu email.</p>
+        <div class="ativar-email" id="ativarEmail">—</div>
+
+        <div id="ativarDevAviso" class="ativar-dev-codigo hidden"></div>
+
+        <form id="formAtivarCodigo">
+            <input type="hidden" id="ativarEmailInput">
+            <div class="codigo-inputs" id="codigoInputs">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Dígito 1">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Dígito 2">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Dígito 3">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Dígito 4">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Dígito 5">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Dígito 6">
+            </div>
+            <div class="ativar-actions">
+                <button type="submit" class="auth-submit-btn">Ativar Conta</button>
+                <button type="button" class="auth-submit-btn secondary" id="btnReenviarCodigo">
+                    <i class="fas fa-paper-plane"></i> Reenviar código
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-message hidden" id="ativarMessage"></div>
+
+        <p class="ativar-link">
+            Já confirmou pelo link do email?
+            <a href="conta.html">Fazer login</a>
+        </p>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/ativar-conta.js"></script>
+</body>
+</html>

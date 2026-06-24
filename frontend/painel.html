@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin — Sense Barbershop</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/painel.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="painel-app">
+        <aside class="painel-sidebar">
+            <div class="painel-sidebar-brand">
+                <img src="assets/logo.png" alt="Sense Barbershop">
+                <h1>Sense Barbershop</h1>
+                <p>Administração</p>
+            </div>
+            <div class="painel-user">
+                <strong id="painelUserNome">—</strong>
+                <span id="painelUserEmail">—</span>
+            </div>
+            <nav class="painel-nav-list">
+                <button type="button" class="painel-nav-item active" data-section="inicio"><i class="fas fa-home"></i> Início</button>
+                <button type="button" class="painel-nav-item" data-section="galeria"><i class="fas fa-camera"></i> Publicar Corte</button>
+                <button type="button" class="painel-nav-item" data-section="pendentes"><i class="fas fa-clock"></i> Aprovar <span class="badge hidden" id="badgePendentes">0</span></button>
+                <button type="button" class="painel-nav-item" data-section="servicos"><i class="fas fa-cut"></i> Preços & Serviços</button>
+                <button type="button" class="painel-nav-item" data-section="agendamentos"><i class="fas fa-calendar-alt"></i> Agendamentos</button>
+                <button type="button" class="painel-nav-item" data-section="pagamentos"><i class="fas fa-credit-card"></i> Pagamentos</button>
+                <button type="button" class="painel-nav-item" data-section="barbeiros"><i class="fas fa-user-tie"></i> Barbeiros</button>
+                <button type="button" class="painel-nav-item" data-section="site"><i class="fas fa-globe"></i> Site & Contactos</button>
+            </nav>
+            <div class="painel-sidebar-footer">
+                <a href="index.html"><i class="fas fa-external-link-alt"></i> Ver site público</a>
+                <button type="button" id="btnPainelLogout"><i class="fas fa-sign-out-alt"></i> Terminar sessão</button>
+            </div>
+        </aside>
+
+        <main class="painel-main">
+            <div class="painel-topbar">
+                <h2 id="painelPageTitle">Painel de Administração</h2>
+            </div>
+
+            <!-- Início -->
+            <section class="painel-section active" id="sec-inicio">
+                <div class="painel-stats" id="painelStats"></div>
+                <div class="painel-card">
+                    <h3><i class="fas fa-bolt"></i> Ações rápidas</h3>
+                    <div class="dash-cards">
+                        <div class="dash-card" onclick="irSecaoPainel('galeria')"><i class="fas fa-upload"></i><h3>Publicar Corte</h3><p>Adicionar foto à galeria</p></div>
+                        <div class="dash-card" onclick="irSecaoPainel('servicos')"><i class="fas fa-tags"></i><h3>Atualizar Preços</h3><p>Alterar valores dos cortes</p></div>
+                        <div class="dash-card" onclick="irSecaoPainel('agendamentos')"><i class="fas fa-calendar"></i><h3>Ver Marcações</h3><p>Agenda completa</p></div>
+                        <div class="dash-card" onclick="irSecaoPainel('pagamentos')"><i class="fas fa-wallet"></i><h3>Pagamentos</h3><p>MB Way, Visa, PayPal...</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Galeria -->
+            <section class="painel-section" id="sec-galeria">
+                <div class="painel-card">
+                    <h3><i class="fas fa-camera"></i> Publicar novo corte na galeria</h3>
+                    <form id="formNovoCorte">
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="corteTitulo">Nome do Corte *</label>
+                                <input type="text" id="corteTitulo" required placeholder="Ex: Degradê Moderno">
+                            </div>
+                            <div class="form-group">
+                                <label for="corteTipo">Tipo *</label>
+                                <select id="corteTipo" required>
+                                    <option value="">Selecione...</option>
+                                    <option>Degradê</option>
+                                    <option>Corte Clássico</option>
+                                    <option>Barba</option>
+                                    <option>Corte + Barba</option>
+                                    <option>Fade</option>
+                                    <option>Outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="cortePreco">Preço (€) *</label>
+                                <input type="number" id="cortePreco" required min="0" step="0.5" placeholder="20.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="corteDuracao">Duração</label>
+                                <input type="text" id="corteDuracao" placeholder="Ex: 40 min">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="corteDesc">Descrição</label>
+                            <textarea id="corteDesc" rows="2" placeholder="Detalhes do trabalho..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="corteImgFile">Fotografia *</label>
+                            <input type="file" id="corteImgFile" accept="image/jpeg,image/png,image/webp">
+                            <input type="hidden" id="corteImg">
+                            <div id="corteImgPreview" class="upload-preview hidden"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="corteVideo">URL Vídeo (opcional)</label>
+                            <input type="url" id="corteVideo" placeholder="https://...">
+                        </div>
+                        <button type="submit" class="auth-submit-btn"><i class="fas fa-upload"></i> Publicar na Galeria</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Pendentes -->
+            <section class="painel-section" id="sec-pendentes">
+                <div class="painel-card">
+                    <h3><i class="fas fa-clock"></i> Cortes a aprovar</h3>
+                    <div id="pending-list"></div>
+                </div>
+            </section>
+
+            <!-- Serviços -->
+            <section class="painel-section" id="sec-servicos">
+                <div class="painel-card">
+                    <h3><i class="fas fa-cut"></i> Preços dos serviços (marcação online)</h3>
+                    <div id="servicos-admin-list" class="servicos-admin-list"></div>
+                </div>
+                <div class="painel-card">
+                    <h3><i class="fas fa-plus"></i> Novo serviço</h3>
+                    <form id="formNovoServico" class="form-row-2" style="align-items:flex-end;">
+                        <div class="form-group"><label>Nome</label><input type="text" id="novoServicoNome" required placeholder="Ex: Corte Premium"></div>
+                        <div class="form-group"><label>Preço €</label><input type="number" id="novoServicoPreco" required min="0" step="0.5"></div>
+                        <div class="form-group"><label>Tempo (min)</label><input type="number" id="novoServicoTempo" required min="5"></div>
+                        <button type="submit" class="auth-submit-btn secondary">Adicionar</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Agendamentos -->
+            <section class="painel-section" id="sec-agendamentos">
+                <div class="painel-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Todas as marcações</h3>
+                    <div id="agendamentos-admin-list"></div>
+                </div>
+            </section>
+
+            <!-- Pagamentos -->
+            <section class="painel-section" id="sec-pagamentos">
+                <div class="painel-card">
+                    <h3><i class="fas fa-credit-card"></i> Métodos de pagamento aceites</h3>
+                    <p class="auth-subtitle">Active ou desactive os métodos disponíveis para os clientes na reserva.</p>
+                    <div class="pagamento-admin-grid" id="pagamentosAdminGrid"></div>
+                    <button type="button" class="auth-submit-btn" id="btnGuardarPagamentos" style="margin-top:1rem;"><i class="fas fa-save"></i> Guardar Pagamentos</button>
+                </div>
+            </section>
+
+            <!-- Barbeiros -->
+            <section class="painel-section" id="sec-barbeiros">
+                <div class="painel-card">
+                    <h3><i class="fas fa-user-tie"></i> Equipa de barbeiros</h3>
+                    <div id="barbeiros-admin-list"></div>
+                </div>
+                <div class="painel-card">
+                    <h3><i class="fas fa-user-plus"></i> Adicionar barbeiro</h3>
+                    <form id="formNovoBarbeiro">
+                        <div class="form-row-2">
+                            <div class="form-group"><label>Nome *</label><input type="text" id="novoBarbeiroNome" required></div>
+                            <div class="form-group"><label>Experiência</label><input type="text" id="novoBarbeiroExp" placeholder="Ex: 5 anos"></div>
+                        </div>
+                        <div class="form-group"><label>Especialidades</label><input type="text" id="novoBarbeiroEsp" placeholder="Cortes, Barba..."></div>
+                        <div class="form-row-2">
+                            <div class="form-group"><label>Telefone</label><input type="tel" id="novoBarbeiroTel"></div>
+                            <div class="form-group"><label>Email</label><input type="email" id="novoBarbeiroEmail"></div>
+                        </div>
+                        <button type="submit" class="auth-submit-btn secondary">Adicionar Barbeiro</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Site -->
+            <section class="painel-section" id="sec-site">
+                <div class="painel-card">
+                    <h3><i class="fas fa-globe"></i> Informações do site</h3>
+                    <form id="formSiteInfo">
+                        <div class="form-group"><label>Telefone</label><input type="tel" id="siteTelefone"></div>
+                        <div class="form-group"><label>Email</label><input type="email" id="siteEmail"></div>
+                        <div class="form-group"><label>Morada</label><input type="text" id="siteMorada"></div>
+                        <div class="form-group"><label>Instagram (URL)</label><input type="url" id="siteInstagram"></div>
+                        <div class="form-group"><label>Facebook (URL)</label><input type="url" id="siteFacebook"></div>
+                        <div class="form-group"><label>WhatsApp (URL)</label><input type="url" id="siteWhatsapp"></div>
+                        <button type="submit" class="auth-submit-btn"><i class="fas fa-save"></i> Guardar Contactos</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/painel.js"></script>
+</body>
+</html>

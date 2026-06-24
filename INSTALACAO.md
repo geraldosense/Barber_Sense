@@ -1,4 +1,4 @@
-# 🚀 Guia de Instalação - Barbearia Sense
+# 🚀 Guia de Instalação - Sense Barbershop
 
 Bem-vindo! Este guia vai te ajudar a colocar o sistema online em poucos minutos.
 
@@ -76,7 +76,7 @@ npm start
 Você verá:
 ```
 ╔═══════════════════════════════════════╗
-║  🧔 Barbearia Sense - Backend         ║
+║  🧔 Sense Barbershop - Backend         ║
 ║  Servidor iniciado em porta 3000       ║
 ║  URL: http://localhost:3000           ║
 ╚═══════════════════════════════════════╝
@@ -224,7 +224,7 @@ http://localhost:3000/api
 Você deve ver:
 ```json
 {
-  "mensagem": "API da Barbearia Sense",
+  "mensagem": "API da Sense Barbershop",
   "versao": "1.0.0",
   "status": "Online"
 }
@@ -315,4 +315,4 @@ Agora você pode:
 
 ---
 
-**Desenvolvido para Barbearia Sense com ❤️**
+**Desenvolvido para Sense Barbershop com ❤️**

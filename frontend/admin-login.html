@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Sense Barbershop</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body.admin-login-page {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 50%, #0d0d0d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .admin-login-card {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            border-radius: 14px;
+            padding: 2rem 2rem 1.75rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+        }
+        .admin-login-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            text-decoration: none;
+        }
+        .admin-login-back:hover { color: var(--secondary-color); }
+    </style>
+</head>
+<body class="admin-login-page">
+    <div class="admin-login-card">
+        <a href="index.html" class="admin-login-back"><i class="fas fa-arrow-left"></i> Voltar ao site</a>
+
+        <div class="adm-brand" style="border-bottom:none;padding-bottom:0.5rem;">
+            <div class="adm-brand-logo-wrap">
+                <img src="assets/logo.png" alt="Sense Barbershop" class="adm-brand-logo">
+            </div>
+            <span class="adm-brand-name">Sense Barbershop</span>
+            <span class="adm-brand-tag">Painel de Administração</span>
+        </div>
+
+        <p class="adm-subtitle">Acesso exclusivo ao painel</p>
+        <div class="adm-err hidden" id="admLoginErr"></div>
+
+        <form id="formAdminLogin">
+            <div class="form-group">
+                <label class="lbl" for="admUser">Utilizador</label>
+                <input type="text" id="admUser" required placeholder="Seu nome" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label class="lbl" for="admPass">Palavra-passe</label>
+                <input type="password" id="admPass" required placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <button type="submit" class="auth-submit-btn"><i class="fas fa-sign-in-alt"></i> Entrar no Painel</button>
+        </form>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/admin-login.js"></script>
+</body>
+</html>

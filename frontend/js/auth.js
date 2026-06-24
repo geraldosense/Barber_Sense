@@ -1,5 +1,7 @@
-// ===== GESTÃO DE AUTENTICAÇÃO (dados guardados na base de dados SQLite via API) =====
+// ===== GESTÃO DE AUTENTICAÇÃO (Google + email legado) =====
 var utilizadorAtual = null;
+var pendingGoogleCredential = null;
+var googleClientId = null;
 
 function obterToken() {
     return localStorage.getItem('authToken');
@@ -82,10 +84,11 @@ function atualizarUIAuth() {
             administrador: 'Admin'
         }[utilizadorAtual.perfil] || 'Utilizador';
 
-        const painelBtn = ['barbeiro', 'administrador'].includes(utilizadorAtual.perfil)
-            ? `<button type="button" class="login-btn" id="btn-adm"><i class="fas fa-images"></i> Painel</button>`
+        const painelBtn = utilizadorAtual.perfil === 'administrador'
+            ? `<a href="painel.html" class="login-btn" id="btn-adm"><i class="fas fa-cog"></i> Painel</a>`
             : '';
 
+        authButtons.classList.remove('auth-buttons--empty');
         authButtons.innerHTML = `
             <div class="user-profile">
                 <div class="user-avatar"><i class="fas ${perfilIcon}"></i></div>
@@ -96,7 +99,7 @@ function atualizarUIAuth() {
                 <button type="button" class="logout-btn" id="btnLogout">Sair</button>
             </div>
             ${painelBtn}
-            <a href="#" class="register-btn" id="btnAgendarNav">Agendar Corte</a>
+            <a href="marcacao.html" class="register-btn" id="btnAgendarNav">Reservar</a>
         `;
 
         document.getElementById('btnLogout')?.addEventListener('click', (e) => {
@@ -104,41 +107,59 @@ function atualizarUIAuth() {
             limparSessao();
             if (typeof esconderAreaLogada === 'function') esconderAreaLogada();
             mostrarNotificacaoAuth('Sessão terminada com sucesso.', 'info');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.location.href = 'conta.html';
         });
 
-        document.getElementById('btn-adm')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (typeof abrirPainel === 'function') abrirPainel();
+        document.getElementById('btn-adm')?.addEventListener('click', () => {
+            sessionStorage.setItem('admPainelOk', '1');
         });
 
         document.getElementById('btnAgendarNav')?.addEventListener('click', (e) => {
             e.preventDefault();
-            abrirModalAgendamentoComAuth();
+            irParaMarcacao();
         });
 
         if (typeof renderPendingBadge === 'function') renderPendingBadge();
         if (typeof mostrarAreaLogada === 'function') mostrarAreaLogada(false);
     } else {
         if (typeof esconderAreaLogada === 'function') esconderAreaLogada();
-        authButtons.innerHTML = `
-            <a href="#" class="login-btn" id="btnLogin">Login</a>
-            <a href="#" class="register-btn-outline" id="btnRegistar">Registar</a>
-            <a href="#" class="register-btn" id="btnAgendarNav">Agendar Corte</a>
-        `;
+        authButtons.innerHTML = '';
+        authButtons.classList.add('auth-buttons--empty');
+    }
+}
 
-        document.getElementById('btnLogin')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            abrirModalAuth('login');
-        });
-        document.getElementById('btnRegistar')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            abrirModalAuth('registo');
-        });
-        document.getElementById('btnAgendarNav')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            abrirModalAgendamentoComAuth();
-        });
+function redirecionarAposAuth(utilizador) {
+    if (!utilizador) return;
+
+    if (utilizador.perfil === 'administrador') {
+        sessionStorage.setItem('admPainelOk', '1');
+        window.location.href = 'painel.html';
+        return;
+    }
+
+    if (utilizador.perfil === 'barbeiro') {
+        window.location.href = 'index.html#minha-area';
+        return;
+    }
+
+    if (!utilizador.perfil_completo) {
+        window.location.href = 'finalizar.html';
+        return;
+    }
+
+    window.location.href = 'marcacao.html';
+}
+
+function irParaConta(tab) {
+    const url = tab ? `conta.html?tab=${tab}` : 'conta.html';
+    window.location.href = url;
+}
+
+function irParaMarcacao() {
+    if (estaAutenticado() && ['cliente', 'administrador'].includes(utilizadorAtual?.perfil)) {
+        window.location.href = 'marcacao.html';
+    } else {
+        window.location.href = 'conta.html';
     }
 }
 
@@ -153,8 +174,19 @@ function abrirModalAuth(tab = 'login') {
     if (!modal) return;
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
+    resetarPainelGoogle();
     mudarTabAuth(tab);
     esconderAuthMessage();
+}
+
+function resetarPainelGoogle() {
+    pendingGoogleCredential = null;
+    const perfilPanel = document.getElementById('panelCompletarPerfil');
+    perfilPanel?.classList.add('hidden');
+    perfilPanel?.classList.remove('active');
+    document.getElementById('googleSignInWrap')?.classList.remove('hidden');
+    document.getElementById('panel-login')?.classList.add('active');
+    document.getElementById('formCompletarPerfil')?.reset();
 }
 
 function fecharModalAuth() {
@@ -196,45 +228,130 @@ function mostrarNotificacaoAuth(mensagem, tipo = 'info') {
 }
 
 function abrirModalAgendamentoComAuth() {
-    if (!estaAutenticado()) {
-        mostrarNotificacaoAuth('Faça login ou crie conta para agendar.', 'info');
-        abrirModalAuth('login');
-        return;
-    }
-    if (typeof abrirModal === 'function') abrirModal();
+    irParaMarcacao();
 }
 
-async function submeterLogin(e) {
-    e.preventDefault();
+async function processarRespostaAuth(data) {
+    if (data.needsProfile) {
+        document.getElementById('googleSignInWrap')?.classList.add('hidden');
+        document.getElementById('panel-login')?.classList.remove('active');
+        const perfilPanel = document.getElementById('panelCompletarPerfil');
+        perfilPanel?.classList.remove('hidden');
+        perfilPanel?.classList.add('active');
+        mostrarAuthMessage(data.mensagem || 'Indique o seu telefone para continuar.', 'info');
+        return;
+    }
+
+    guardarSessao(data.token, data.utilizador);
+    fecharModalAuth();
+    redirecionarAposAuth(data.utilizador);
+}
+
+async function loginComGoogle(credential) {
+    pendingGoogleCredential = credential;
     esconderAuthMessage();
 
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-
     try {
-        const res = await fetch(`${API_URL}/auth/login`, {
+        const res = await fetch(`${API_URL}/auth/google`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ credential })
         });
-
         const data = await res.json();
 
         if (!res.ok) {
-            mostrarAuthMessage(data.erro || 'Email ou palavra-passe inválidos.', 'error');
+            mostrarAuthMessage(data.erro || 'Erro na autenticação Google.', 'error');
             return;
         }
 
-        guardarSessao(data.token, data.utilizador);
-        fecharModalAuth();
-        if (typeof mostrarAreaLogada === 'function') mostrarAreaLogada(true);
-        mostrarNotificacaoAuth(`Bem-vindo, ${data.utilizador.nome}! A sua área privada está aberta.`, 'success');
-        if (typeof renderPendingBadge === 'function') renderPendingBadge();
+        await processarRespostaAuth(data);
     } catch {
-        mostrarAuthMessage(
-            'Erro de ligação ao servidor. Inicie o backend: abra o terminal na pasta backend e execute "npm start", depois abra http://localhost:3000',
-            'error'
-        );
+        mostrarAuthMessage('Erro de ligação ao servidor. Inicie o backend em http://localhost:3000', 'error');
+    }
+}
+
+async function submeterCompletarPerfil(e) {
+    e.preventDefault();
+    esconderAuthMessage();
+
+    const telefone = document.getElementById('googleTelefone').value.trim();
+    if (!telefone) {
+        mostrarAuthMessage('Indique um telefone válido.', 'error');
+        return;
+    }
+    if (!pendingGoogleCredential) {
+        mostrarAuthMessage('Sessão Google expirada. Tente entrar novamente.', 'error');
+        resetarPainelGoogle();
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential: pendingGoogleCredential, telefone })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            mostrarAuthMessage(data.erro || 'Erro ao completar perfil.', 'error');
+            return;
+        }
+
+        await processarRespostaAuth(data);
+    } catch {
+        mostrarAuthMessage('Erro de ligação ao servidor.', 'error');
+    }
+}
+
+async function carregarConfigAuth() {
+    try {
+        const res = await fetch(`${API_URL}/auth/config`);
+        if (!res.ok) return;
+        const data = await res.json();
+        googleClientId = data.googleClientId || '';
+        window.GOOGLE_CLIENT_ID = googleClientId;
+    } catch {
+        /* backend offline */
+    }
+}
+
+function inicializarGoogleSignIn() {
+    const wrap = document.getElementById('googleSignInWrap');
+    if (!googleClientId) {
+        if (wrap) {
+            wrap.innerHTML = '<p class="auth-google-nota"><i class="fas fa-info-circle"></i> Configure <strong>GOOGLE_CLIENT_ID</strong> no ficheiro backend/.env para activar o login Google.</p>';
+        }
+        return;
+    }
+
+    const init = () => {
+        if (!window.google?.accounts?.id) return;
+
+        window.google.accounts.id.initialize({
+            client_id: googleClientId,
+            callback: (response) => loginComGoogle(response.credential),
+            auto_select: false
+        });
+
+        const btn = document.getElementById('googleSignInBtn');
+        if (btn) {
+            btn.innerHTML = '';
+            window.google.accounts.id.renderButton(btn, {
+                type: 'standard',
+                theme: 'outline',
+                size: 'large',
+                text: 'continue_with',
+                shape: 'rectangular',
+                width: 320
+            });
+        }
+    };
+
+    if (window.google?.accounts?.id) {
+        init();
+    } else {
+        window.addEventListener('load', init);
     }
 }
 
@@ -267,11 +384,48 @@ async function submeterRegisto(e) {
             return;
         }
 
-        mostrarAuthMessage(data.mensagem, 'success');
-        document.getElementById('formRegisto').reset();
-        setTimeout(() => mudarTabAuth('login'), 3000);
+        if (data.token && data.utilizador) {
+            guardarSessao(data.token, data.utilizador);
+            redirecionarAposAuth(data.utilizador);
+            return;
+        }
+
+        mostrarAuthMessage(data.mensagem || 'Conta criada com sucesso!', 'success');
+        mudarTabAuth('login');
     } catch {
-        mostrarAuthMessage('Erro de ligação ao servidor. Tente novamente.', 'error');
+        mostrarAuthMessage('Erro de ligação ao servidor.', 'error');
+    }
+}
+
+async function submeterLogin(e) {
+    e.preventDefault();
+    esconderAuthMessage();
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            mostrarAuthMessage(data.erro || 'Email ou palavra-passe inválidos.', 'error');
+            return;
+        }
+
+        guardarSessao(data.token, data.utilizador);
+        fecharModalAuth();
+        redirecionarAposAuth(data.utilizador);
+    } catch {
+        mostrarAuthMessage(
+            'Erro de ligação ao servidor. Inicie o backend: abra o terminal na pasta backend e execute "npm start", depois abra http://localhost:3000',
+            'error'
+        );
     }
 }
 
@@ -343,22 +497,20 @@ function configurarTogglePassword() {
 }
 
 function bindAuthHeaderButtons() {
-    document.getElementById('btnLogin')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        abrirModalAuth('login');
-    });
-    document.getElementById('btnRegistar')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        abrirModalAuth('registo');
-    });
     document.getElementById('btnAgendarNav')?.addEventListener('click', (e) => {
         e.preventDefault();
-        abrirModalAgendamentoComAuth();
+        irParaMarcacao();
     });
 }
 
 function configurarAuth() {
     bindAuthHeaderButtons();
+
+    const params = new URLSearchParams(window.location.search);
+    const tabInicial = params.get('tab');
+    if (tabInicial && ['login', 'registo', 'recuperar'].includes(tabInicial)) {
+        mudarTabAuth(tabInicial);
+    }
 
     document.getElementById('closeAuthModal')?.addEventListener('click', fecharModalAuth);
 
@@ -372,8 +524,8 @@ function configurarAuth() {
 
     document.getElementById('formLogin')?.addEventListener('submit', submeterLogin);
     document.getElementById('formRegisto')?.addEventListener('submit', submeterRegisto);
+    document.getElementById('formCompletarPerfil')?.addEventListener('submit', submeterCompletarPerfil);
     document.getElementById('formRecuperar')?.addEventListener('submit', submeterRecuperar);
-    document.getElementById('formRecuperarCodigo')?.addEventListener('submit', submeterRecuperarCodigo);
 
     document.getElementById('linkEsqueciPassword')?.addEventListener('click', (e) => {
         e.preventDefault();
@@ -381,7 +533,15 @@ function configurarAuth() {
     });
 
     configurarTogglePassword();
-    verificarSessao();
+    carregarConfigAuth().then(() => {
+        inicializarGoogleSignIn();
+        if (document.body.dataset.authPage !== 'conta') {
+            verificarSessao();
+        }
+    });
 }
 
-document.addEventListener('DOMContentLoaded', configurarAuth);
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.body.dataset.authPage === 'conta') return;
+    configurarAuth();
+});

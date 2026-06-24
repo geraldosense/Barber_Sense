@@ -1,4 +1,4 @@
-# 🧔 Barbearia Sense - Frontend
+# 🧔 Sense Barbershop - Frontend
 
 Sistema moderno de agendamento online para barbearias profissionais.
 
@@ -70,7 +70,7 @@ python -m http.server 5500
 
 ### Logotipo
 1. Coloque seu logotipo em `frontend/assets/logo.png`
-2. O arquivo já vem com o logotipo da Barbearia Sense
+2. O arquivo já vem com o logotipo da Sense Barbershop
 
 ### Cores
 Edite as variáveis CSS em `frontend/css/style.css`:
@@ -160,4 +160,4 @@ Para dúvidas ou problemas, consulte a documentação do backend.
 
 ---
 
-**Desenvolvido para Barbearia Sense** 🧔✨
+**Desenvolvido para Sense Barbershop** 🧔✨

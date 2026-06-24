@@ -1,5 +1,7 @@
 // ===== ROTAS DE SERVIÇOS =====
 const express = require('express');
+const { verificarToken, verificarPerfil } = require('../middleware/auth');
+
 const router = express.Router();
 
 /**
@@ -43,7 +45,7 @@ router.get('/:id', async (req, res) => {
  * POST /api/servicos
  * Criar novo serviço
  */
-router.post('/', async (req, res) => {
+router.post('/', verificarToken, verificarPerfil('administrador'), async (req, res) => {
     try {
         const { nome, preco, tempo, descricao, icon } = req.body;
 
@@ -79,7 +81,7 @@ router.post('/', async (req, res) => {
  * PUT /api/servicos/:id
  * Atualizar serviço
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', verificarToken, verificarPerfil('administrador'), async (req, res) => {
     try {
         const { id } = req.params;
         const { nome, preco, tempo, descricao, icon } = req.body;
@@ -118,7 +120,7 @@ router.put('/:id', async (req, res) => {
  * DELETE /api/servicos/:id
  * Deletar serviço
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verificarToken, verificarPerfil('administrador'), async (req, res) => {
     try {
         const { id } = req.params;
 

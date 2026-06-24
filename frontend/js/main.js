@@ -17,9 +17,7 @@ const DADOS_EXEMPLO = {
         { id: 5, nome: 'Tratamento Capilar', preco: 30, tempo: 45, descricao: 'Hidratação e tratamento profissional', icon: '💆' }
     ],
     barbeiros: [
-        { id: 1, nome: 'João Silva', experiencia: '8 anos', especialidades: 'Cortes clássicos, Degradê', foto: 'assets/barbeiro1.jpg' },
-        { id: 2, nome: 'Carlos Santos', experiencia: '5 anos', especialidades: 'Barba, Tratamentos', foto: 'assets/barbeiro2.jpg' },
-        { id: 3, nome: 'Miguel Costa', experiencia: '10 anos', especialidades: 'Cortes modernos, Estilo', foto: 'assets/barbeiro3.jpg' }
+        { id: 1, nome: 'Geraldo Sense', experiencia: '15+ anos', especialidades: 'Cortes clássicos, Degradê, Barba', foto: 'assets/logo.png' }
     ]
 };
 
@@ -41,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     configurarEventos();
     configurarMenuMobile();
     configurarScroll();
-    configurarHeroShowcase();
+    configurarHeroSlider();
 });
 
 async function carregarDados() {
@@ -59,6 +57,10 @@ async function carregarDados() {
 
     if (!servicos.length) servicos = DADOS_EXEMPLO.servicos;
     if (!barbeiros.length) barbeiros = DADOS_EXEMPLO.barbeiros;
+
+    // Mostrar apenas o barbeiro principal no site público
+    const principal = barbeiros.find(b => b.principal) || barbeiros[0];
+    barbeiros = principal ? [principal] : barbeiros;
 
     renderizarServicos();
     renderizarBarbeiros();
@@ -137,14 +139,12 @@ function abrirModal() {
 }
 
 function abrirModalComServico(servicoId) {
-    agendamento.servico_id = servicoId;
-    if (typeof estaAutenticado === 'function' && !estaAutenticado()) {
-        if (typeof mostrarNotificacaoAuth === 'function') {
-            mostrarNotificacaoAuth('Faça login para agendar este serviço.', 'info');
-            abrirModalAuth('login');
-        }
+    if (typeof irParaMarcacao === 'function') {
+        sessionStorage.setItem('servicoPretendido', servicoId);
+        irParaMarcacao();
         return;
     }
+    agendamento.servico_id = servicoId;
     abrirModal();
 }
 
@@ -204,9 +204,27 @@ function preencherDadosUtilizador() {
         const nomeEl = document.getElementById('nome');
         const telEl = document.getElementById('telefone');
         const emailEl = document.getElementById('email');
-        if (nomeEl && !nomeEl.value) nomeEl.value = utilizadorAtual.nome || '';
-        if (telEl && !telEl.value) telEl.value = utilizadorAtual.telefone || '';
-        if (emailEl && !emailEl.value) emailEl.value = utilizadorAtual.email || '';
+        if (nomeEl) {
+            nomeEl.value = utilizadorAtual.nome || '';
+            nomeEl.readOnly = true;
+        }
+        if (telEl) {
+            telEl.value = utilizadorAtual.telefone || '';
+            telEl.readOnly = !!utilizadorAtual.telefone;
+        }
+        if (emailEl) {
+            emailEl.value = utilizadorAtual.email || '';
+            emailEl.readOnly = true;
+        }
+
+        const step4 = document.getElementById('step4');
+        let hint = step4?.querySelector('.booking-account-hint');
+        if (step4 && !hint) {
+            hint = document.createElement('p');
+            hint.className = 'booking-account-hint dash-user-readonly';
+            hint.innerHTML = `<i class="fas fa-user-check"></i> Dados da sua conta Google — prontos para confirmar a marcação.`;
+            step4.insertBefore(hint, step4.querySelector('.form-buttons'));
+        }
     }
 }
 
@@ -277,9 +295,13 @@ async function submeterAgendamento(e) {
     };
 
     try {
+        const headers = { 'Content-Type': 'application/json' };
+        const token = localStorage.getItem('authToken');
+        if (token) headers.Authorization = `Bearer ${token}`;
+
         const res = await fetch(`${API_URL}/agendamentos`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify(payload)
         });
 
@@ -337,10 +359,10 @@ function configurarEventos() {
     if (btnAgendar) {
         btnAgendar.addEventListener('click', (e) => {
             e.preventDefault();
-            if (typeof abrirModalAgendamentoComAuth === 'function') {
-                abrirModalAgendamentoComAuth();
+            if (typeof irParaMarcacao === 'function') {
+                irParaMarcacao();
             } else {
-                abrirModal();
+                window.location.href = 'marcacao.html';
             }
         });
     }
@@ -410,41 +432,85 @@ function configurarScroll() {
     });
 }
 
-function configurarHeroShowcase() {
-    const items = document.querySelectorAll('.hero-showcase-item');
+function configurarHeroSlider() {
+    const slides = Array.from(document.querySelectorAll('.hero-slide'));
+    const indicatorsEl = document.getElementById('heroIndicators');
+    if (!slides.length) return;
 
-    items.forEach(item => {
-        const video = item.querySelector('video');
-        const playBtn = item.querySelector('[data-video-play]');
+    let currentIndex = 0;
+    let timer = null;
+    const indicators = [];
 
-        if (!video) return;
-
-        const togglePlay = () => {
-            document.querySelectorAll('.hero-showcase-item video').forEach(v => {
-                if (v !== video) {
-                    v.pause();
-                    v.closest('.hero-showcase-item')?.classList.remove('is-playing');
-                }
-            });
-
-            if (video.paused) {
-                video.play().then(() => {
-                    item.classList.add('is-playing');
-                }).catch(() => {});
-            } else {
-                video.pause();
-                item.classList.remove('is-playing');
-            }
-        };
-
-        playBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            togglePlay();
-        });
-
-        item.addEventListener('click', () => togglePlay());
-
-        video.addEventListener('pause', () => item.classList.remove('is-playing'));
-        video.addEventListener('ended', () => item.classList.remove('is-playing'));
+    slides.forEach((_, index) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'hero-indicator' + (index === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', `Publicidade ${index + 1}`);
+        dot.addEventListener('click', () => goToSlide(index, true));
+        indicatorsEl?.appendChild(dot);
+        indicators.push(dot);
     });
+
+    function clearTimer() {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+    }
+
+    function resetVideos() {
+        slides.forEach(slide => {
+            const video = slide.querySelector('video');
+            if (!video) return;
+            video.onended = null;
+            video.pause();
+            video.currentTime = 0;
+        });
+    }
+
+    function scheduleNext(delay) {
+        clearTimer();
+        timer = setTimeout(() => goToSlide((currentIndex + 1) % slides.length), delay);
+    }
+
+    function goToSlide(index, manual) {
+        clearTimer();
+        resetVideos();
+
+        slides[currentIndex]?.classList.remove('active');
+        indicators[currentIndex]?.classList.remove('active');
+
+        currentIndex = index;
+        const slide = slides[currentIndex];
+        slide.classList.add('active');
+        indicators[currentIndex]?.classList.add('active');
+
+        if (slide.dataset.type === 'video') {
+            const video = slide.querySelector('video');
+            if (!video) {
+                scheduleNext(manual ? 5000 : 5000);
+                return;
+            }
+
+            video.currentTime = 0;
+            video.onended = () => scheduleNext(600);
+
+            video.play().catch(() => scheduleNext(5000));
+            return;
+        }
+
+        const duration = parseInt(slide.dataset.duration, 10) || 5000;
+        scheduleNext(duration);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearTimer();
+            resetVideos();
+        } else {
+            goToSlide(currentIndex, true);
+        }
+    });
+
+    goToSlide(0);
 }

@@ -1,0 +1,506 @@
+/* ===== PÁGINA MARCAÇÃO (reservas) ===== */
+.marcacao-page {
+    min-height: 100vh;
+    background: #f0f1f5;
+}
+
+.marcacao-page::before {
+    display: none;
+}
+
+.marcacao-header {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 0.85rem 1.5rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.marcacao-header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.marcacao-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #fff;
+}
+
+.marcacao-brand img {
+    height: 48px;
+    width: auto;
+}
+
+.marcacao-brand span {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: var(--secondary-color);
+}
+
+.marcacao-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.marcacao-user-info {
+    text-align: right;
+}
+
+.marcacao-user-name {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.marcacao-user-email {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.75;
+}
+
+.marcacao-logout {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: #fff;
+    padding: 0.45rem 0.85rem;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.marcacao-logout:hover {
+    background: rgba(212, 175, 55, 0.2);
+}
+
+.marcacao-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.marcacao-sidebar {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 90px;
+}
+
+.marcacao-sidebar h2 {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.marcacao-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.marcacao-item {
+    padding: 0.85rem;
+    background: var(--light-gray);
+    border-radius: 8px;
+    border-left: 3px solid var(--secondary-color);
+}
+
+.marcacao-item strong {
+    display: block;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.marcacao-item p {
+    font-size: 0.85rem;
+    color: #555;
+    margin: 0.15rem 0;
+}
+
+.marcacao-item .status {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--secondary-color);
+    font-weight: 600;
+    margin-top: 0.35rem;
+}
+
+.marcacao-empty {
+    color: #888;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.marcacao-main {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.marcacao-intro {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.marcacao-intro h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.35rem;
+}
+
+.marcacao-intro p {
+    color: #666;
+}
+
+.booking-progress {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.booking-progress::before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 0;
+}
+
+.booking-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    color: #999;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+}
+
+.booking-step span {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e8e8e8;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.booking-step.active span,
+.booking-step.done span {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.booking-step.done span {
+    background: var(--primary-color);
+    color: var(--secondary-color);
+}
+
+.booking-step.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.booking-panel {
+    display: none;
+    animation: fadeIn 0.35s ease;
+}
+
+.booking-panel.active {
+    display: block;
+}
+
+.booking-panel h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--primary-color);
+    margin-bottom: 1.25rem;
+    font-size: 1.35rem;
+}
+
+.booking-panel h3 i {
+    color: var(--secondary-color);
+    margin-right: 0.35rem;
+}
+
+.booking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.booking-option {
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: #fafafa;
+}
+
+.booking-option:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+    transform: translateY(-2px);
+}
+
+.booking-option.selected {
+    border-color: var(--secondary-color);
+    background: rgba(212, 175, 55, 0.08);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2);
+}
+
+.booking-option-icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.booking-option-name {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.booking-option-price {
+    color: var(--secondary-color);
+    font-weight: 700;
+    margin-top: 0.35rem;
+}
+
+.booking-option-meta {
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 0.25rem;
+}
+
+.booking-datetime {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.booking-datetime .form-group label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.booking-datetime input,
+.booking-datetime select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.booking-summary {
+    background: var(--light-gray);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.booking-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.booking-summary-row:last-child {
+    border-bottom: none;
+    font-weight: 700;
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+    padding-top: 0.75rem;
+}
+
+.booking-user-card {
+    background: rgba(212, 175, 55, 0.06);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.booking-user-card p {
+    margin: 0.25rem 0;
+}
+
+.booking-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-back,
+.btn-next,
+.btn-submit {
+    padding: 0.85rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.btn-back {
+    background: #eee;
+    color: var(--primary-color);
+}
+
+.btn-back:hover {
+    background: #ddd;
+}
+
+.btn-next,
+.btn-submit {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    margin-left: auto;
+}
+
+.btn-next:hover,
+.btn-submit:hover {
+    background: var(--secondary-hover);
+}
+
+.booking-success {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.booking-success-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 1.25rem;
+}
+
+.booking-success h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+#bkConfirmacao {
+    text-align: left;
+    background: var(--light-gray);
+    padding: 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.btn-back-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.btn-back-link:hover {
+    color: var(--secondary-color);
+}
+
+@media (max-width: 900px) {
+    .marcacao-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .marcacao-sidebar {
+        position: static;
+        order: 2;
+    }
+
+    .marcacao-main {
+        order: 1;
+    }
+
+    .booking-datetime {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-progress {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .booking-progress::before {
+        display: none;
+    }
+
+    .marcacao-user-info {
+        display: none;
+    }
+}
+
+.hidden-step {
+    display: none !important;
+}
+
+@media (max-width: 480px) {
+    .booking-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .booking-nav {
+        flex-direction: column;
+    }
+
+    .btn-next,
+    .btn-submit {
+        margin-left: 0;
+        width: 100%;
+    }
+}

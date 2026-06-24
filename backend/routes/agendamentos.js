@@ -1,6 +1,20 @@
 // ===== ROTAS DE AGENDAMENTOS =====
 const express = require('express');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('../middleware/auth');
+
 const router = express.Router();
+
+function authOpcional(req, res, next) {
+    const header = req.headers.authorization;
+    if (!header || !header.startsWith('Bearer ')) return next();
+    try {
+        req.utilizador = jwt.verify(header.split(' ')[1], JWT_SECRET);
+    } catch {
+        /* ignora token inválido em rotas públicas */
+    }
+    next();
+}
 
 /**
  * GET /api/agendamentos
@@ -13,7 +27,7 @@ router.get('/', async (req, res) => {
         let sql = `
             SELECT a.id, a.servico_id, a.barbeiro_id, a.cliente_nome, 
                    a.cliente_telefone, a.cliente_email, a.data, a.hora, 
-                   a.status, a.criado_em,
+                   a.status, a.criado_em, a.metodo_pagamento,
                    s.nome as servico_nome, s.preco, s.tempo_estimado,
                    b.nome as barbeiro_nome
             FROM agendamentos a
@@ -66,6 +80,7 @@ router.get('/', async (req, res) => {
             data: a.data,
             hora: a.hora,
             status: a.status,
+            metodo_pagamento: a.metodo_pagamento,
             criado_em: a.criado_em
         }));
 
@@ -132,15 +147,19 @@ router.get('/:id', async (req, res) => {
  * POST /api/agendamentos
  * Criar novo agendamento
  */
-router.post('/', async (req, res) => {
+router.post('/', authOpcional, async (req, res) => {
     try {
-        const { servico_id, barbeiro_id, data, hora, nome, telefone, email } = req.body;
+        const { servico_id, barbeiro_id, data, hora, nome, telefone, email, metodo_pagamento } = req.body;
 
         // Validar campos obrigatórios
         if (!servico_id || !barbeiro_id || !data || !hora || !nome || !telefone || !email) {
             return res.status(400).json({
                 erro: 'Todos os campos são obrigatórios'
             });
+        }
+
+        if (req.utilizador?.perfil === 'cliente' && req.utilizador.email !== email.toLowerCase().trim()) {
+            return res.status(403).json({ erro: 'Só pode agendar com o email da sua conta.' });
         }
 
         // Validar se barbeiro e serviço existem
@@ -186,11 +205,12 @@ router.post('/', async (req, res) => {
         }
 
         // Criar agendamento
+        const usuarioId = req.utilizador?.id || null;
         const resultado = await req.db.run(
             `INSERT INTO agendamentos 
-             (servico_id, barbeiro_id, cliente_nome, cliente_telefone, cliente_email, data, hora, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmado')`,
-            [servico_id, barbeiro_id, nome, telefone, email, data, hora]
+             (servico_id, barbeiro_id, cliente_nome, cliente_telefone, cliente_email, data, hora, status, usuario_id, metodo_pagamento)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmado', ?, ?)`,
+            [servico_id, barbeiro_id, nome, telefone, email.toLowerCase().trim(), data, hora, usuarioId, metodo_pagamento || null]
         );
 
         // Retornar agendamento completo
@@ -211,7 +231,8 @@ router.post('/', async (req, res) => {
             email,
             data,
             hora,
-            status: 'confirmado'
+            status: 'confirmado',
+            metodo_pagamento: metodo_pagamento || null
         };
 
         res.status(201).json(agendamento);

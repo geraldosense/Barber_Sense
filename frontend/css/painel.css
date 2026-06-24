@@ -1,0 +1,269 @@
+/* ===== PAINEL ADMIN COMPLETO ===== */
+.painel-app {
+    display: flex;
+    min-height: 100vh;
+    background: #f4f4f5;
+}
+
+.painel-sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.painel-sidebar-brand {
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.painel-sidebar-brand img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    margin-bottom: 0.75rem;
+}
+
+.painel-sidebar-brand h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+    margin: 0;
+}
+
+.painel-sidebar-brand p {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.45);
+    margin: 0.35rem 0 0;
+}
+
+.painel-user {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.85rem;
+}
+
+.painel-user strong {
+    display: block;
+    color: #fff;
+}
+
+.painel-user span {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+}
+
+.painel-nav-list {
+    flex: 1;
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.painel-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-align: left;
+    width: 100%;
+    transition: background 0.2s, color 0.2s;
+}
+
+.painel-nav-item:hover,
+.painel-nav-item.active {
+    background: rgba(212, 175, 55, 0.12);
+    color: var(--secondary-color);
+}
+
+.painel-nav-item .badge {
+    margin-left: auto;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.painel-sidebar-footer {
+    padding: 1rem 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.painel-sidebar-footer a,
+.painel-sidebar-footer button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.65rem 1rem;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.painel-sidebar-footer a:hover,
+.painel-sidebar-footer button:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.painel-main {
+    flex: 1;
+    padding: 1.75rem 2rem;
+    overflow-y: auto;
+}
+
+.painel-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.painel-topbar h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.65rem;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+.painel-section {
+    display: none;
+}
+
+.painel-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.painel-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.painel-stat {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #eee;
+}
+
+.painel-stat i {
+    color: var(--secondary-color);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.painel-stat strong {
+    display: block;
+    font-size: 1.75rem;
+    color: #1a1a1a;
+}
+
+.painel-stat span {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.painel-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #eee;
+    margin-bottom: 1.25rem;
+}
+
+.painel-card h3 {
+    font-size: 1rem;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.painel-card h3 i {
+    color: var(--secondary-color);
+}
+
+.painel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.painel-table th,
+.painel-table td {
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.painel-table th {
+    color: #666;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.pagamento-admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+}
+
+.pagamento-admin-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.pagamento-admin-item.ativo {
+    border-color: var(--secondary-color);
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.pagamento-admin-item input {
+    accent-color: var(--secondary-color);
+}
+
+@media (max-width: 900px) {
+    .painel-app { flex-direction: column; }
+    .painel-sidebar { width: 100%; }
+    .painel-nav-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        overflow-x: auto;
+    }
+    .painel-main { padding: 1.25rem; }
+}

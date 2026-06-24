@@ -1,5 +1,5 @@
 ═══════════════════════════════════════════════════════════════════════════════
-   🧔 BARBEARIA SENSE - SISTEMA DE AGENDAMENTO ONLINE - PROJETO COMPLETO ✨
+   🧔 SENSE BARBERSHOP - SISTEMA DE AGENDAMENTO ONLINE - PROJETO COMPLETO ✨
 ═══════════════════════════════════════════════════════════════════════════════
 
 📦 O QUE FOI CRIADO:
@@ -43,7 +43,7 @@
    • Sistema automático de horários disponíveis
 
 ✅ LOGOTIPO
-   • Seu logotipo "Sense Barbearia" já está pronto
+   • Seu logotipo "Sense Barbershop" já está pronto
    • Localização: frontend/assets/logo.png
    • Será automaticamente usado em toda a interface
    • Design profissional: Tesoura, barba, pincél com cores dourado/preto/branco
@@ -160,7 +160,7 @@ sense_barber/
 🎨 COMO CUSTOMIZAR:
 ═══════════════════════════════════════════════════════════════════════════════
 
-MUDAR NOME DA BARBEARIA
+MUDAR NOME DO BARBERSHOP
    1. frontend/index.html (linha 7, título)
    2. frontend/index.html (linha 42, navbar)
    3. Dados aparecem automaticamente
@@ -353,7 +353,7 @@ Está faltando apenas:
 
 ═══════════════════════════════════════════════════════════════════════════════
 
-Desenvolvido com ❤️ para Barbearia Sense 🧔✨
+Desenvolvido com ❤️ para Sense Barbershop 🧔✨
 
 Data: Junho 2026
 Versão: 1.0.0

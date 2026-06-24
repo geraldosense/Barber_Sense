@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar - Sense Barbershop</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/finalizar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body class="finalizar-page">
+    <header class="finalizar-header">
+        <div class="finalizar-header-inner">
+            <a href="index.html" class="finalizar-brand">
+                <img src="assets/logo.png" alt="Sense Barbershop">
+                <span>Sense Barbershop</span>
+            </a>
+            <span id="finalizarModoLabel" class="marcacao-user-email"></span>
+        </div>
+    </header>
+
+    <main class="finalizar-main">
+        <h1 id="finalizarTitulo">Finalizar</h1>
+        <p class="finalizar-sub" id="finalizarSubtitulo">Escolha o método de pagamento preferido.</p>
+
+        <div id="finalizarResumo" class="finalizar-resumo hidden"></div>
+
+        <h3><i class="fas fa-credit-card"></i> Método de Pagamento</h3>
+        <div class="pagamento-grid" id="pagamentoGrid">
+            <div class="pagamento-option" data-metodo="mbway" onclick="selecionarPagamento('mbway')">
+                <i class="fas fa-mobile-alt"></i>
+                <span>MB Way</span>
+            </div>
+            <div class="pagamento-option" data-metodo="visa" onclick="selecionarPagamento('visa')">
+                <i class="fab fa-cc-visa"></i>
+                <span>Cartão Visa</span>
+            </div>
+            <div class="pagamento-option" data-metodo="revolut" onclick="selecionarPagamento('revolut')">
+                <i class="fas fa-wallet"></i>
+                <span>Revolut</span>
+            </div>
+            <div class="pagamento-option" data-metodo="paypal" onclick="selecionarPagamento('paypal')">
+                <i class="fab fa-paypal"></i>
+                <span>PayPal</span>
+            </div>
+            <div class="pagamento-option" data-metodo="santander" onclick="selecionarPagamento('santander')">
+                <i class="fas fa-university"></i>
+                <span>Santander</span>
+            </div>
+        </div>
+
+        <button type="button" class="auth-submit-btn" id="btnFinalizar" disabled>
+            <i class="fas fa-check"></i> Concluir
+        </button>
+
+        <p class="finalizar-nota">
+            O pagamento será processado no dia da marcação. Esta escolha fica guardada no seu perfil para futuras reservas.
+        </p>
+
+        <div class="auth-message hidden" id="finalizarMessage"></div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/finalizar.js"></script>
+</body>
+</html>

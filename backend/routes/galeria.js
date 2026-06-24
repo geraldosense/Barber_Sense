@@ -12,6 +12,7 @@ function formatarCorte(row) {
         imagem_url: row.imagem_url,
         video_url: row.video_url,
         duracao: row.duracao,
+        preco: row.preco,
         status: row.status,
         barbeiro_id: row.barbeiro_id,
         barbeiro_nome: row.barbeiro_nome,
@@ -91,10 +92,15 @@ router.get('/pendentes', verificarToken, verificarPerfil('barbeiro', 'administra
  */
 router.post('/', verificarToken, verificarPerfil('barbeiro', 'administrador'), async (req, res) => {
     try {
-        const { titulo, tipo_corte, descricao, imagem_url, video_url, duracao } = req.body;
+        const { titulo, tipo_corte, descricao, imagem_url, video_url, duracao, preco } = req.body;
 
         if (!titulo || !tipo_corte) {
             return res.status(400).json({ erro: 'Título e tipo de corte são obrigatórios.' });
+        }
+
+        const precoNum = preco !== undefined && preco !== '' ? parseFloat(preco) : null;
+        if (precoNum !== null && (Number.isNaN(precoNum) || precoNum < 0)) {
+            return res.status(400).json({ erro: 'Preço inválido.' });
         }
 
         const utilizador = await req.db.get(
@@ -116,8 +122,8 @@ router.post('/', verificarToken, verificarPerfil('barbeiro', 'administrador'), a
         const publicadoEm = status === 'aprovado' ? new Date().toISOString() : null;
 
         const resultado = await req.db.run(
-            `INSERT INTO galeria (barbeiro_id, usuario_id, titulo, tipo_corte, descricao, imagem_url, video_url, duracao, status, publicado_em)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO galeria (barbeiro_id, usuario_id, titulo, tipo_corte, descricao, imagem_url, video_url, duracao, preco, status, publicado_em)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 barbeiroId,
                 req.utilizador.id,
@@ -127,6 +133,7 @@ router.post('/', verificarToken, verificarPerfil('barbeiro', 'administrador'), a
                 imagem_url?.trim() || '',
                 video_url?.trim() || '',
                 duracao?.trim() || '',
+                precoNum,
                 status,
                 publicadoEm
             ]

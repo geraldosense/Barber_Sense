@@ -1,4 +1,4 @@
-# 🧔 Barbearia Sense - Backend
+# 🧔 Sense Barbershop - Backend
 
 API REST para sistema de agendamento online de barbearia.
 
@@ -483,4 +483,4 @@ app.use(cors({
 
 ---
 
-**Desenvolvido para Barbearia Sense** 🧔✨
+**Desenvolvido para Sense Barbershop** 🧔✨
