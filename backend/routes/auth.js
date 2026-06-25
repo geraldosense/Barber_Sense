@@ -31,6 +31,24 @@ function formatarUtilizador(row) {
     };
 }
 
+/** Sessão pública do site — sempre perfil cliente (painel admin só via admin-login) */
+function utilizadorCliente(row) {
+    return { ...row, perfil: 'cliente' };
+}
+
+function responderSessaoCliente(res, row, mensagem, status = 200) {
+    const cliente = utilizadorCliente(row);
+    const payload = {
+        mensagem,
+        token: gerarToken(cliente),
+        utilizador: formatarUtilizador(cliente)
+    };
+    if (status === 201) {
+        return res.status(201).json(payload);
+    }
+    return res.json(payload);
+}
+
 async function verificarCredencialGoogle(credential) {
     if (!googleClient || !GOOGLE_CLIENT_ID) {
         throw new Error('Google Sign-In não configurado. Defina GOOGLE_CLIENT_ID no .env');
@@ -53,8 +71,8 @@ async function verificarCredencialGoogle(credential) {
     return payload;
 }
 
-function perfilParaEmail(email) {
-    return ADMIN_EMAILS.includes(email.toLowerCase()) ? 'administrador' : 'cliente';
+function perfilParaEmail(_email) {
+    return 'cliente';
 }
 
 /**
@@ -80,7 +98,7 @@ router.post('/google', async (req, res) => {
             [googleId, email]
         );
 
-        const perfilAlvo = perfilParaEmail(email);
+        const perfilAlvo = 'cliente';
 
         if (!utilizador) {
             if (!telefone || !telefone.trim()) {
@@ -110,10 +128,9 @@ router.post('/google', async (req, res) => {
                     auth_provider = 'google',
                     ativo = 1,
                     email_confirmado = 1,
-                    foto_url = COALESCE(?, foto_url),
-                    perfil = ?
+                    foto_url = COALESCE(?, foto_url)
                  WHERE id = ?`,
-                [googleId, foto, perfilAlvo, utilizador.id]
+                [googleId, foto, utilizador.id]
             );
 
             if (telefone?.trim() && (!utilizador.telefone || utilizador.telefone === '—')) {
@@ -136,13 +153,7 @@ router.post('/google', async (req, res) => {
             });
         }
 
-        const token = gerarToken(utilizador);
-
-        res.json({
-            mensagem: 'Sessão iniciada com Google.',
-            token,
-            utilizador: formatarUtilizador(utilizador)
-        });
+        return responderSessaoCliente(res, utilizador, 'Sessão iniciada com Google.');
     } catch (error) {
         res.status(400).json({ erro: error.message || 'Erro na autenticação Google.' });
     }
@@ -268,13 +279,7 @@ router.post('/registo', async (req, res) => {
              FROM utilizadores WHERE id = ?`,
             [resultado.id]
         );
-        const token = gerarToken(utilizador);
-
-        res.status(201).json({
-            mensagem: 'Conta criada com sucesso!',
-            token,
-            utilizador: formatarUtilizador(utilizador)
-        });
+        return responderSessaoCliente(res, utilizador, 'Conta criada com sucesso!', 201);
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -463,13 +468,7 @@ router.post('/login', async (req, res) => {
             utilizador.email_confirmado = 1;
         }
 
-        const token = gerarToken(utilizador);
-
-        res.json({
-            mensagem: 'Login efetuado com sucesso.',
-            token,
-            utilizador: formatarUtilizador(utilizador)
-        });
+        return responderSessaoCliente(res, utilizador, 'Login efetuado com sucesso.');
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -581,7 +580,7 @@ router.get('/me', verificarToken, async (req, res) => {
 router.post('/completar-perfil', verificarToken, async (req, res) => {
     try {
         const { metodo_pagamento } = req.body;
-        const metodosValidos = ['mbway', 'visa', 'revolut', 'paypal', 'santander'];
+        const metodosValidos = ['mbway', 'visa', 'revolut'];
 
         if (!metodo_pagamento || !metodosValidos.includes(metodo_pagamento)) {
             return res.status(400).json({ erro: 'Selecione um método de pagamento válido.' });

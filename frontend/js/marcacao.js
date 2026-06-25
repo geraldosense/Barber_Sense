@@ -29,18 +29,13 @@ async function verificarAcessoMarcacao() {
         return;
     }
 
-    if (!['cliente', 'administrador'].includes(utilizadorAtual.perfil)) {
-        window.location.href = 'index.html#minha-area';
+    if (!['cliente'].includes(utilizadorAtual.perfil)) {
+        window.location.href = 'conta.html';
         return;
     }
 
     if (!utilizadorAtual.telefone || utilizadorAtual.telefone === '—') {
         window.location.href = 'conta.html';
-        return;
-    }
-
-    if (!utilizadorAtual.perfil_completo && !new URLSearchParams(window.location.search).get('confirmado')) {
-        window.location.href = 'finalizar.html';
         return;
     }
 
@@ -267,6 +262,7 @@ async function submeterMarcacao(e) {
         data: bkReserva.data,
         data_fmt: formatarDataPt(bkReserva.data),
         hora: bkReserva.hora,
+        preco: servico ? Number(servico.preco) : 0,
         preco_fmt: servico ? `${Number(servico.preco).toFixed(2)}€` : ''
     }));
 
@@ -358,7 +354,9 @@ function verificarMarcacaoConfirmada() {
         <p><strong>Data:</strong> ${formatarDataPt(data.data)}</p>
         <p><strong>Hora:</strong> ${data.hora || ''}</p>
         <p><strong>Pagamento:</strong> ${data.metodo_pagamento || '—'}</p>
-        <p style="margin-top:0.75rem;color:#666;">Marcação confirmada com sucesso.</p>
+        ${data.valor_pago_fmt ? `<p><strong>Valor pago:</strong> ${data.valor_pago_fmt}</p>` : ''}
+        ${data.referencia_pagamento ? `<p><strong>Nome na transferência:</strong> ${data.referencia_pagamento}</p>` : ''}
+        <p style="margin-top:0.75rem;color:#666;">Marcação confirmada. O pagamento foi registado.</p>
     `;
 
     irPasso(5);

@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('authToken');
     const user = localStorage.getItem('utilizador');
-    if (token && user) {
+    if (token && user && sessionStorage.getItem('admPainelOk') === '1') {
         try {
             const u = JSON.parse(user);
             if (u.perfil === 'administrador') {
@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (_) {}
     }
+
+    sessionStorage.removeItem('admPainelOk');
 
     await verificarServidorAdmin();
 
@@ -48,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (err.message === 'servidor_desatualizado') {
                 mostrarErroServidor(errEl);
             } else {
-                errEl.textContent = 'Sem ligação ao servidor. Verifique se o backend está a correr em http://localhost:3000';
+                errEl.textContent = 'Não foi possível contactar o servidor. O site está a arrancar — aguarde ou use Sense Barbershop.command';
                 errEl.classList.remove('hidden');
             }
         }
@@ -63,21 +65,20 @@ function mostrarErroServidor(errEl) {
 
 async function verificarServidorAdmin() {
     const errEl = document.getElementById('admLoginErr');
-    try {
-        const res = await fetch(`${API_URL}/auth/config`);
-        if (!res.ok) throw new Error('offline');
-        const cfg = await res.json();
-        if (!cfg || typeof cfg.googleAtivo === 'undefined') throw new Error('offline');
-    } catch {
+    const online = window.SenseServidor
+        ? await window.SenseServidor.aguardar(15)
+        : await fetch(`${API_URL}/auth/config`).then((r) => r.ok).catch(() => false);
+
+    if (!online) {
         if (window.location.protocol === 'file:') {
             if (errEl) {
-                errEl.innerHTML = 'Abra o site em <a href="http://localhost:3000/admin-login.html">http://localhost:3000/admin-login.html</a> (não use a pasta diretamente). Inicie o backend: <code>cd backend && npm start</code>';
+                errEl.innerHTML = `Abra <a href="${SITE_URL}/admin-login.html">${SITE_URL}/admin-login.html</a> — faça duplo-clique em <strong>Sense Barbershop.command</strong>`;
                 errEl.classList.remove('hidden');
             }
             return;
         }
         if (errEl) {
-            errEl.innerHTML = 'Backend offline. No terminal execute: <code>cd backend && npm start</code> e abra <a href="http://localhost:3000/admin-login.html">http://localhost:3000/admin-login.html</a>';
+            errEl.innerHTML = `Servidor offline. Faça duplo-clique em <strong>Sense Barbershop.command</strong> na pasta do projeto ou execute <code>./start.sh</code>`;
             errEl.classList.remove('hidden');
         }
     }

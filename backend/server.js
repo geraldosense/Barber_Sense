@@ -50,6 +50,11 @@ app.use('/api/galeria', galeriaRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/config', configRoutes);
 
+// ===== ROTA DE SAÚDE =====
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', online: true, hora: new Date().toISOString() });
+});
+
 // ===== ROTA DE TESTE =====
 app.get('/api', (req, res) => {
     res.json({

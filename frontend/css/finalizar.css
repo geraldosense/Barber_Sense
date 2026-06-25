@@ -118,6 +118,127 @@
     line-height: 1.5;
 }
 
+.pagamento-loading {
+    color: rgba(255, 255, 255, 0.6);
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 1rem;
+}
+
+.pagamento-detalhes {
+    background: #141414;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pagamento-detalhes h4 {
+    margin: 0 0 1rem;
+    color: var(--secondary-color);
+    font-size: 1rem;
+}
+
+.pagamento-conta-valor {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+    margin: 0.35rem 0;
+    word-break: break-all;
+}
+
+.pagamento-conta-hint {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.9rem;
+    margin: 0 0 1rem;
+}
+
+.pagamento-referencia {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px dashed rgba(212, 175, 55, 0.45);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.85rem;
+}
+
+.pagamento-referencia span {
+    display: block;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 0.35rem;
+}
+
+.pagamento-referencia strong {
+    color: var(--secondary-color);
+    font-size: 1.05rem;
+}
+
+.pagamento-aviso {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+    margin: 0 0 1rem;
+}
+
+.pagamento-confirmar {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+}
+
+.pagamento-confirmar input {
+    margin-top: 0.2rem;
+    accent-color: var(--secondary-color);
+}
+
+.pagamento-valor-group {
+    margin-bottom: 1.5rem;
+}
+
+.pagamento-valor-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+}
+
+.pagamento-valor-group input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    background: #141414;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.pagamento-valor-esperado {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.pagamento-valor-esperado strong {
+    color: var(--secondary-color);
+}
+
+.pagamento-valor-status {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+}
+
+.pagamento-valor-status.ok {
+    color: #4caf50;
+}
+
+.pagamento-valor-status.erro {
+    color: #f44336;
+}
+
 @media (max-width: 600px) {
     .pagamento-grid {
         grid-template-columns: repeat(2, 1fr);

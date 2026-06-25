@@ -9,6 +9,11 @@ function mostrarAreaLogada(redirecionar) {
 
     if (!utilizadorAtual || !area) return;
 
+    if (utilizadorAtual.perfil === 'administrador') {
+        esconderAreaLogada();
+        return;
+    }
+
     area.classList.remove('hidden');
     if (hero) hero.classList.add('hero-compact');
     if (navLink) navLink.style.display = '';

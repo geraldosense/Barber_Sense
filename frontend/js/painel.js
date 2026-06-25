@@ -1,7 +1,6 @@
 // ===== PAINEL ADMIN COMPLETO — Sense Barbershop =====
 
 let painelUser = null;
-let metodosPagamento = {};
 
 const TITULOS_SECAO = {
     inicio: 'Painel de Administração',
@@ -9,7 +8,6 @@ const TITULOS_SECAO = {
     pendentes: 'Aprovar Cortes',
     servicos: 'Preços & Serviços',
     agendamentos: 'Agendamentos',
-    pagamentos: 'Métodos de Pagamento',
     barbeiros: 'Gerir Barbeiros',
     site: 'Site & Contactos'
 };
@@ -19,9 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
     configurarPainelApp();
     carregarStats();
     atualizarBadgePendentes();
+    atualizarBadgeAgendamentos();
 });
 
 function verificarAcessoPainel() {
+    if (sessionStorage.getItem('admPainelOk') !== '1') {
+        window.location.href = 'admin-login.html';
+        return false;
+    }
     const token = localStorage.getItem('authToken');
     const guardado = localStorage.getItem('utilizador');
     if (!token || !guardado) {
@@ -82,7 +85,6 @@ function configurarPainelApp() {
     document.getElementById('formNovoServico')?.addEventListener('submit', submeterNovoServico);
     document.getElementById('formNovoBarbeiro')?.addEventListener('submit', submeterNovoBarbeiro);
     document.getElementById('formSiteInfo')?.addEventListener('submit', guardarSiteInfo);
-    document.getElementById('btnGuardarPagamentos')?.addEventListener('click', guardarPagamentos);
 
     document.getElementById('corteImgFile')?.addEventListener('change', (e) => {
         const file = e.target.files?.[0];
@@ -103,8 +105,10 @@ function irSecaoPainel(sec) {
 
     if (sec === 'pendentes') carregarPendentes();
     if (sec === 'servicos') carregarServicos();
-    if (sec === 'agendamentos') carregarAgendamentos();
-    if (sec === 'pagamentos') carregarPagamentos();
+    if (sec === 'agendamentos') {
+        marcarAgendamentosVistos();
+        carregarAgendamentos();
+    }
     if (sec === 'barbeiros') carregarBarbeiros();
     if (sec === 'site') carregarSiteInfo();
 }
@@ -125,13 +129,19 @@ async function carregarStats() {
         const serv = rServ.ok ? await rServ.json() : [];
         const hoje = new Date().toISOString().split('T')[0];
         const hojeCount = ag.filter(a => a.data === hoje).length;
+        const novos = contarAgendamentosNovos(ag);
 
         el.innerHTML = `
             <div class="painel-stat"><i class="fas fa-calendar-day"></i><strong>${hojeCount}</strong><span>Marcações hoje</span></div>
-            <div class="painel-stat"><i class="fas fa-calendar-check"></i><strong>${ag.length}</strong><span>Total marcações</span></div>
+            <div class="painel-stat"><i class="fas fa-bell"></i><strong>${novos}</strong><span>Novas marcações</span></div>
             <div class="painel-stat"><i class="fas fa-clock"></i><strong>${pend.total || 0}</strong><span>Cortes pendentes</span></div>
             <div class="painel-stat"><i class="fas fa-cut"></i><strong>${serv.length}</strong><span>Serviços ativos</span></div>
         `;
+
+        if (novos > 0) {
+            toast(`${novos} nova(s) marcação(ões) de cliente!`, 'info');
+        }
+        atualizarBadgeAgendamentos(ag);
     } catch {
         el.innerHTML = '<p class="painel-empty">Erro ao carregar estatísticas.</p>';
     }
@@ -313,6 +323,44 @@ async function submeterNovoServico(e) {
     }
 }
 
+async function atualizarBadgeAgendamentos(agendamentosCache) {
+    try {
+        let ag = agendamentosCache;
+        if (!ag) {
+            const res = await fetch(`${API_URL}/agendamentos`, { headers: authHeaders() });
+            ag = res.ok ? await res.json() : [];
+        }
+        const novos = contarAgendamentosNovos(ag);
+        const badge = document.getElementById('badgeAgendamentos');
+        if (badge) {
+            if (novos > 0) {
+                badge.textContent = novos;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    } catch { /* silencioso */ }
+}
+
+function contarAgendamentosNovos(agendamentos) {
+    if (!localStorage.getItem('painelUltimaVisitaAgendamentos')) {
+        localStorage.setItem('painelUltimaVisitaAgendamentos', String(Date.now()));
+        return 0;
+    }
+    const ultimaVisita = Number(localStorage.getItem('painelUltimaVisitaAgendamentos') || 0);
+    return agendamentos.filter(a => {
+        if (!a.criado_em) return false;
+        const ts = new Date(a.criado_em).getTime();
+        return ts > ultimaVisita;
+    }).length;
+}
+
+function marcarAgendamentosVistos() {
+    localStorage.setItem('painelUltimaVisitaAgendamentos', String(Date.now()));
+    document.getElementById('badgeAgendamentos')?.classList.add('hidden');
+}
+
 async function carregarAgendamentos() {
     const list = document.getElementById('agendamentos-admin-list');
     list.innerHTML = '<p class="painel-loading"><i class="fas fa-spinner fa-spin"></i></p>';
@@ -328,7 +376,7 @@ async function carregarAgendamentos() {
 
         list.innerHTML = `
             <table class="painel-table">
-                <thead><tr><th>Cliente</th><th>Serviço</th><th>Data</th><th>Hora</th><th>Pagamento</th><th>Estado</th></tr></thead>
+                <thead><tr><th>Cliente</th><th>Serviço</th><th>Data</th><th>Hora</th><th>Pagamento</th><th>Valor</th><th>Estado</th></tr></thead>
                 <tbody>
                     ${items.map(a => `
                         <tr>
@@ -336,7 +384,8 @@ async function carregarAgendamentos() {
                             <td>${esc(a.servico?.nome || '—')}<br><small>${a.servico?.preco ? Number(a.servico.preco).toFixed(2) + '€' : ''}</small></td>
                             <td>${esc(a.data)}</td>
                             <td>${esc(a.hora)}</td>
-                            <td>${esc(a.metodo_pagamento || '—')}</td>
+                            <td>${esc(a.metodo_pagamento || '—')}<br><small>${esc(a.referencia_pagamento || '')}</small></td>
+                            <td>${a.valor_pago ? Number(a.valor_pago).toFixed(2) + '€' : '—'}</td>
                             <td><span class="status">${esc(a.status)}</span></td>
                         </tr>
                     `).join('')}
@@ -345,42 +394,6 @@ async function carregarAgendamentos() {
     } catch {
         list.innerHTML = '<p class="painel-empty">Erro ao carregar.</p>';
     }
-}
-
-async function carregarPagamentos() {
-    const grid = document.getElementById('pagamentosAdminGrid');
-    try {
-        const res = await fetch(`${API_URL}/config/pagamentos`);
-        const data = res.ok ? await res.json() : { metodos: {} };
-        metodosPagamento = data.metodos || {};
-
-        grid.innerHTML = Object.entries(metodosPagamento).map(([key, m]) => `
-            <label class="pagamento-admin-item ${m.ativo ? 'ativo' : ''}" data-metodo="${key}">
-                <input type="checkbox" ${m.ativo ? 'checked' : ''} onchange="toggleMetodoPagamento('${key}', this.checked)">
-                <i class="fas ${m.icon || 'fa-credit-card'}"></i>
-                <span>${esc(m.label || key)}</span>
-            </label>
-        `).join('');
-    } catch {
-        grid.innerHTML = '<p class="painel-empty">Erro ao carregar.</p>';
-    }
-}
-
-function toggleMetodoPagamento(key, ativo) {
-    if (metodosPagamento[key]) {
-        metodosPagamento[key].ativo = ativo;
-        document.querySelector(`.pagamento-admin-item[data-metodo="${key}"]`)?.classList.toggle('ativo', ativo);
-    }
-}
-
-async function guardarPagamentos() {
-    const res = await fetch(`${API_URL}/config/pagamentos`, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify({ metodos: metodosPagamento })
-    });
-    if (res.ok) toast('Métodos de pagamento guardados!');
-    else toast('Erro ao guardar.', 'error');
 }
 
 async function carregarBarbeiros() {

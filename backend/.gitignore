@@ -16,6 +16,11 @@ yarn.lock
 # Logs
 logs/
 *.log
+.sense-server.pid
+
+# Uploads de utilizadores
+uploads/*
+!uploads/.gitkeep
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

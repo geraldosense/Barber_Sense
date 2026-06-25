@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrar ou Registar - Sense Barbershop</title>
+    <title>Entrar — Sense Barbershop</title>
     <link rel="icon" type="image/png" href="assets/logo.png">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
@@ -11,131 +11,110 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
-<body class="conta-page">
-    <div class="conta-layout">
-        <aside class="conta-side">
-            <a href="index.html" class="conta-back"><i class="fas fa-arrow-left"></i> Voltar ao site</a>
-            <div class="conta-brand">
-                <img src="assets/logo.png" alt="Sense Barbershop" class="conta-logo">
-                <h1>Sense Barbershop</h1>
-                <p class="conta-tagline">Cortes clássicos com estilo e precisão</p>
+<body class="conta-page conta-page--cliente">
+    <div class="conta-shell">
+        <a href="index.html" class="conta-back-top"><i class="fas fa-arrow-left"></i> Voltar ao site</a>
+
+        <div class="conta-brand-top">
+            <img src="assets/logo.png" alt="Sense Barbershop" class="conta-logo-top">
+            <h1>Sense Barbershop</h1>
+        </div>
+
+        <div class="conta-card conta-card--cliente">
+            <div class="conta-card-header">
+                <h2 id="contaTitulo">Entrar na Sense Barbershop</h2>
+                <p id="contaSubtitulo">Use Google ou email para reservar o seu corte</p>
             </div>
-            <ul class="conta-benefits">
-                <li><i class="fas fa-calendar-check"></i> Marque o seu corte online</li>
-                <li><i class="fas fa-history"></i> Consulte as suas reservas</li>
-                <li><i class="fas fa-shield-alt"></i> Conta segura com Google ou email</li>
-            </ul>
-        </aside>
 
-        <main class="conta-main">
-            <div class="conta-card">
-                <div class="conta-card-header">
-                    <h2 id="contaTitulo">Bem-vindo</h2>
-                    <p id="contaSubtitulo">Entre ou crie conta para reservar a sua marcação</p>
-                </div>
-
-                <div id="googleSignInWrap" class="google-signin-wrap">
-                    <div id="googleSignInBtn"></div>
-                    <p class="auth-google-nota"><i class="fab fa-google"></i> Recomendado — conta Google verificada</p>
-                </div>
-
-                <div id="panelCompletarPerfil" class="auth-panel hidden">
-                    <h3><i class="fas fa-phone"></i> Último passo</h3>
-                    <p class="auth-subtitle">Indique o telefone para concluir o registo.</p>
-                    <form id="formCompletarPerfil">
-                        <div class="form-group">
-                            <label for="googleTelefone">Telefone *</label>
-                            <input type="tel" id="googleTelefone" required placeholder="+351 9XX XXX XXX" autocomplete="tel">
-                        </div>
-                        <button type="submit" class="auth-submit-btn">Concluir e Reservar</button>
-                    </form>
-                </div>
-
-                <div class="auth-divider" id="authDivider"><span>ou</span></div>
-
-                <div class="auth-tabs auth-tabs-compact" id="authTabs">
-                    <button type="button" class="auth-tab active" data-tab="login">Entrar</button>
-                    <button type="button" class="auth-tab" data-tab="registo">Registar</button>
-                    <button type="button" class="auth-tab" data-tab="recuperar">Recuperar</button>
-                </div>
-
-                <div class="auth-panel active" id="panel-login">
-                    <form id="formLogin">
-                        <div class="form-group">
-                            <label for="loginEmail">Email</label>
-                            <input type="email" id="loginEmail" required placeholder="seu@gmail.com" autocomplete="email">
-                        </div>
-                        <div class="form-group">
-                            <label for="loginPassword">Palavra-passe</label>
-                            <div class="password-input">
-                                <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
-                                <button type="button" class="toggle-password" aria-label="Mostrar"><i class="fas fa-eye"></i></button>
-                            </div>
-                        </div>
-                        <button type="submit" class="auth-submit-btn">Entrar</button>
-                        <p class="auth-switch"><a href="#" id="linkEsqueciPassword">Esqueci a palavra-passe</a></p>
-                    </form>
-                </div>
-
-                <div class="auth-panel" id="panel-registo">
-                    <form id="formRegisto">
-                        <div class="form-group">
-                            <label for="regNome">Nome completo</label>
-                            <input type="text" id="regNome" required placeholder="O seu nome" autocomplete="name">
-                        </div>
-                        <div class="form-group">
-                            <label for="regEmail">Email</label>
-                            <input type="email" id="regEmail" required placeholder="seu@gmail.com" autocomplete="email">
-                        </div>
-                        <div class="form-group">
-                            <label for="regTelefone">Telefone</label>
-                            <input type="tel" id="regTelefone" required placeholder="+351 9XX XXX XXX" autocomplete="tel">
-                        </div>
-                        <div class="form-group">
-                            <label for="regPassword">Palavra-passe</label>
-                            <div class="password-input">
-                                <input type="password" id="regPassword" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
-                                <button type="button" class="toggle-password" aria-label="Mostrar"><i class="fas fa-eye"></i></button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="regPasswordConfirm">Confirmar palavra-passe</label>
-                            <input type="password" id="regPasswordConfirm" required minlength="6" placeholder="Repita a palavra-passe" autocomplete="new-password">
-                        </div>
-                        <button type="submit" class="auth-submit-btn">Criar Conta</button>
-                        <p class="auth-nota"><i class="fas fa-info-circle"></i> Após criar conta, confirme com o código enviado por email.</p>
-                    </form>
-                </div>
-
-                <div class="auth-panel" id="panel-recuperar">
-                    <form id="formRecuperar">
-                        <div class="form-group">
-                            <label for="recEmail">Email</label>
-                            <input type="email" id="recEmail" required placeholder="seu@email.com">
-                        </div>
-                        <button type="submit" class="auth-submit-btn secondary">Enviar instruções</button>
-                    </form>
-                    <div class="auth-divider"><span>ou código</span></div>
-                    <form id="formRecuperarCodigo">
-                        <div class="form-group">
-                            <label for="recEmailCodigo">Email</label>
-                            <input type="email" id="recEmailCodigo" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="recCodigo">Código</label>
-                            <input type="text" id="recCodigo" required maxlength="6" pattern="[0-9]{6}">
-                        </div>
-                        <div class="form-group">
-                            <label for="recNovaPassword">Nova palavra-passe</label>
-                            <input type="password" id="recNovaPassword" required minlength="6">
-                        </div>
-                        <button type="submit" class="auth-submit-btn secondary">Redefinir</button>
-                    </form>
-                </div>
-
-                <div class="auth-message hidden" id="authMessage"></div>
+            <div class="auth-tabs auth-tabs-pill" id="authTabs">
+                <button type="button" class="auth-tab" data-tab="registo">Registar</button>
+                <button type="button" class="auth-tab active" data-tab="login">Entrar</button>
             </div>
-        </main>
+
+            <div id="googleSignInWrap" class="google-signin-wrap google-signin-wrap--pill">
+                <div id="googleSignInBtn"></div>
+            </div>
+            <p class="auth-google-nota" id="googleNota">
+                <i class="fab fa-google"></i> Entrar com conta Google verificada
+            </p>
+
+            <div id="panelCompletarPerfil" class="auth-panel hidden">
+                <h3><i class="fas fa-phone"></i> Último passo</h3>
+                <p class="auth-subtitle">Indique o telefone para concluir o registo.</p>
+                <form id="formCompletarPerfil">
+                    <div class="form-group">
+                        <label for="googleTelefone">Telefone *</label>
+                        <input type="tel" id="googleTelefone" required placeholder="+351 9XX XXX XXX" autocomplete="tel">
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Concluir e Reservar</button>
+                </form>
+            </div>
+
+            <div class="auth-divider" id="authDivider"><span>ou com email</span></div>
+
+            <div class="auth-panel active" id="panel-login">
+                <form id="formLogin">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required placeholder="seu@gmail.com" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Palavra-passe</label>
+                        <div class="password-input">
+                            <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
+                            <button type="button" class="toggle-password" aria-label="Mostrar"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="auth-submit-btn auth-submit-btn--pill">Entrar</button>
+                    <p class="auth-switch"><a href="#" id="linkEsqueciPassword">Esqueci a palavra-passe</a></p>
+                </form>
+            </div>
+
+            <div class="auth-panel" id="panel-registo">
+                <form id="formRegisto">
+                    <div class="form-group">
+                        <label for="regNome">Nome completo</label>
+                        <input type="text" id="regNome" required placeholder="O seu nome" autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email</label>
+                        <input type="email" id="regEmail" required placeholder="seu@gmail.com" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="regTelefone">Telefone</label>
+                        <input type="tel" id="regTelefone" required placeholder="+351 9XX XXX XXX" autocomplete="tel">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Palavra-passe</label>
+                        <div class="password-input">
+                            <input type="password" id="regPassword" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                            <button type="button" class="toggle-password" aria-label="Mostrar"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPasswordConfirm">Confirmar palavra-passe</label>
+                        <input type="password" id="regPasswordConfirm" required minlength="6" placeholder="Repita a palavra-passe" autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="auth-submit-btn auth-submit-btn--pill">Criar Conta</button>
+                </form>
+            </div>
+
+            <div class="auth-panel" id="panel-recuperar">
+                <form id="formRecuperar">
+                    <div class="form-group">
+                        <label for="recEmail">Email</label>
+                        <input type="email" id="recEmail" required placeholder="seu@email.com">
+                    </div>
+                    <button type="submit" class="auth-submit-btn secondary">Enviar instruções</button>
+                </form>
+            </div>
+
+            <div class="auth-message hidden" id="authMessage"></div>
+
+            <p class="conta-admin-hint">
+                <i class="fas fa-lock"></i> Administração da barbearia: use o link <strong>Admin</strong> no rodapé do site.
+            </p>
+        </div>
     </div>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -147,11 +126,15 @@
             if (obterToken() && localStorage.getItem('utilizador')) {
                 try {
                     const u = JSON.parse(localStorage.getItem('utilizador'));
-                    redirecionarAposAuth(u);
-                    return;
+                    if (u.perfil === 'cliente') {
+                        redirecionarAposAuth(u);
+                        return;
+                    }
                 } catch (_) {}
             }
             configurarAuth();
+            const tab = new URLSearchParams(window.location.search).get('tab');
+            if (tab === 'registo') mudarTabAuth('registo');
         });
     </script>
 </body>

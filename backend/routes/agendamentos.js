@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
         let sql = `
             SELECT a.id, a.servico_id, a.barbeiro_id, a.cliente_nome, 
                    a.cliente_telefone, a.cliente_email, a.data, a.hora, 
-                   a.status, a.criado_em, a.metodo_pagamento,
+                   a.status, a.criado_em, a.metodo_pagamento, a.referencia_pagamento, a.valor_pago,
                    s.nome as servico_nome, s.preco, s.tempo_estimado,
                    b.nome as barbeiro_nome
             FROM agendamentos a
@@ -81,6 +81,8 @@ router.get('/', async (req, res) => {
             hora: a.hora,
             status: a.status,
             metodo_pagamento: a.metodo_pagamento,
+            referencia_pagamento: a.referencia_pagamento,
+            valor_pago: a.valor_pago,
             criado_em: a.criado_em
         }));
 
@@ -149,7 +151,7 @@ router.get('/:id', async (req, res) => {
  */
 router.post('/', authOpcional, async (req, res) => {
     try {
-        const { servico_id, barbeiro_id, data, hora, nome, telefone, email, metodo_pagamento } = req.body;
+        const { servico_id, barbeiro_id, data, hora, nome, telefone, email, metodo_pagamento, referencia_pagamento, valor_pago } = req.body;
 
         // Validar campos obrigatórios
         if (!servico_id || !barbeiro_id || !data || !hora || !nome || !telefone || !email) {
@@ -162,7 +164,6 @@ router.post('/', authOpcional, async (req, res) => {
             return res.status(403).json({ erro: 'Só pode agendar com o email da sua conta.' });
         }
 
-        // Validar se barbeiro e serviço existem
         const servico = await req.db.get('SELECT * FROM servicos WHERE id = ?', [servico_id]);
         const barbeiro = await req.db.get('SELECT * FROM barbeiros WHERE id = ?', [barbeiro_id]);
 
@@ -172,6 +173,23 @@ router.post('/', authOpcional, async (req, res) => {
 
         if (!barbeiro) {
             return res.status(404).json({ erro: 'Barbeiro não encontrado' });
+        }
+
+        const metodosValidos = ['mbway', 'visa', 'revolut'];
+        if (!metodo_pagamento || !metodosValidos.includes(metodo_pagamento)) {
+            return res.status(400).json({ erro: 'Selecione um método de pagamento válido.' });
+        }
+
+        const valorPago = parseFloat(valor_pago);
+        if (Number.isNaN(valorPago) || valorPago <= 0) {
+            return res.status(400).json({ erro: 'Indique o valor do pagamento.' });
+        }
+
+        const precoEsperado = parseFloat(servico.preco);
+        if (Math.abs(valorPago - precoEsperado) > 0.01) {
+            return res.status(400).json({
+                erro: `O valor pago (${valorPago.toFixed(2)}€) não corresponde ao preço do corte (${precoEsperado.toFixed(2)}€).`
+            });
         }
 
         // Verificar se horário já está ocupado
@@ -204,13 +222,23 @@ router.post('/', authOpcional, async (req, res) => {
             });
         }
 
+        const nomeReferencia = (referencia_pagamento || nome || '').trim();
+        if (req.utilizador?.perfil === 'cliente' && nomeReferencia) {
+            const nomeConta = (req.utilizador.nome || '').trim();
+            if (nomeConta && nomeReferencia.toLowerCase() !== nomeConta.toLowerCase()) {
+                return res.status(400).json({
+                    erro: 'A referência de pagamento deve corresponder ao nome da sua conta.'
+                });
+            }
+        }
+
         // Criar agendamento
         const usuarioId = req.utilizador?.id || null;
         const resultado = await req.db.run(
             `INSERT INTO agendamentos 
-             (servico_id, barbeiro_id, cliente_nome, cliente_telefone, cliente_email, data, hora, status, usuario_id, metodo_pagamento)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmado', ?, ?)`,
-            [servico_id, barbeiro_id, nome, telefone, email.toLowerCase().trim(), data, hora, usuarioId, metodo_pagamento || null]
+             (servico_id, barbeiro_id, cliente_nome, cliente_telefone, cliente_email, data, hora, status, usuario_id, metodo_pagamento, referencia_pagamento, valor_pago)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmado', ?, ?, ?, ?)`,
+            [servico_id, barbeiro_id, nome, telefone, email.toLowerCase().trim(), data, hora, usuarioId, metodo_pagamento, nomeReferencia || nome, valorPago]
         );
 
         // Retornar agendamento completo
@@ -232,7 +260,9 @@ router.post('/', authOpcional, async (req, res) => {
             data,
             hora,
             status: 'confirmado',
-            metodo_pagamento: metodo_pagamento || null
+            metodo_pagamento: metodo_pagamento,
+            referencia_pagamento: nomeReferencia || nome,
+            valor_pago: valorPago
         };
 
         res.status(201).json(agendamento);

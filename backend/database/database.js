@@ -191,6 +191,12 @@ class Database {
                     if (!err3 && colsA && !colsA.some(c => c.name === 'metodo_pagamento')) {
                         this.db.run('ALTER TABLE agendamentos ADD COLUMN metodo_pagamento TEXT');
                     }
+                    if (!err3 && colsA && !colsA.some(c => c.name === 'referencia_pagamento')) {
+                        this.db.run('ALTER TABLE agendamentos ADD COLUMN referencia_pagamento TEXT');
+                    }
+                    if (!err3 && colsA && !colsA.some(c => c.name === 'valor_pago')) {
+                        this.db.run('ALTER TABLE agendamentos ADD COLUMN valor_pago REAL');
+                    }
 
                     this.db.all('PRAGMA table_info(barbeiros)', (err4, colsB) => {
                         if (err4 || !colsB) return done?.();

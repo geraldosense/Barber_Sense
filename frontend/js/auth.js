@@ -12,6 +12,7 @@ function estaAutenticado() {
 }
 
 function guardarSessao(token, utilizador) {
+    sessionStorage.removeItem('admPainelOk');
     localStorage.setItem('authToken', token);
     localStorage.setItem('utilizador', JSON.stringify(utilizador));
     utilizadorAtual = utilizador;
@@ -51,6 +52,11 @@ async function verificarSessao() {
         if (res.ok) {
             const data = await res.json();
             utilizadorAtual = data.utilizador;
+            const emPaginaAdmin = /admin-login|painel/.test(window.location.pathname);
+            if (utilizadorAtual?.perfil === 'administrador' && sessionStorage.getItem('admPainelOk') !== '1' && !emPaginaAdmin) {
+                limparSessao();
+                return;
+            }
             localStorage.setItem('utilizador', JSON.stringify(utilizadorAtual));
         } else {
             limparSessao();
@@ -84,9 +90,7 @@ function atualizarUIAuth() {
             administrador: 'Admin'
         }[utilizadorAtual.perfil] || 'Utilizador';
 
-        const painelBtn = utilizadorAtual.perfil === 'administrador'
-            ? `<a href="painel.html" class="login-btn" id="btn-adm"><i class="fas fa-cog"></i> Painel</a>`
-            : '';
+        const painelBtn = '';
 
         authButtons.classList.remove('auth-buttons--empty');
         authButtons.innerHTML = `
@@ -110,10 +114,6 @@ function atualizarUIAuth() {
             window.location.href = 'conta.html';
         });
 
-        document.getElementById('btn-adm')?.addEventListener('click', () => {
-            sessionStorage.setItem('admPainelOk', '1');
-        });
-
         document.getElementById('btnAgendarNav')?.addEventListener('click', (e) => {
             e.preventDefault();
             irParaMarcacao();
@@ -123,27 +123,28 @@ function atualizarUIAuth() {
         if (typeof mostrarAreaLogada === 'function') mostrarAreaLogada(false);
     } else {
         if (typeof esconderAreaLogada === 'function') esconderAreaLogada();
-        authButtons.innerHTML = '';
-        authButtons.classList.add('auth-buttons--empty');
+        authButtons.classList.remove('auth-buttons--empty');
+        authButtons.innerHTML = `
+            <a href="conta.html" class="login-btn" id="btnLogin"><i class="fas fa-user"></i> Entrar</a>
+            <a href="marcacao.html" class="register-btn" id="btnAgendarNav">Reservar</a>
+        `;
+
+        document.getElementById('btnLogin')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = 'conta.html';
+        });
+        document.getElementById('btnAgendarNav')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            irParaMarcacao();
+        });
     }
 }
 
 function redirecionarAposAuth(utilizador) {
     if (!utilizador) return;
 
-    if (utilizador.perfil === 'administrador') {
-        sessionStorage.setItem('admPainelOk', '1');
-        window.location.href = 'painel.html';
-        return;
-    }
-
     if (utilizador.perfil === 'barbeiro') {
         window.location.href = 'index.html#minha-area';
-        return;
-    }
-
-    if (!utilizador.perfil_completo) {
-        window.location.href = 'finalizar.html';
         return;
     }
 
@@ -156,7 +157,7 @@ function irParaConta(tab) {
 }
 
 function irParaMarcacao() {
-    if (estaAutenticado() && ['cliente', 'administrador'].includes(utilizadorAtual?.perfil)) {
+    if (estaAutenticado() && utilizadorAtual?.perfil === 'cliente') {
         window.location.href = 'marcacao.html';
     } else {
         window.location.href = 'conta.html';
@@ -204,6 +205,21 @@ function mudarTabAuth(tab) {
     document.querySelectorAll('.auth-panel').forEach(p => {
         p.classList.toggle('active', p.id === `panel-${tab}`);
     });
+
+    const titulo = document.getElementById('contaTitulo');
+    const subtitulo = document.getElementById('contaSubtitulo');
+    if (titulo && subtitulo) {
+        if (tab === 'registo') {
+            titulo.textContent = 'Criar conta na Sense Barbershop';
+            subtitulo.textContent = 'Registe-se com Google ou email para marcar o seu corte';
+        } else if (tab === 'recuperar') {
+            titulo.textContent = 'Recuperar palavra-passe';
+            subtitulo.textContent = 'Enviaremos instruções para o seu email';
+        } else {
+            titulo.textContent = 'Entrar na Sense Barbershop';
+            subtitulo.textContent = 'Use Google ou email para reservar o seu corte';
+        }
+    }
 }
 
 function mostrarAuthMessage(mensagem, tipo = 'info') {
@@ -266,7 +282,7 @@ async function loginComGoogle(credential) {
 
         await processarRespostaAuth(data);
     } catch {
-        mostrarAuthMessage('Erro de ligação ao servidor. Inicie o backend em http://localhost:3000', 'error');
+        mostrarAuthMessage('Servidor offline. Faça duplo-clique em Sense Barbershop.command ou aguarde a reconexão automática.', 'error');
     }
 }
 
@@ -342,9 +358,14 @@ function inicializarGoogleSignIn() {
                 theme: 'outline',
                 size: 'large',
                 text: 'continue_with',
-                shape: 'rectangular',
+                shape: 'pill',
                 width: 320
             });
+        }
+
+        const nota = document.getElementById('googleNota');
+        if (nota) {
+            nota.innerHTML = '<i class="fab fa-google"></i> Entrar com conta Google verificada';
         }
     };
 
@@ -423,7 +444,7 @@ async function submeterLogin(e) {
         redirecionarAposAuth(data.utilizador);
     } catch {
         mostrarAuthMessage(
-            'Erro de ligação ao servidor. Inicie o backend: abra o terminal na pasta backend e execute "npm start", depois abra http://localhost:3000',
+            'Servidor offline. Use Sense Barbershop.command na pasta do projeto ou aguarde a ligação automática.',
             'error'
         );
     }
