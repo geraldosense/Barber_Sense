@@ -3,6 +3,8 @@
     const origin = window.location.origin;
     const port = window.location.port;
     const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const pathname = window.location.pathname;
 
     if (protocol === 'file:') {
         window.API_URL = 'http://localhost:3000/api';
@@ -13,13 +15,24 @@
         return;
     }
 
-    if (port === '3000' || (port === '' && origin.includes('localhost'))) {
-        window.API_URL = origin + '/api';
-        window.SITE_URL = origin;
-    } else {
-        window.API_URL = 'http://localhost:3000/api';
-        window.SITE_URL = 'http://localhost:3000';
+    const apiMeta = document.querySelector('meta[name="sense-api-url"]')?.content?.trim();
+
+    if (hostname.endsWith('github.io')) {
+        const repo = pathname.split('/').filter(Boolean)[0] || '';
+        window.SITE_URL = repo ? `${origin}/${repo}` : origin;
+        window.API_URL = apiMeta || '';
+        window.GITHUB_PAGES_PREVIEW = !apiMeta;
+        return;
     }
+
+    if (hostname.includes('onrender.com') || port === '3000' || (port === '' && origin.includes('localhost'))) {
+        window.API_URL = apiMeta || `${origin}/api`;
+        window.SITE_URL = origin;
+        return;
+    }
+
+    window.API_URL = apiMeta || 'http://localhost:3000/api';
+    window.SITE_URL = origin;
 })();
 
 var API_URL = window.API_URL;
@@ -111,6 +124,36 @@ mostrarAvisoProtocolo();
         });
     }
 
+    function mostrarBannerGitHubPages() {
+        if (document.getElementById('sense-servidor-banner')) return;
+        const b = document.createElement('div');
+        b.id = 'sense-servidor-banner';
+        b.innerHTML = [
+            '<div class="sense-servidor-banner__inner">',
+            '<span class="sense-servidor-banner__icon"><i class="fas fa-globe"></i></span>',
+            '<span class="sense-servidor-banner__text">',
+            '<strong>Pré-visualização no GitHub.</strong> O design do site está online; marcações e pagamentos precisam do servidor (localhost ou Render).',
+            '</span>',
+            '</div>'
+        ].join('');
+        document.body.prepend(b);
+    }
+
+    function mostrarBannerSemApi() {
+        if (document.getElementById('sense-servidor-banner')) return;
+        const b = document.createElement('div');
+        b.id = 'sense-servidor-banner';
+        b.innerHTML = [
+            '<div class="sense-servidor-banner__inner">',
+            '<span class="sense-servidor-banner__icon"><i class="fas fa-info-circle"></i></span>',
+            '<span class="sense-servidor-banner__text">',
+            '<strong>Modo demonstração.</strong> Configure o backend online para ativar marcações.',
+            '</span>',
+            '</div>'
+        ].join('');
+        document.body.prepend(b);
+    }
+
     function esconderBannerOffline() {
         document.getElementById('sense-servidor-banner')?.remove();
     }
@@ -158,6 +201,17 @@ mostrarAvisoProtocolo();
 
     document.addEventListener('DOMContentLoaded', async () => {
         if (window.location.protocol === 'file:') return;
+
+        if (window.GITHUB_PAGES_PREVIEW) {
+            mostrarBannerGitHubPages();
+            return;
+        }
+
+        if (!window.API_URL) {
+            mostrarBannerSemApi();
+            return;
+        }
+
         const ok = await verificarServidor(2500);
         servidorOnline = ok;
         if (!ok) aguardarServidor(45);
