@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-label="Degrad�">
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0f0f"/>
+      <stop offset="100%" stop-color="#2a2a32"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="55%" stop-color="#4a4a4a"/>
+      <stop offset="100%" stop-color="#d4af37"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="240" fill="url(#bg4)"/>
+  <ellipse cx="200" cy="86" rx="54" ry="58" fill="#c9a66b"/>
+  <path d="M146 70 Q200 20 254 70 Q240 55 200 50 Q160 55 146 70Z" fill="url(#fade)"/>
+  <rect x="166" y="132" width="68" height="68" rx="12" fill="#222"/>
+  <text x="200" y="222" text-anchor="middle" fill="#d4af37" font-family="Arial,sans-serif" font-size="14" font-weight="700">DEGRAD�</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-label="Tratamento Capilar">
+  <defs>
+    <linearGradient id="bg5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#151820"/>
+      <stop offset="100%" stop-color="#283040"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="240" fill="url(#bg5)"/>
+  <ellipse cx="200" cy="84" rx="50" ry="56" fill="#c9a66b"/>
+  <path d="M150 68 Q200 18 250 68 Q235 42 200 36 Q165 42 150 68Z" fill="#2a2520"/>
+  <path d="M170 100 Q185 60 200 58 Q215 60 230 100" fill="none" stroke="#7ec8e3" stroke-width="4" opacity="0.7"/>
+  <path d="M160 110 Q200 80 240 110" fill="none" stroke="#7ec8e3" stroke-width="3" opacity="0.5"/>
+  <rect x="176" y="136" width="48" height="64" rx="10" fill="#1e2430"/>
+  <ellipse cx="200" cy="200" rx="36" ry="8" fill="#d4af37" opacity="0.35"/>
+  <text x="200" y="222" text-anchor="middle" fill="#d4af37" font-family="Arial,sans-serif" font-size="13" font-weight="700">TRATAMENTO CAPILAR</text>
+</svg>

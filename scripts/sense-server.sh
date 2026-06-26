@@ -47,6 +47,16 @@ free_port() {
 }
 
 cmd_start() {
+    if curl -sf "http://localhost:$PORT/api/health" >/dev/null 2>&1; then
+        local pid
+        pid=$(lsof -ti:"$PORT" 2>/dev/null | head -1)
+        if [ -n "$pid" ]; then
+            echo "$pid" > "$PID_FILE"
+        fi
+        echo "✓ Servidor já está online — http://localhost:$PORT"
+        return 0
+    fi
+
     if is_running; then
         echo "✓ Servidor já está a correr (PID $(cat "$PID_FILE")) — http://localhost:$PORT"
         return 0

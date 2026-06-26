@@ -14,6 +14,7 @@ const authRoutes = require('./routes/auth');
 const galeriaRoutes = require('./routes/galeria');
 const uploadRoutes = require('./routes/upload');
 const configRoutes = require('./routes/config');
+const pagamentosRoutes = require('./routes/pagamentos');
 
 // ===== CONFIGURAÇÃO DA APLICAÇÃO =====
 const app = express();
@@ -49,6 +50,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/galeria', galeriaRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/pagamentos', pagamentosRoutes);
 
 // ===== ROTA DE SAÚDE =====
 app.get('/api/health', (req, res) => {

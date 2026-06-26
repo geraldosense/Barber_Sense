@@ -1,0 +1,7 @@
+#!/bin/bash
+ROOT="/Users/Mac/sense_barber"
+export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:$PATH"
+"$ROOT/scripts/install-autostart.sh" >/dev/null 2>&1 || true
+"$ROOT/scripts/sense-server.sh" start >/dev/null 2>&1 || true
+sleep 1
+open "http://localhost:3000"

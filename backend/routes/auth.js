@@ -170,6 +170,48 @@ router.get('/config', (_req, res) => {
     });
 });
 
+/**
+ * GET /api/auth/verificar-email — verifica se o email já tem conta (público)
+ */
+router.get('/verificar-email', async (req, res) => {
+    try {
+        const email = (req.query.email || '').toLowerCase().trim();
+
+        if (!email || !validarEmail(email)) {
+            return res.json({ registado: false });
+        }
+
+        const utilizador = await req.db.get(
+            `SELECT nome, auth_provider, google_id, ativo, email_confirmado
+             FROM utilizadores WHERE email = ?`,
+            [email]
+        );
+
+        if (!utilizador) {
+            return res.json({ registado: false });
+        }
+
+        if (!utilizador.ativo || !utilizador.email_confirmado) {
+            await req.db.run(
+                'UPDATE utilizadores SET ativo = 1, email_confirmado = 1 WHERE email = ?',
+                [email]
+            );
+        }
+
+        const usaGoogle = !!(utilizador.google_id || utilizador.auth_provider === 'google');
+        const primeiroNome = (utilizador.nome || email.split('@')[0]).split(' ')[0];
+
+        res.json({
+            registado: true,
+            nome: primeiroNome,
+            auth_provider: usaGoogle ? 'google' : 'local',
+            email_confirmado: true
+        });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
 async function criarTokenConfirmacao(db, usuarioId) {
     await db.run(
         `UPDATE tokens SET usado = 1 WHERE usuario_id = ? AND tipo = 'confirmacao' AND usado = 0`,
@@ -263,23 +305,26 @@ router.post('/registo', async (req, res) => {
         );
 
         if (existente) {
-            return res.status(409).json({ erro: 'Este email já está registado.' });
+            return res.status(409).json({
+                erro: 'Este email já está registado. Faça login com a sua palavra-passe.',
+                codigo: 'EMAIL_JA_REGISTADO'
+            });
         }
 
         const passwordHash = await bcrypt.hash(password, 12);
         const perfil = perfilParaEmail(email.toLowerCase().trim());
         const resultado = await req.db.run(
-            `INSERT INTO utilizadores (nome, email, telefone, password_hash, perfil, ativo, email_confirmado)
-             VALUES (?, ?, ?, ?, ?, 1, 1)`,
+            `INSERT INTO utilizadores (nome, email, telefone, password_hash, perfil, ativo, email_confirmado, auth_provider, perfil_completo)
+             VALUES (?, ?, ?, ?, ?, 1, 1, 'local', 1)`,
             [nome.trim(), email.toLowerCase().trim(), telefone.trim(), passwordHash, perfil]
         );
 
         const utilizador = await req.db.get(
-            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo, auth_provider
              FROM utilizadores WHERE id = ?`,
             [resultado.id]
         );
-        return responderSessaoCliente(res, utilizador, 'Conta criada com sucesso!', 201);
+        return responderSessaoCliente(res, utilizador, 'Conta criada e validada! Pode iniciar sessão com este email.', 201);
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -445,18 +490,40 @@ router.post('/login', async (req, res) => {
         }
 
         const utilizador = await req.db.get(
-            `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+            `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id,
+                    metodo_pagamento, perfil_completo, auth_provider, google_id
              FROM utilizadores WHERE email = ?`,
             [email.toLowerCase().trim()]
         );
 
         if (!utilizador) {
-            return res.status(401).json({ erro: MSG_LOGIN_INVALIDO });
+            return res.status(404).json({
+                erro: 'Este email não está registado. Crie conta na aba Registar.',
+                codigo: 'EMAIL_NAO_REGISTADO'
+            });
+        }
+
+        const semPasswordLocal = !utilizador.password_hash || utilizador.password_hash === '';
+        if (semPasswordLocal && (utilizador.google_id || utilizador.auth_provider === 'google')) {
+            return res.status(401).json({
+                erro: 'Esta conta foi criada com Google. Use o botão "Entrar com Google".',
+                codigo: 'USE_GOOGLE'
+            });
+        }
+
+        if (semPasswordLocal) {
+            return res.status(401).json({
+                erro: 'Conta sem palavra-passe. Use Google ou recupere a palavra-passe.',
+                codigo: 'SEM_PASSWORD'
+            });
         }
 
         const passwordValida = await bcrypt.compare(password, utilizador.password_hash);
         if (!passwordValida) {
-            return res.status(401).json({ erro: MSG_LOGIN_INVALIDO });
+            return res.status(401).json({
+                erro: 'Palavra-passe incorreta. Tente novamente ou recupere a palavra-passe.',
+                codigo: 'PASSWORD_INVALIDA'
+            });
         }
 
         if (!utilizador.email_confirmado || !utilizador.ativo) {

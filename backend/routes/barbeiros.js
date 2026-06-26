@@ -1,5 +1,6 @@
 // ===== ROTAS DE BARBEIROS =====
 const express = require('express');
+const { verificarToken, verificarPerfil } = require('../middleware/auth');
 const router = express.Router();
 
 /**
@@ -90,7 +91,7 @@ router.get('/:id/agendamentos', async (req, res) => {
  * POST /api/barbeiros
  * Criar novo barbeiro
  */
-router.post('/', async (req, res) => {
+router.post('/', verificarToken, verificarPerfil('administrador'), async (req, res) => {
     try {
         const { nome, experiencia, especialidades, foto, telefone, email, principal } = req.body;
 
@@ -128,7 +129,7 @@ router.post('/', async (req, res) => {
  * PUT /api/barbeiros/:id
  * Atualizar barbeiro
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', verificarToken, verificarPerfil('administrador'), async (req, res) => {
     try {
         const { id } = req.params;
         const { nome, experiencia, especialidades, foto, telefone, email, ativo } = req.body;
@@ -171,21 +172,53 @@ router.put('/:id', async (req, res) => {
  * DELETE /api/barbeiros/:id
  * Deletar barbeiro (desativar)
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verificarToken, verificarPerfil('administrador'), async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Verificar se barbeiro existe
-        const barbeiro = await req.db.get('SELECT * FROM barbeiros WHERE id = ?', [id]);
+        const barbeiro = await req.db.get('SELECT * FROM barbeiros WHERE id = ? AND ativo = 1', [id]);
         if (!barbeiro) {
             return res.status(404).json({ erro: 'Barbeiro não encontrado' });
         }
 
-        // Desativar em vez de deletar
-        await req.db.run('UPDATE barbeiros SET ativo = 0 WHERE id = ?', [id]);
+        const ativos = await req.db.get(
+            'SELECT COUNT(*) as count FROM barbeiros WHERE ativo = 1'
+        );
+        if (ativos.count <= 1) {
+            return res.status(400).json({
+                erro: 'Não é possível eliminar o último barbeiro ativo da barbearia.'
+            });
+        }
+
+        const futuros = await req.db.get(
+            "SELECT COUNT(*) as count FROM agendamentos WHERE barbeiro_id = ? AND status = 'confirmado' AND data >= date('now')",
+            [id]
+        );
+
+        let extra = '';
+        if (futuros.count > 0) {
+            await req.db.run(
+                `UPDATE agendamentos SET status = 'cancelado', atualizado_em = datetime('now')
+                 WHERE barbeiro_id = ? AND status = 'confirmado' AND data >= date('now')`,
+                [id]
+            );
+            extra = ` ${futuros.count} marcação(ões) futura(s) cancelada(s).`;
+        }
+
+        await req.db.run('UPDATE barbeiros SET ativo = 0, principal = 0 WHERE id = ?', [id]);
+
+        if (barbeiro.principal) {
+            const proximo = await req.db.get(
+                'SELECT id FROM barbeiros WHERE ativo = 1 ORDER BY id LIMIT 1'
+            );
+            if (proximo) {
+                await req.db.run('UPDATE barbeiros SET principal = 0 WHERE ativo = 1');
+                await req.db.run('UPDATE barbeiros SET principal = 1 WHERE id = ?', [proximo.id]);
+            }
+        }
 
         res.json({
-            mensagem: 'Barbeiro desativado com sucesso',
+            mensagem: `Barbeiro eliminado com sucesso.${extra}`,
             id
         });
     } catch (error) {

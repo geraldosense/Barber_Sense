@@ -121,6 +121,24 @@ class Database {
             )
         `);
 
+        // Pedidos MB WAY pendentes
+        this.db.run(`
+            CREATE TABLE IF NOT EXISTS pagamentos_mbway (
+                id TEXT PRIMARY KEY,
+                usuario_id INTEGER,
+                telefone_cliente TEXT NOT NULL,
+                telefone_comerciante TEXT NOT NULL,
+                valor REAL NOT NULL,
+                estado TEXT DEFAULT 'pendente',
+                referencia TEXT,
+                simulado INTEGER DEFAULT 0,
+                provider TEXT,
+                expira_em DATETIME NOT NULL,
+                confirmado_em DATETIME,
+                criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         // Galeria de cortes (portefólio)
         this.db.run(`
             CREATE TABLE IF NOT EXISTS galeria (
@@ -201,7 +219,17 @@ class Database {
                     this.db.all('PRAGMA table_info(barbeiros)', (err4, colsB) => {
                         if (err4 || !colsB) return done?.();
 
-                        if (!colsB.some(c => c.name === 'principal')) {
+                        this.db.all('PRAGMA table_info(servicos)', (errServ, colsServ) => {
+                            if (!errServ && colsServ) {
+                                if (!colsServ.some(c => c.name === 'ativo')) {
+                                    this.db.run('ALTER TABLE servicos ADD COLUMN ativo INTEGER DEFAULT 1');
+                                }
+                                if (!colsServ.some(c => c.name === 'imagem')) {
+                                    this.db.run('ALTER TABLE servicos ADD COLUMN imagem TEXT');
+                                }
+                            }
+
+                            if (!colsB.some(c => c.name === 'principal')) {
                             this.db.run(
                                 'ALTER TABLE barbeiros ADD COLUMN principal INTEGER DEFAULT 0',
                                 (alterErr) => {
@@ -225,6 +253,7 @@ class Database {
                                 }
                             );
                         }
+                        });
                     });
                 });
             });
@@ -260,9 +289,9 @@ class Database {
     normalizarBarbeiroPrincipal(done) {
         const dadosGeraldo = [
             'Geraldo Sense',
-            '15+ anos',
+            '4 anos de profissionalismo na área da barbearia',
             'Cortes clássicos, Degradê, Barba, Styling',
-            'assets/logo.png',
+            'assets/barbeiros/geraldo-sense.jpg',
             '+351 960 075 690',
             'sensegeraldo2@gmail.com'
         ];
@@ -318,7 +347,7 @@ class Database {
             });
 
             const barbeiros = [
-                ['Geraldo Sense', '15+ anos', 'Cortes clássicos, Degradê, Barba, Styling', 'assets/logo.png', '+351 960 075 690', 'sensegeraldo2@gmail.com', 1]
+                ['Geraldo Sense', '4 anos de profissionalismo na área da barbearia', 'Cortes clássicos, Degradê, Barba, Styling', 'assets/barbeiros/geraldo-sense.jpg', '+351 960 075 690', 'sensegeraldo2@gmail.com', 1]
             ];
 
             barbeiros.forEach(barbeiro => {
@@ -362,19 +391,7 @@ class Database {
 
         this.db.get('SELECT COUNT(*) as count FROM galeria', (err, row) => {
             if (err || row.count > 0) return;
-
-            const exemplos = [
-                [1, 2, 'Degradê Moderno', 'Degradê', 'Fade suave com linha definida', 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=600', '', '40 min', 'aprovado'],
-                [2, 2, 'Barba Clássica', 'Barba', 'Modelagem e acabamento premium', 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600', '', '25 min', 'aprovado']
-            ];
-
-            exemplos.forEach(e => {
-                this.db.run(
-                    `INSERT INTO galeria (barbeiro_id, usuario_id, titulo, tipo_corte, descricao, imagem_url, video_url, duracao, status, publicado_em)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
-                    e
-                );
-            });
+            // Galeria vazia por defeito — fotos são publicadas pelo painel admin
         });
     }
 

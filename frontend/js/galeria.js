@@ -22,7 +22,8 @@ function renderizarGaleria(cortes) {
     if (!grid) return;
 
     if (!cortes.length) {
-        grid.innerHTML = '<p class="galeria-empty">Ainda não há cortes publicados na galeria.</p>';
+        const msg = typeof t === 'function' ? t('gallery.empty') : 'Ainda não há cortes publicados.';
+        grid.innerHTML = `<p class="galeria-empty">${msg}</p>`;
         return;
     }
 
@@ -56,3 +57,4 @@ function escGaleria(text) {
 }
 
 document.addEventListener('DOMContentLoaded', carregarGaleria);
+document.addEventListener('sense:langchange', carregarGaleria);

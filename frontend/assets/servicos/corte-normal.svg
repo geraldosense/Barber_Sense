@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-label="Corte Normal">
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#3d3428"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="240" fill="url(#bg1)"/>
+  <ellipse cx="200" cy="88" rx="52" ry="58" fill="#c9a66b"/>
+  <rect x="168" y="132" width="64" height="72" rx="12" fill="#2a2520"/>
+  <path d="M148 78c8-18 24-28 52-28s44 10 52 28" fill="#1f1a16"/>
+  <g transform="translate(248,118) rotate(18)">
+    <circle cx="0" cy="0" r="14" fill="none" stroke="#d4af37" stroke-width="4"/>
+    <path d="M-8 8 L-28 42" stroke="#d4af37" stroke-width="5" stroke-linecap="round"/>
+    <path d="M8 8 L28 42" stroke="#d4af37" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="200" y="222" text-anchor="middle" fill="#d4af37" font-family="Arial,sans-serif" font-size="14" font-weight="700">CORTE NORMAL</text>
+</svg>

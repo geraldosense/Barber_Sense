@@ -124,10 +124,20 @@
                 </div>
                 <div class="painel-card">
                     <h3><i class="fas fa-plus"></i> Novo serviço</h3>
-                    <form id="formNovoServico" class="form-row-2" style="align-items:flex-end;">
-                        <div class="form-group"><label>Nome</label><input type="text" id="novoServicoNome" required placeholder="Ex: Corte Premium"></div>
-                        <div class="form-group"><label>Preço €</label><input type="number" id="novoServicoPreco" required min="0" step="0.5"></div>
-                        <div class="form-group"><label>Tempo (min)</label><input type="number" id="novoServicoTempo" required min="5"></div>
+                    <form id="formNovoServico">
+                        <div class="form-row-2">
+                            <div class="form-group"><label>Nome</label><input type="text" id="novoServicoNome" required placeholder="Ex: Corte Premium"></div>
+                            <div class="form-group"><label>Preço €</label><input type="number" id="novoServicoPreco" required min="0" step="0.5"></div>
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group"><label>Tempo (min)</label><input type="number" id="novoServicoTempo" required min="5"></div>
+                            <div class="form-group">
+                                <label for="novoServicoImgFile">Imagem do serviço</label>
+                                <input type="file" id="novoServicoImgFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
+                                <small class="form-hint">Aparece nos cards do site. JPG ou PNG, máx. 8 MB.</small>
+                            </div>
+                        </div>
+                        <div id="novoServicoImgPreview" class="upload-preview hidden"></div>
                         <button type="submit" class="auth-submit-btn secondary">Adicionar</button>
                     </form>
                 </div>

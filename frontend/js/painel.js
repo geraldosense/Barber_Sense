@@ -60,6 +60,14 @@ function esc(text) {
     return d.innerHTML;
 }
 
+function escAttr(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;');
+}
+
 function toast(msg, tipo = 'success') {
     const n = document.createElement('div');
     n.className = `notification ${tipo}`;
@@ -93,6 +101,46 @@ function configurarPainelApp() {
         preview.classList.remove('hidden');
         preview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Pré-visualização">`;
     });
+
+    document.getElementById('novoServicoImgFile')?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        const preview = document.getElementById('novoServicoImgPreview');
+        if (!file || !preview) return;
+        preview.classList.remove('hidden');
+        preview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Pré-visualização do serviço">`;
+    });
+
+    configurarAcoesAdminListas();
+}
+
+function configurarAcoesAdminListas() {
+    document.getElementById('servicos-admin-list')?.addEventListener('click', (e) => {
+        const saveBtn = e.target.closest('[data-save-preco]');
+        if (saveBtn) {
+            guardarPreco(Number(saveBtn.dataset.savePreco));
+            return;
+        }
+        const delBtn = e.target.closest('[data-delete-servico]');
+        if (delBtn) {
+            eliminarServico(Number(delBtn.dataset.deleteServico), delBtn.dataset.nome || '');
+        }
+    });
+
+    document.getElementById('barbeiros-admin-list')?.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('[data-delete-barbeiro]');
+        if (delBtn) {
+            eliminarBarbeiro(Number(delBtn.dataset.deleteBarbeiro), delBtn.dataset.nome || '');
+        }
+    });
+}
+
+function tratarErroAuthPainel(res) {
+    if (res.status === 401 || res.status === 403) {
+        toast('Sessão expirada ou sem permissão. Faça login novamente no Admin.', 'error');
+        setTimeout(() => { window.location.href = 'admin-login.html'; }, 1800);
+        return true;
+    }
+    return false;
 }
 
 function irSecaoPainel(sec) {
@@ -163,17 +211,39 @@ async function atualizarBadgePendentes() {
     } catch { /* silencioso */ }
 }
 
-async function uploadImagem(file) {
+async function parseRespostaApi(res) {
+    const texto = await res.text();
+    try {
+        return { data: texto ? JSON.parse(texto) : {}, ok: res.ok, status: res.status };
+    } catch {
+        throw new Error('Resposta inválida do servidor. Reinicie o Sense Barbershop e tente novamente.');
+    }
+}
+
+async function uploadImagemFicheiro(endpoint, file) {
     const fd = new FormData();
     fd.append('imagem', file);
-    const res = await fetch(`${API_URL}/upload/galeria`, {
+    const res = await fetch(`${API_URL}/upload/${endpoint}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
         body: fd
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.erro || 'Erro no upload.');
+    const { data, ok, status } = await parseRespostaApi(res);
+    if (!ok) {
+        if (status === 404 && endpoint === 'servico') {
+            return uploadImagemFicheiro('galeria', file);
+        }
+        throw new Error(data.erro || 'Erro no upload da imagem.');
+    }
     return data.url;
+}
+
+async function uploadImagem(file) {
+    return uploadImagemFicheiro('galeria', file);
+}
+
+async function uploadImagemServico(file) {
+    return uploadImagemFicheiro('servico', file);
 }
 
 async function submeterNovoCorte(e) {
@@ -281,7 +351,12 @@ async function carregarServicos() {
             <div class="servico-admin-item">
                 <div><strong>${esc(s.nome)}</strong><small>${esc(s.descricao || '')} · ${s.tempo || '—'} min</small></div>
                 <input type="number" min="0" step="0.5" value="${Number(s.preco).toFixed(2)}" id="preco-serv-${s.id}">
-                <button type="button" class="btn-save-preco" onclick="guardarPreco(${s.id})">Guardar</button>
+                <div class="servico-admin-actions">
+                    <button type="button" class="btn-save-preco" data-save-preco="${s.id}">Guardar</button>
+                    <button type="button" class="btn-remove-admin" data-delete-servico="${s.id}" data-nome="${escAttr(s.nome)}" title="Eliminar serviço">
+                        <i class="fas fa-trash-alt"></i> Eliminar
+                    </button>
+                </div>
             </div>
         `).join('') || '<p class="painel-empty">Sem serviços.</p>';
     } catch {
@@ -300,26 +375,76 @@ async function guardarPreco(id) {
     else toast('Erro ao guardar.', 'error');
 }
 
+async function eliminarServico(id, nome) {
+    if (!confirm(`Eliminar o serviço "${nome}"?\n\nDeixará de aparecer no site e na marcação.`)) return;
+
+    try {
+        const res = await fetch(`${API_URL}/servicos/${id}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (tratarErroAuthPainel(res)) return;
+
+        if (res.ok) {
+            toast(data.mensagem || 'Serviço eliminado.');
+            carregarServicos();
+            carregarStats();
+        } else {
+            toast(data.erro || 'Erro ao eliminar serviço.', 'error');
+        }
+    } catch {
+        toast('Erro de ligação ao servidor.', 'error');
+    }
+}
+
 async function submeterNovoServico(e) {
     e.preventDefault();
-    const res = await fetch(`${API_URL}/servicos`, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({
-            nome: document.getElementById('novoServicoNome').value.trim(),
-            preco: document.getElementById('novoServicoPreco').value,
-            tempo: document.getElementById('novoServicoTempo').value,
-            icon: '✂️'
-        })
-    });
-    if (res.ok) {
+
+    const fileInput = document.getElementById('novoServicoImgFile');
+    let imagemUrl = null;
+
+    if (fileInput?.files?.[0]) {
+        try {
+            imagemUrl = await uploadImagemServico(fileInput.files[0]);
+        } catch (err) {
+            toast(err.message, 'error');
+            return;
+        }
+    }
+
+    const payload = {
+        nome: document.getElementById('novoServicoNome').value.trim(),
+        preco: document.getElementById('novoServicoPreco').value,
+        tempo: document.getElementById('novoServicoTempo').value,
+        icon: '✂️'
+    };
+    if (imagemUrl) payload.imagem = imagemUrl;
+
+    let resposta;
+    try {
+        const res = await fetch(`${API_URL}/servicos`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify(payload)
+        });
+        resposta = await parseRespostaApi(res);
+    } catch (err) {
+        toast(err.message, 'error');
+        return;
+    }
+
+    if (resposta.ok) {
         toast('Serviço adicionado!');
         e.target.reset();
+        const preview = document.getElementById('novoServicoImgPreview');
+        preview?.classList.add('hidden');
+        if (preview) preview.innerHTML = '';
         carregarServicos();
         carregarStats();
     } else {
-        const d = await res.json();
-        toast(d.erro || 'Erro.', 'error');
+        toast(resposta.data.erro || 'Erro ao adicionar serviço.', 'error');
     }
 }
 
@@ -409,6 +534,9 @@ async function carregarBarbeiros() {
                     <small>${esc(b.experiencia || '')} · ${esc(b.especialidades || '')}</small>
                 </div>
                 <span>${esc(b.telefone || '—')}</span>
+                <button type="button" class="btn-remove-admin" data-delete-barbeiro="${b.id}" data-nome="${escAttr(b.nome)}" title="Eliminar barbeiro">
+                    <i class="fas fa-trash-alt"></i> Eliminar
+                </button>
             </div>
         `).join('') || '<p class="painel-empty">Sem barbeiros.</p>';
     } catch {
@@ -438,6 +566,33 @@ async function submeterNovoBarbeiro(e) {
         toast(d.erro || 'Erro.', 'error');
     }
 }
+
+async function eliminarBarbeiro(id, nome) {
+    if (!confirm(`Eliminar o barbeiro "${nome}"?\n\nDeixará de aparecer no site. Marcações futuras deste barbeiro serão canceladas.`)) return;
+
+    try {
+        const res = await fetch(`${API_URL}/barbeiros/${id}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (tratarErroAuthPainel(res)) return;
+
+        if (res.ok) {
+            toast(data.mensagem || 'Barbeiro eliminado.');
+            carregarBarbeiros();
+        } else {
+            toast(data.erro || 'Erro ao eliminar barbeiro.', 'error');
+        }
+    } catch {
+        toast('Erro de ligação ao servidor.', 'error');
+    }
+}
+
+window.guardarPreco = guardarPreco;
+window.eliminarServico = eliminarServico;
+window.eliminarBarbeiro = eliminarBarbeiro;
 
 async function carregarSiteInfo() {
     try {

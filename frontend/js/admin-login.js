@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (err.message === 'servidor_desatualizado') {
                 mostrarErroServidor(errEl);
             } else {
-                errEl.textContent = 'Não foi possível contactar o servidor. O site está a arrancar — aguarde ou use Sense Barbershop.command';
+                errEl.textContent = 'O sistema está a arrancar. Aguarde alguns segundos — a ligação é automática.';
                 errEl.classList.remove('hidden');
             }
         }
@@ -72,13 +72,13 @@ async function verificarServidorAdmin() {
     if (!online) {
         if (window.location.protocol === 'file:') {
             if (errEl) {
-                errEl.innerHTML = `Abra <a href="${SITE_URL}/admin-login.html">${SITE_URL}/admin-login.html</a> — faça duplo-clique em <strong>Sense Barbershop.command</strong>`;
+                errEl.innerHTML = `O Sense Barbershop está a iniciar. <a href="${SITE_URL}/admin-login.html">Tentar novamente</a>`;
                 errEl.classList.remove('hidden');
             }
             return;
         }
         if (errEl) {
-            errEl.innerHTML = `Servidor offline. Faça duplo-clique em <strong>Sense Barbershop.command</strong> na pasta do projeto ou execute <code>./start.sh</code>`;
+            errEl.innerHTML = `O sistema está a arrancar. <a href="${SITE_URL}/admin-login.html">Tentar novamente</a> ou aguarde a ligação automática.`;
             errEl.classList.remove('hidden');
         }
     }

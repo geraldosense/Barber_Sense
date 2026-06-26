@@ -18,14 +18,15 @@
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/i18n.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body data-i18n-title="meta.title">
     <!-- Header -->
     <header class="header">
         <nav class="nav-container">
-            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+            <button class="menu-toggle" id="menuToggle" data-i18n-aria="nav.openMenu" aria-label="Abrir menu">
                 <i class="fas fa-bars"></i>
             </button>
 
@@ -37,17 +38,19 @@
 
             <div class="nav-menu" id="navMenu">
                 <ul>
-                    <li><a href="#home">Início</a></li>
-                    <li><a href="#servicos">Serviços</a></li>
-                    <li><a href="#entrar">Entrar</a></li>
-                    <li><a href="#barbeiro">Barbeiro</a></li>
-                    <li><a href="#galeria">Galeria</a></li>
-                    <li><a href="#contato">Contactos</a></li>
-                    <li><a href="#minha-area" id="navMinhaArea" style="display:none;">Minha Área</a></li>
+                    <li><a href="#home" data-i18n="nav.home">Início</a></li>
+                    <li><a href="#servicos" data-i18n="nav.services">Serviços</a></li>
+                    <li><a href="#barbeiro" data-i18n="nav.barber">Barbeiro</a></li>
+                    <li><a href="#galeria" data-i18n="nav.gallery">Galeria</a></li>
+                    <li><a href="#contato" data-i18n="nav.contact">Contactos</a></li>
+                    <li><a href="#minha-area" id="navMinhaArea" style="display:none;" data-i18n="nav.myArea">Minha Área</a></li>
                 </ul>
             </div>
 
-            <div class="auth-buttons" id="authButtons"></div>
+            <div class="header-actions">
+                <div data-lang-mount></div>
+                <div class="auth-buttons" id="authButtons"></div>
+            </div>
         </nav>
     </header>
 
@@ -55,21 +58,27 @@
     <section class="hero" id="home">
         <div class="hero-bg" aria-hidden="true">
             <div class="hero-slide hero-slide--image active" data-type="image" data-duration="5000">
-                <img src="assets/anuncios/corte-fade-lateral.png" alt="">
+                <img src="assets/anuncios/corte-fade-lateral.jpg" alt="Degradê lateral — Sense Barbershop" loading="eager" decoding="async">
             </div>
             <div class="hero-slide hero-slide--image" data-type="image" data-duration="5000">
-                <img src="assets/anuncios/corte-espelho.png" alt="">
+                <img src="assets/anuncios/corte-espelho.jpg" alt="Acabamento no espelho — Sense Barbershop" loading="eager" decoding="async">
             </div>
-            <div class="hero-slide hero-slide--video" data-type="video">
-                <video muted playsinline preload="auto">
+            <div class="hero-slide hero-slide--image" data-type="image" data-duration="5000">
+                <img src="assets/anuncios/corte-nuca.jpg" alt="Corte na nuca — Sense Barbershop" loading="eager" decoding="async">
+            </div>
+            <div class="hero-slide hero-slide--image" data-type="image" data-duration="5000">
+                <img src="assets/anuncios/corte-design-nuca.jpg" alt="Design na nuca — Sense Barbershop" loading="eager" decoding="async">
+            </div>
+            <div class="hero-slide hero-slide--image" data-type="image" data-duration="5000">
+                <img src="assets/anuncios/corte-fade-perfil.jpg" alt="Degradê em perfil — Sense Barbershop" loading="eager" decoding="async">
+            </div>
+            <div class="hero-slide hero-slide--video" data-type="video" data-max-duration="12000">
+                <video muted playsinline preload="metadata">
                     <source src="assets/anuncios/corte-1.mp4" type="video/mp4">
                 </video>
             </div>
-            <div class="hero-slide hero-slide--image" data-type="image" data-duration="5000">
-                <img src="assets/anuncios/corte-nuca.png" alt="">
-            </div>
-            <div class="hero-slide hero-slide--video" data-type="video">
-                <video muted playsinline preload="auto">
+            <div class="hero-slide hero-slide--video" data-type="video" data-max-duration="12000">
+                <video muted playsinline preload="metadata">
                     <source src="assets/anuncios/corte-2.mp4" type="video/mp4">
                 </video>
             </div>
@@ -79,7 +88,7 @@
 
         <div class="hero-content">
             <h1 class="gold-text">Sense Barbershop</h1>
-            <a href="marcacao.html" class="cta-button" id="btnAgendar">Reservar Marcação</a>
+            <a href="marcacao.html" class="cta-button" id="btnAgendar" data-i18n="hero.cta">Reservar Marcação</a>
         </div>
 
         <div class="hero-indicators" id="heroIndicators" aria-label="Slides de publicidade"></div>
@@ -103,59 +112,9 @@
             </div>
         </section>
 
-        <!-- Info rápida -->
-        <section class="info-bar">
-            <div class="info-bar-content">
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <div>
-                        <h4>Localização</h4>
-                        <p>Rua Principal, 123</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-clock"></i>
-                    <div>
-                        <h4>Horário</h4>
-                        <p>Seg-Sex: 9h-20h | Sáb: 9h-18h</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-phone"></i>
-                    <div>
-                        <h4>Telefone</h4>
-                        <p>+351 960 075 690</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Área de Login (clientes) -->
-        <section class="home-login-section" id="entrar">
-            <div class="home-login-inner">
-                <div class="home-login-intro">
-                    <span class="home-login-badge"><i class="fas fa-user-check"></i> Área do Cliente</span>
-                    <h2>Entre na sua conta</h2>
-                    <p>Crie conta ou entre com Google ou email para reservar o seu corte, consultar marcações e efetuar pagamentos em segurança.</p>
-                    <ul class="home-login-benefits">
-                        <li><i class="fas fa-cut"></i> Ver cortes e preços atualizados</li>
-                        <li><i class="fas fa-calendar-check"></i> Marcar horário online</li>
-                        <li><i class="fas fa-mobile-alt"></i> Pagar por MB Way, Visa ou Revolut</li>
-                    </ul>
-                </div>
-                <div class="home-login-card">
-                    <h3>Bem-vindo de volta</h3>
-                    <p class="home-login-sub">Acesso seguro à Sense Barbershop</p>
-                    <a href="conta.html" class="cta-button home-login-btn"><i class="fas fa-envelope"></i> Entrar com Email</a>
-                    <a href="conta.html" class="home-login-btn-secondary"><i class="fab fa-google"></i> Entrar com Google</a>
-                    <p class="home-login-foot">Ainda não tem conta? <a href="conta.html?tab=registo">Registar-se</a></p>
-                </div>
-            </div>
-        </section>
-
         <!-- Serviços -->
         <section class="courses-section" id="servicos">
-            <h2>Nossos Serviços</h2>
+            <h2 data-i18n="services.title">Nossos Serviços</h2>
             <div class="course-grid" id="servicosGrid">
                 <!-- Carregado via JavaScript -->
             </div>
@@ -163,7 +122,11 @@
 
         <!-- Barbeiro principal -->
         <section class="barbeiros-section" id="barbeiro">
-            <h2>O Barbeiro</h2>
+            <div class="barbeiro-section-header">
+                <span class="barbeiro-section-eyebrow" data-i18n="barber.eyebrow">A mão por trás do estilo</span>
+                <h2 data-i18n="barber.title">O Barbeiro</h2>
+                <p class="barbeiro-section-lead" data-i18n="barber.lead">Precisão, estilo e dedicação em cada detalhe.</p>
+            </div>
             <div class="barbeiros-grid" id="barbeirosGrid">
                 <!-- Carregado via JavaScript -->
             </div>
@@ -171,22 +134,49 @@
 
         <!-- Galeria de Cortes -->
         <section class="galeria-section" id="galeria">
-            <h2>Galeria de Cortes</h2>
-            <p class="galeria-intro">Trabalhos publicados na Sense Barbershop</p>
+            <h2 data-i18n="gallery.title">Galeria de Cortes</h2>
+            <p class="galeria-intro" data-i18n="gallery.intro">Trabalhos publicados na Sense Barbershop</p>
             <div class="galeria-grid" id="galeriaGrid">
-                <p class="galeria-empty"><i class="fas fa-spinner fa-spin"></i> A carregar galeria...</p>
+                <p class="galeria-empty"><i class="fas fa-spinner fa-spin"></i> <span data-i18n="gallery.loading">A carregar galeria...</span></p>
             </div>
         </section>
 
         <!-- Contacto -->
         <section class="contato-section" id="contato">
             <div class="contato-content">
-                <h2>Fale Connosco</h2>
-                <p>Estamos prontos para o receber. Entre em contacto ou agende o seu corte online.</p>
+                <h2 data-i18n="contact.title">Fale Connosco</h2>
+                <p data-i18n="contact.lead">Estamos prontos para o receber. Entre em contacto ou agende o seu corte online.</p>
                 <div class="contato-detalhes">
                     <p><i class="fas fa-envelope"></i> contato@barbeariasense.pt</p>
                     <p><i class="fas fa-phone"></i> +351 960 075 690</p>
                     <p><i class="fas fa-map-marker-alt"></i> Rua Principal, Caminho Nossa Senhora da Luz n6</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Info rápida -->
+        <section class="info-bar">
+            <div class="info-bar-content">
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <h4 data-i18n="info.location">Localização</h4>
+                        <p>Rua Principal, Caminho Nossa Senhora da Luz n6</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <h4 data-i18n="info.hours">Horário</h4>
+                        <p data-i18n="info.hoursValue">Seg-Sex: 9h-20h | Sáb: 9h-18h</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <h4 data-i18n="info.phone">Telefone</h4>
+                        <p>+351 960 075 690</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -198,22 +188,21 @@
             <div class="footer-info">
                 <h3>Sense Barbershop</h3>
                 <p>Rua Principal, Caminho Nossa Senhora da Luz n6</p>
-                <p>Telefone: +351 960 075 690</p>
-                <p>Email: sensegeraldo2@gmail.com</p>
+                <p><span data-i18n="footer.phoneLabel">Telefone:</span> +351 960 075 690</p>
+                <p><span data-i18n="footer.emailLabel">Email:</span> sensegeraldo2@gmail.com</p>
             </div>
             <div class="footer-links">
-                <h4>Links Rápidos</h4>
+                <h4 data-i18n="footer.quickLinks">Links Rápidos</h4>
                 <ul>
-                    <li><a href="#home">Início</a></li>
-                    <li><a href="#servicos">Serviços</a></li>
-                    <li><a href="#entrar">Entrar</a></li>
-                    <li><a href="#barbeiro">Barbeiro</a></li>
-                    <li><a href="#galeria">Galeria</a></li>
-                    <li><a href="#contato">Contactos</a></li>
+                    <li><a href="#home" data-i18n="nav.home">Início</a></li>
+                    <li><a href="#servicos" data-i18n="nav.services">Serviços</a></li>
+                    <li><a href="#barbeiro" data-i18n="nav.barber">Barbeiro</a></li>
+                    <li><a href="#galeria" data-i18n="nav.gallery">Galeria</a></li>
+                    <li><a href="#contato" data-i18n="nav.contact">Contactos</a></li>
                 </ul>
             </div>
             <div class="footer-social">
-                <h4>Redes Sociais</h4>
+                <h4 data-i18n="footer.social">Redes Sociais</h4>
                 <div class="social-icons">
                     <a href="https://www.facebook.com/people/Geraldo-De-Assun%C3%A7%C3%A3o/pfbid0EZsz9R6EauiSC1JbNyjtnJEh8BsPz21VbpjJB8gwT3FhUw7QJzhTi6FU5Y825esvl/" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
                         <i class="fab fa-facebook-f"></i>
@@ -231,7 +220,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 Sense Barbershop. Todos os direitos reservados. · <a href="admin-login.html" class="footer-admin-link">Admin</a></p>
+            <p><span data-i18n="footer.rights">© 2026 Sense Barbershop. Todos os direitos reservados.</span> · <a href="admin-login.html" class="footer-admin-link" data-i18n="footer.admin">Admin</a></p>
         </div>
     </footer>
 
@@ -390,8 +379,23 @@
         </div>
     </div>
 
+    <!-- Lightbox — fotografia do barbeiro -->
+    <div class="barbeiro-lightbox hidden" id="barbeiroLightbox" role="dialog" aria-modal="true" aria-label="Fotografia do barbeiro">
+        <div class="barbeiro-lightbox-backdrop" id="barbeiroLightboxBackdrop"></div>
+        <div class="barbeiro-lightbox-panel">
+            <button type="button" class="barbeiro-lightbox-close" id="barbeiroLightboxClose" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+            <figure class="barbeiro-lightbox-figure">
+                <img id="barbeiroLightboxImg" src="" alt="">
+                <figcaption id="barbeiroLightboxCaption"></figcaption>
+            </figure>
+        </div>
+    </div>
+
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="js/config.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
     <script src="js/galeria.js"></script>

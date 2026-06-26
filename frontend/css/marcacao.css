@@ -147,6 +147,173 @@
     margin-top: 0.35rem;
 }
 
+.marcacao-item--cancelado {
+    opacity: 0.65;
+    border-left-color: #bbb;
+}
+
+.marcacao-item--cancelado .status {
+    color: #999;
+}
+
+.marcacao-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.marcacao-item-acoes {
+    display: flex;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.btn-marcacao-icon {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 6px;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-marcacao-icon:hover {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+.btn-marcacao-icon--danger:hover {
+    background: #c62828;
+    border-color: #c62828;
+}
+
+.marcacao-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.marcacao-modal.hidden {
+    display: none;
+}
+
+.marcacao-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.marcacao-modal-card {
+    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.marcacao-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #eee;
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.marcacao-modal-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.marcacao-modal-fechar {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.marcacao-modal-form {
+    padding: 1.25rem;
+}
+
+.marcacao-modal-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.marcacao-modal-form label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 0.35rem;
+}
+
+.marcacao-modal-form select,
+.marcacao-modal-form input[type="date"] {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.marcacao-modal-aviso {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0 0 1rem;
+    min-height: 1.2em;
+}
+
+.marcacao-modal-acoes {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.btn-marcacao-cancelar,
+.btn-marcacao-guardar {
+    padding: 0.65rem 1.1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-marcacao-cancelar {
+    background: #eee;
+    color: #444;
+}
+
+.btn-marcacao-guardar {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.btn-marcacao-guardar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .marcacao-empty {
     color: #888;
     font-size: 0.9rem;
@@ -269,11 +436,41 @@
 .booking-option {
     border: 2px solid #e8e8e8;
     border-radius: 10px;
-    padding: 1.25rem 1rem;
+    padding: 0;
     text-align: center;
     cursor: pointer;
     transition: all 0.25s;
     background: #fafafa;
+    overflow: hidden;
+}
+
+.booking-option-image {
+    width: 100%;
+    height: 100px;
+    overflow: hidden;
+    background: #1a1a1a;
+}
+
+.booking-option-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.booking-option .booking-option-name,
+.booking-option .booking-option-price,
+.booking-option .booking-option-meta {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+.booking-option .booking-option-name {
+    padding-top: 0.75rem;
+}
+
+.booking-option .booking-option-meta {
+    padding-bottom: 0.85rem;
 }
 
 .booking-option:hover {
@@ -407,6 +604,13 @@
 .btn-next:hover,
 .btn-submit:hover {
     background: var(--secondary-hover);
+}
+
+.btn-next:disabled,
+.btn-submit:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .booking-success {

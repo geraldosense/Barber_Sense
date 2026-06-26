@@ -17,6 +17,7 @@ yarn.lock
 logs/
 *.log
 .sense-server.pid
+.sense-node-path
 
 # Uploads de utilizadores
 uploads/*

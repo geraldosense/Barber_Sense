@@ -7,15 +7,23 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>__SENSE_ROOT__/scripts/sense-server.sh</string>
-        <string>start</string>
+        <string>__SENSE_ROOT__/scripts/launchd-server.sh</string>
     </array>
     <key>WorkingDirectory</key>
-    <string>__SENSE_ROOT__</string>
+    <string>__SENSE_ROOT__/backend</string>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
     <true/>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+        <key>PORT</key>
+        <string>3000</string>
+    </dict>
     <key>StandardOutPath</key>
     <string>__SENSE_ROOT__/backend/logs/launchd.log</string>
     <key>StandardErrorPath</key>

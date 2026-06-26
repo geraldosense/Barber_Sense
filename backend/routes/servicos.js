@@ -11,7 +11,8 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const servicos = await req.db.all(
-            'SELECT id, nome, preco, tempo_estimado as tempo, descricao, icone as icon FROM servicos ORDER BY nome'
+            `SELECT id, nome, preco, tempo_estimado as tempo, descricao, icone as icon, imagem
+             FROM servicos WHERE COALESCE(ativo, 1) = 1 ORDER BY nome`
         );
         res.json(servicos);
     } catch (error) {
@@ -27,7 +28,8 @@ router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const servico = await req.db.get(
-            'SELECT id, nome, preco, tempo_estimado as tempo, descricao, icone as icon FROM servicos WHERE id = ?',
+            `SELECT id, nome, preco, tempo_estimado as tempo, descricao, icone as icon, imagem
+             FROM servicos WHERE id = ? AND COALESCE(ativo, 1) = 1`,
             [id]
         );
 
@@ -47,7 +49,7 @@ router.get('/:id', async (req, res) => {
  */
 router.post('/', verificarToken, verificarPerfil('administrador'), async (req, res) => {
     try {
-        const { nome, preco, tempo, descricao, icon } = req.body;
+        const { nome, preco, tempo, descricao, icon, imagem } = req.body;
 
         if (!nome || !preco || !tempo) {
             return res.status(400).json({
@@ -56,8 +58,8 @@ router.post('/', verificarToken, verificarPerfil('administrador'), async (req, r
         }
 
         const resultado = await req.db.run(
-            'INSERT INTO servicos (nome, preco, tempo_estimado, descricao, icone) VALUES (?, ?, ?, ?, ?)',
-            [nome, preco, tempo, descricao || '', icon || '✂️']
+            'INSERT INTO servicos (nome, preco, tempo_estimado, descricao, icone, imagem, ativo) VALUES (?, ?, ?, ?, ?, ?, 1)',
+            [nome, preco, tempo, descricao || '', icon || '✂️', imagem || null]
         );
 
         res.status(201).json({
@@ -66,7 +68,8 @@ router.post('/', verificarToken, verificarPerfil('administrador'), async (req, r
             preco,
             tempo,
             descricao,
-            icon
+            icon: icon || '✂️',
+            imagem: imagem || null
         });
     } catch (error) {
         if (error.message.includes('UNIQUE')) {
@@ -84,10 +87,12 @@ router.post('/', verificarToken, verificarPerfil('administrador'), async (req, r
 router.put('/:id', verificarToken, verificarPerfil('administrador'), async (req, res) => {
     try {
         const { id } = req.params;
-        const { nome, preco, tempo, descricao, icon } = req.body;
+        const { nome, preco, tempo, descricao, icon, imagem } = req.body;
 
-        // Verificar se serviço existe
-        const servico = await req.db.get('SELECT * FROM servicos WHERE id = ?', [id]);
+        const servico = await req.db.get(
+            'SELECT * FROM servicos WHERE id = ? AND COALESCE(ativo, 1) = 1',
+            [id]
+        );
         if (!servico) {
             return res.status(404).json({ erro: 'Serviço não encontrado' });
         }
@@ -98,9 +103,10 @@ router.put('/:id', verificarToken, verificarPerfil('administrador'), async (req,
              preco = COALESCE(?, preco),
              tempo_estimado = COALESCE(?, tempo_estimado),
              descricao = COALESCE(?, descricao),
-             icone = COALESCE(?, icone)
+             icone = COALESCE(?, icone),
+             imagem = COALESCE(?, imagem)
              WHERE id = ?`,
-            [nome, preco, tempo, descricao, icon, id]
+            [nome, preco, tempo, descricao, icon, imagem, id]
         );
 
         res.json({
@@ -109,7 +115,8 @@ router.put('/:id', verificarToken, verificarPerfil('administrador'), async (req,
             preco: preco || servico.preco,
             tempo: tempo || servico.tempo_estimado,
             descricao: descricao || servico.descricao,
-            icon: icon || servico.icone
+            icon: icon || servico.icone,
+            imagem: imagem || servico.imagem
         });
     } catch (error) {
         res.status(500).json({ erro: error.message });
@@ -124,28 +131,18 @@ router.delete('/:id', verificarToken, verificarPerfil('administrador'), async (r
     try {
         const { id } = req.params;
 
-        // Verificar se serviço existe
-        const servico = await req.db.get('SELECT * FROM servicos WHERE id = ?', [id]);
+        const servico = await req.db.get(
+            'SELECT * FROM servicos WHERE id = ? AND COALESCE(ativo, 1) = 1',
+            [id]
+        );
         if (!servico) {
             return res.status(404).json({ erro: 'Serviço não encontrado' });
         }
 
-        // Verificar se há agendamentos com este serviço
-        const agendamentos = await req.db.get(
-            'SELECT COUNT(*) as count FROM agendamentos WHERE servico_id = ?',
-            [id]
-        );
-
-        if (agendamentos.count > 0) {
-            return res.status(400).json({
-                erro: 'Não é possível deletar este serviço. Existem agendamentos associados.'
-            });
-        }
-
-        await req.db.run('DELETE FROM servicos WHERE id = ?', [id]);
+        await req.db.run('UPDATE servicos SET ativo = 0 WHERE id = ?', [id]);
 
         res.json({
-            mensagem: 'Serviço deletado com sucesso',
+            mensagem: 'Serviço eliminado com sucesso',
             id
         });
     } catch (error) {

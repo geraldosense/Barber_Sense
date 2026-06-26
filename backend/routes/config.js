@@ -6,23 +6,51 @@ const router = express.Router();
 const METODOS_PADRAO = {
     mbway: {
         ativo: true,
-        label: 'MB Way',
+        label: 'MB WAY',
         icon: 'fa-mobile-alt',
         tipo: 'telefone',
         telefone: '+351 960 075 690',
         conta: '+351 960 075 690',
         iban: null,
-        instrucao: 'Abra a app MB Way e envie o pagamento para o número indicado.'
+        instrucao: 'Receberá um pedido MB WAY no telemóvel. O pagamento é creditado na conta Sense Barbershop.'
+    },
+    cartao: {
+        ativo: false,
+        label: 'Cartão de crédito',
+        icon: 'fa-cc-visa',
+        tipo: 'gateway',
+        telefone: '+351 960 075 690',
+        instrucao: 'Visa, Mastercard e American Express.'
+    },
+    apple_pay: {
+        ativo: false,
+        label: 'Apple Pay',
+        icon: 'fa-apple-pay',
+        tipo: 'gateway',
+        instrucao: 'Pagamento rápido com Apple Pay.'
+    },
+    paypal: {
+        ativo: true,
+        label: 'PayPal',
+        icon: 'fa-paypal',
+        tipo: 'gateway',
+        email: 'sensegeraldo2@gmail.com',
+        instrucao: 'Pagamento seguro via PayPal Business.'
+    },
+    klarna: {
+        ativo: false,
+        label: 'Klarna',
+        icon: 'fa-wallet',
+        tipo: 'gateway',
+        instrucao: 'Pague em 3 prestações sem juros.'
     },
     visa: {
         ativo: true,
         label: 'Visa',
         icon: 'fa-cc-visa',
-        tipo: 'iban',
+        tipo: 'gateway',
         telefone: '+351 960 075 690',
-        conta: 'PT50003503390006334593039',
-        iban: 'PT50003503390006334593039',
-        instrucao: 'Efetue o pagamento pela app MB Way ou pela sua app bancária Visa.'
+        instrucao: 'Pagamento seguro com cartão Visa.'
     },
     revolut: {
         ativo: true,
@@ -66,6 +94,9 @@ function metodosParaCliente(metodos) {
         if (key === 'mbway') {
             resultado[key].destino = m.telefone || m.conta;
         }
+        if (key === 'paypal' && m.email) {
+            resultado[key].email_destino = m.email;
+        }
     }
     return resultado;
 }
@@ -91,9 +122,14 @@ async function guardarConfig(db, chave, valor) {
 /**
  * GET /api/config/pagamentos — apenas dados visíveis ao cliente
  */
+const METODOS_CHECKOUT = ['mbway', 'visa', 'paypal', 'revolut'];
+
 router.get('/pagamentos', async (req, res) => {
     try {
         const metodos = normalizarMetodos(await obterConfig(req.db, 'metodos_pagamento', METODOS_PADRAO));
+        for (const key of METODOS_CHECKOUT) {
+            if (metodos[key]) metodos[key].ativo = true;
+        }
         res.json({ metodos: metodosParaCliente(metodos) });
     } catch (error) {
         res.status(500).json({ erro: error.message });

@@ -3,64 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finalizar Reserva - Sense Barbershop</title>
+    <title>Finalizar marcação — Sense Barbershop</title>
     <link rel="icon" type="image/png" href="assets/logo.png">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/i18n.css">
     <link rel="stylesheet" href="css/finalizar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
-<body class="finalizar-page">
+<body class="finalizar-page" data-i18n-title="finalizar.title">
     <header class="finalizar-header">
         <div class="finalizar-header-inner">
             <a href="index.html" class="finalizar-brand">
                 <img src="assets/logo.png" alt="Sense Barbershop">
                 <span>Sense Barbershop</span>
             </a>
-            <a href="marcacao.html" class="marcacao-user-email"><i class="fas fa-arrow-left"></i> Voltar</a>
+            <div data-lang-mount></div>
+            <a href="marcacao.html" class="marcacao-user-email"><i class="fas fa-arrow-left"></i> <span data-i18n="common.back">Voltar</span></a>
         </div>
     </header>
 
     <main class="finalizar-main">
-        <h1>Finalizar Reserva</h1>
-        <p class="finalizar-sub">Efetue o pagamento e confirme a sua marcação.</p>
+        <h1 data-i18n="finalizar.title">Finalizar marcação</h1>
+        <p class="finalizar-sub" data-i18n="finalizar.sub">Confirme a sua marcação e efetue o pagamento de forma segura.</p>
 
         <div id="finalizarResumo" class="finalizar-resumo"></div>
 
-        <h3><i class="fas fa-credit-card"></i> Método de Pagamento</h3>
-        <div class="pagamento-grid" id="pagamentoGrid">
-            <p class="pagamento-loading"><i class="fas fa-spinner fa-spin"></i> A carregar...</p>
-        </div>
-
-        <div id="pagamentoDetalhes" class="pagamento-detalhes hidden">
-            <div class="pagamento-detalhes-conta" id="pagamentoConta"></div>
-            <div class="pagamento-referencia">
-                <span>Nome na transferência (automático):</span>
-                <strong id="pagamentoReferencia">—</strong>
-            </div>
-        </div>
-
-        <div class="form-group pagamento-valor-group">
-            <label for="valorPago"><i class="fas fa-euro-sign"></i> Valor que vai pagar (€)</label>
-            <input type="number" id="valorPago" min="0" step="0.01" placeholder="0.00" inputmode="decimal">
-            <p class="pagamento-valor-esperado">Valor do corte: <strong id="valorEsperado">—</strong></p>
-            <p class="pagamento-valor-status hidden" id="valorStatus"></p>
-        </div>
-
-        <button type="button" class="auth-submit-btn" id="btnFinalizar" disabled>
-            <i class="fas fa-calendar-check"></i> Confirmar Marcação e Pagamento
+        <button type="button" class="btn-finalizar-compra" id="btnAbrirPagamento" data-i18n="finalizar.btn">
+            Finalizar marcação
         </button>
 
-        <p class="finalizar-nota">
-            O pagamento é enviado diretamente para a Sense Barbershop via MB Way ou app associada.
-            O sistema valida se o valor corresponde ao corte escolhido.
-        </p>
+        <div class="pagamento-trust-box">
+            <div class="pagamento-logos" aria-label="Métodos de pagamento aceites">
+                <img src="assets/payments/mbway.png" alt="MB WAY" class="pay-logo-img pay-logo-img--mbway">
+                <img src="assets/payments/visa.svg" alt="Visa" class="pay-logo-img pay-logo-img--visa">
+                <img src="assets/payments/revolut.svg" alt="Revolut" class="pay-logo-img pay-logo-img--revolut">
+                <img src="assets/payments/paypal.svg" alt="PayPal" class="pay-logo-img pay-logo-img--paypal">
+            </div>
+            <p class="pagamento-seguro-inline"><i class="fas fa-lock"></i> <span data-i18n="finalizar.secure">Pagamento seguro</span></p>
+        </div>
 
         <div class="auth-message hidden" id="finalizarMessage"></div>
     </main>
 
+    <!-- Modal pagamento -->
+    <div class="pagamento-modal hidden" id="pagamentoModal" role="dialog" aria-modal="true" aria-labelledby="pagamentoTitulo">
+        <div class="pagamento-modal-backdrop" id="pagamentoBackdrop"></div>
+        <div class="pagamento-sheet">
+            <header class="pagamento-sheet-header">
+                <div class="pagamento-sheet-toolbar">
+                    <button type="button" class="pagamento-nav-btn hidden" id="pagamentoVoltar" aria-label="Voltar">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <span class="pagamento-toolbar-spacer" aria-hidden="true"></span>
+                    <button type="button" class="pagamento-nav-btn pagamento-nav-btn--close" id="pagamentoFechar" aria-label="Fechar">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="pagamento-sheet-brand" id="pagamentoCabecalhoBrand">
+                    <div class="pagamento-brand-logo-wrap" id="pagamentoLogoWrap">
+                        <img src="assets/logo.png" alt="Sense Barbershop" id="pagamentoCabecalhoLogo" class="pagamento-brand-logo pagamento-brand-logo--sense">
+                        <div class="pagamento-brand-logos-pay hidden" id="pagamentoCabecalhoLogosPay"></div>
+                    </div>
+                    <p class="pagamento-brand-nome" id="pagamentoBrandNome">Sense Barbershop</p>
+                    <h2 class="pagamento-brand-titulo" id="pagamentoTitulo" data-i18n="payment.mode">Modo de pagamento</h2>
+                </div>
+            </header>
+
+            <!-- Passo 1: escolher método -->
+            <div class="pagamento-step" id="pagamentoStepMetodos">
+                <div class="pagamento-metodos-list" id="listaMetodos"></div>
+
+                <button type="button" class="pagamento-resumo-row" id="btnVerResumo">
+                    <span class="pagamento-extra-icon"><i class="fas fa-shopping-bag"></i></span>
+                    <span data-i18n="payment.summary">Resumo</span>
+                    <strong id="pagamentoTotalModal">€ 0,00</strong>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+
+                <div class="pagamento-sheet-footer">
+                    <button type="button" class="btn-pagamento-principal" id="btnPagamentoPrincipal">
+                        Continuar
+                    </button>
+                    <p class="pagamento-seguro-footer"><i class="fas fa-lock"></i> Pagamento seguro</p>
+                    <p class="pagamento-disclaimer">As suas informações de pagamento são processadas de forma segura.</p>
+                </div>
+            </div>
+
+            <!-- Passo 2: dados do método -->
+            <div class="pagamento-step hidden" id="pagamentoStepDetalhes">
+                <div id="pagamentoFormContainer"></div>
+                <div class="pagamento-sheet-footer">
+                    <button type="button" class="btn-pagamento-principal" id="btnConfirmarPagamento">
+                        Confirmar encomenda
+                    </button>
+                    <p class="pagamento-seguro-footer"><i class="fas fa-lock"></i> Pagamento seguro</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aguardar confirmação MB WAY -->
+    <div class="mbway-aguardar hidden" id="mbwayAguardar" role="dialog" aria-modal="true">
+        <div class="mbway-aguardar-card">
+            <img src="assets/logo.png" alt="Sense Barbershop" class="mbway-aguardar-sense">
+            <img src="assets/payments/mbway.png" alt="MB WAY" class="mbway-aguardar-logo">
+            <h3>Confirme no seu telemóvel</h3>
+            <p id="mbwayAguardarTexto">Enviámos um pedido MB WAY. Abra a app e confirme quando receber a notificação ou SMS.</p>
+            <p class="mbway-aguardar-tel" id="mbwayAguardarTel"></p>
+            <div class="mbway-spinner"><i class="fas fa-spinner fa-spin"></i></div>
+            <p class="mbway-aguardar-valor" id="mbwayAguardarValor"></p>
+            <button type="button" class="btn-pagamento-principal btn-pagamento-principal--outline hidden" id="btnMbwayCancelar">Cancelar</button>
+        </div>
+    </div>
+
     <script src="js/config.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/finalizar.js"></script>
 </body>

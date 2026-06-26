@@ -17,9 +17,31 @@ const DADOS_EXEMPLO = {
         { id: 5, nome: 'Tratamento Capilar', preco: 30, tempo: 45, descricao: 'Hidratação e tratamento profissional', icon: '💆' }
     ],
     barbeiros: [
-        { id: 1, nome: 'Geraldo Sense', experiencia: '15+ anos', especialidades: 'Cortes clássicos, Degradê, Barba', foto: 'assets/logo.png' }
+        {
+            id: 1,
+            nome: 'Geraldo Sense',
+            experiencia: '4 anos de profissionalismo na área da barbearia',
+            especialidades: 'Cortes clássicos, Degradê, Barba, Styling',
+            foto: 'assets/barbeiros/geraldo-sense.jpg'
+        }
     ]
 };
+
+const FOTO_BARBEIRO_PADRAO = 'assets/barbeiros/geraldo-sense.jpg';
+
+function obterFotoBarbeiro(barbeiro) {
+    const foto = barbeiro?.foto;
+    if (!foto || foto === 'assets/logo.png') return FOTO_BARBEIRO_PADRAO;
+    return foto;
+}
+
+function obterTextoExperiencia(barbeiro) {
+    const nome = String(barbeiro?.nome || '').toLowerCase();
+    if (nome.includes('geraldo') && typeof t === 'function') {
+        return t('barber.experience');
+    }
+    return barbeiro?.experiencia || 'Profissional certificado';
+}
 
 let servicos = [];
 let barbeiros = [];
@@ -35,11 +57,15 @@ let agendamento = {
 
 // ===== INICIALIZAÇÃO =====
 document.addEventListener('DOMContentLoaded', async () => {
+    configurarBarbeiroLightbox();
     await carregarDados();
     configurarEventos();
     configurarMenuMobile();
     configurarScroll();
     configurarHeroSlider();
+    document.addEventListener('sense:langchange', () => {
+        renderizarBarbeiros();
+    });
 });
 
 async function carregarDados() {
@@ -73,14 +99,18 @@ function renderizarServicos() {
 
     grid.innerHTML = servicos.map(s => `
         <div class="course-item">
-            <div class="course-item-header">
-                <div class="course-item-icon">${s.icon || '✂️'}</div>
-                <h3>${s.nome}</h3>
-                <div class="course-item-price">${s.preco.toFixed(2)}€</div>
+            <div class="course-item-image">
+                <img src="${obterImagemServico(s)}" alt="${s.nome}" loading="lazy">
             </div>
-            <p>${s.descricao || ''}</p>
-            <div class="course-item-tempo"><i class="fas fa-clock"></i> ${s.tempo} min</div>
-            <button class="learn-more" onclick="abrirModalComServico(${s.id})">Agendar</button>
+            <div class="course-item-body">
+                <div class="course-item-header">
+                    <h3>${s.nome}</h3>
+                    <div class="course-item-price">${s.preco.toFixed(2)}€</div>
+                </div>
+                <p>${s.descricao || ''}</p>
+                <div class="course-item-tempo"><i class="fas fa-clock"></i> ${s.tempo} min</div>
+                <button class="learn-more" onclick="abrirModalComServico(${s.id})">Agendar</button>
+            </div>
         </div>
     `).join('');
 }
@@ -89,20 +119,91 @@ function renderizarBarbeiros() {
     const grid = document.getElementById('barbeirosGrid');
     if (!grid) return;
 
-    grid.innerHTML = barbeiros.map(b => `
-        <div class="barbeiro-card">
-            <div class="barbeiro-image-container">
-                ${b.foto
-                    ? `<img src="${b.foto}" alt="${b.nome}" onerror="this.parentElement.innerHTML='<span class=\\'barbeiro-placeholder\\'>🧔</span>'">`
-                    : '<span class="barbeiro-placeholder">🧔</span>'}
+    grid.innerHTML = barbeiros.map(b => {
+        const foto = obterFotoBarbeiro(b);
+        const experiencia = obterTextoExperiencia(b);
+        const especialidades = b.especialidades || 'Cortes clássicos, Degradê e Barba';
+        const tags = especialidades.split(',').map(t => t.trim()).filter(Boolean);
+
+        return `
+        <article class="barbeiro-showcase">
+            <button type="button"
+                    class="barbeiro-avatar-btn"
+                    data-foto="${escaparAttr(foto)}"
+                    data-nome="${escaparAttr(b.nome)}"
+                    aria-label="${escaparAttr(typeof t === 'function' ? t('barber.viewPhotoFull', { name: b.nome }) : `Ver fotografia de ${b.nome}`)}">
+                <span class="barbeiro-avatar-glow" aria-hidden="true"></span>
+                <span class="barbeiro-avatar-ring" aria-hidden="true"></span>
+                <img src="${foto}" alt="${escaparAttr(b.nome)}" class="barbeiro-avatar-img" loading="lazy"
+                     onerror="this.src='${FOTO_BARBEIRO_PADRAO}'">
+                <span class="barbeiro-avatar-overlay" aria-hidden="true">
+                    <i class="fas fa-search-plus"></i>
+                    <small>${typeof t === 'function' ? t('barber.viewPhoto') : 'Ver foto'}</small>
+                </span>
+            </button>
+            <div class="barbeiro-showcase-body">
+                <span class="barbeiro-showcase-badge"><i class="fas fa-cut"></i> Sense Barbershop</span>
+                <h3 class="barbeiro-showcase-nome">${b.nome}</h3>
+                <p class="barbeiro-showcase-experiencia">
+                    <i class="fas fa-award"></i> ${experiencia}
+                </p>
+                <div class="barbeiro-showcase-tags">
+                    ${tags.map(tag => `<span class="barbeiro-tag">${tag}</span>`).join('')}
+                </div>
+                <p class="barbeiro-showcase-quote">${typeof t === 'function' ? t('barber.quote') : '«Cada cliente sai da cadeira com confiança renovada.»'}</p>
+                <a href="marcacao.html" class="barbeiro-showcase-cta">
+                    ${typeof t === 'function' ? t('barber.bookWith', { name: b.nome.split(' ')[0] }) : `Marcar com ${b.nome.split(' ')[0]}`} <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <div class="barbeiro-info">
-                <h3>${b.nome}</h3>
-                <p class="barbeiro-experiencia"><i class="fas fa-star"></i> ${b.experiencia || 'Profissional'}</p>
-                <p class="barbeiro-especialidades">${b.especialidades || ''}</p>
-            </div>
-        </div>
-    `).join('');
+        </article>
+        `;
+    }).join('');
+}
+
+function escaparAttr(texto) {
+    return String(texto || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;');
+}
+
+function configurarBarbeiroLightbox() {
+    const lightbox = document.getElementById('barbeiroLightbox');
+    if (!lightbox || lightbox.dataset.bound) return;
+    lightbox.dataset.bound = '1';
+
+    document.getElementById('barbeirosGrid')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.barbeiro-avatar-btn');
+        if (!btn) return;
+        abrirBarbeiroLightbox(btn.dataset.foto, btn.dataset.nome);
+    });
+
+    document.getElementById('barbeiroLightboxBackdrop')?.addEventListener('click', fecharBarbeiroLightbox);
+    document.getElementById('barbeiroLightboxClose')?.addEventListener('click', fecharBarbeiroLightbox);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') fecharBarbeiroLightbox();
+    });
+}
+
+function abrirBarbeiroLightbox(src, nome) {
+    const lightbox = document.getElementById('barbeiroLightbox');
+    const img = document.getElementById('barbeiroLightboxImg');
+    const caption = document.getElementById('barbeiroLightboxCaption');
+    if (!lightbox || !img) return;
+
+    img.src = src || FOTO_BARBEIRO_PADRAO;
+    img.alt = nome || 'Geraldo Sense';
+    if (caption) caption.textContent = nome || 'Geraldo Sense';
+    lightbox.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharBarbeiroLightbox() {
+    const lightbox = document.getElementById('barbeiroLightbox');
+    if (!lightbox || lightbox.classList.contains('hidden')) return;
+    lightbox.classList.add('hidden');
+    document.body.style.overflow = '';
 }
 
 function renderizarOpcoesModal() {
@@ -113,7 +214,9 @@ function renderizarOpcoesModal() {
         servicosLista.innerHTML = servicos.map(s => `
             <div class="servico-option ${agendamento.servico_id === s.id ? 'selected' : ''}"
                  onclick="selecionarServico(${s.id})">
-                ${s.icon || '✂️'}<br>${s.nome}<br><small>${s.preco.toFixed(2)}€</small>
+                <img src="${obterImagemServico(s)}" alt="" class="servico-option-img">
+                <strong>${s.nome}</strong>
+                <small>${s.preco.toFixed(2)}€</small>
             </div>
         `).join('');
     }
@@ -435,10 +538,25 @@ function configurarScroll() {
 function configurarHeroSlider() {
     const slides = Array.from(document.querySelectorAll('.hero-slide'));
     const indicatorsEl = document.getElementById('heroIndicators');
-    if (!slides.length) return;
+    if (!slides.length || !indicatorsEl) return;
+
+    indicatorsEl.innerHTML = '';
+
+    slides.forEach(slide => {
+        const img = slide.querySelector('img');
+        if (!img) return;
+        const preload = new Image();
+        preload.onload = () => { slide.dataset.ready = '1'; };
+        preload.onerror = () => {
+            slide.dataset.broken = '1';
+            console.warn('Anúncio não carregou:', img.getAttribute('src'));
+        };
+        preload.src = img.getAttribute('src');
+    });
 
     let currentIndex = 0;
     let timer = null;
+    let videoFallback = null;
     const indicators = [];
 
     slides.forEach((_, index) => {
@@ -447,7 +565,7 @@ function configurarHeroSlider() {
         dot.className = 'hero-indicator' + (index === 0 ? ' active' : '');
         dot.setAttribute('aria-label', `Publicidade ${index + 1}`);
         dot.addEventListener('click', () => goToSlide(index, true));
-        indicatorsEl?.appendChild(dot);
+        indicatorsEl.appendChild(dot);
         indicators.push(dot);
     });
 
@@ -458,7 +576,15 @@ function configurarHeroSlider() {
         }
     }
 
+    function clearVideoFallback() {
+        if (videoFallback) {
+            clearTimeout(videoFallback);
+            videoFallback = null;
+        }
+    }
+
     function resetVideos() {
+        clearVideoFallback();
         slides.forEach(slide => {
             const video = slide.querySelector('video');
             if (!video) return;
@@ -468,12 +594,28 @@ function configurarHeroSlider() {
         });
     }
 
+    function proximoIndice(atual) {
+        if (!slides.length) return 0;
+        let next = (atual + 1) % slides.length;
+        let tentativas = 0;
+        while (slides[next].dataset.broken === '1' && tentativas < slides.length) {
+            next = (next + 1) % slides.length;
+            tentativas++;
+        }
+        return next;
+    }
+
     function scheduleNext(delay) {
         clearTimer();
-        timer = setTimeout(() => goToSlide((currentIndex + 1) % slides.length), delay);
+        timer = setTimeout(() => goToSlide(proximoIndice(currentIndex)), delay);
     }
 
     function goToSlide(index, manual) {
+        if (!slides[index] || slides[index].dataset.broken === '1') {
+            scheduleNext(manual ? 1200 : 800);
+            return;
+        }
+
         clearTimer();
         resetVideos();
 
@@ -487,15 +629,24 @@ function configurarHeroSlider() {
 
         if (slide.dataset.type === 'video') {
             const video = slide.querySelector('video');
+            const maxDuration = parseInt(slide.dataset.maxDuration, 10) || 12000;
+
             if (!video) {
-                scheduleNext(manual ? 5000 : 5000);
+                scheduleNext(4000);
                 return;
             }
 
             video.currentTime = 0;
-            video.onended = () => scheduleNext(600);
+            videoFallback = setTimeout(() => scheduleNext(400), maxDuration);
+            video.onended = () => {
+                clearVideoFallback();
+                scheduleNext(400);
+            };
 
-            video.play().catch(() => scheduleNext(5000));
+            video.play().catch(() => {
+                clearVideoFallback();
+                scheduleNext(4000);
+            });
             return;
         }
 
@@ -512,5 +663,6 @@ function configurarHeroSlider() {
         }
     });
 
-    goToSlide(0);
+    const inicio = slides.findIndex(s => s.dataset.broken !== '1');
+    goToSlide(inicio >= 0 ? inicio : 0);
 }

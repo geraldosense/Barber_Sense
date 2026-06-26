@@ -7,110 +7,151 @@
     <link rel="icon" type="image/png" href="assets/logo.png">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/i18n.css">
     <link rel="stylesheet" href="css/marcacao.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
-<body class="marcacao-page">
+<body class="marcacao-page" data-i18n-title="marcacao.title">
     <header class="marcacao-header">
         <div class="marcacao-header-inner">
             <a href="index.html" class="marcacao-brand">
                 <img src="assets/logo.png" alt="Sense Barbershop">
                 <span>Sense Barbershop</span>
             </a>
+            <div data-lang-mount></div>
             <div class="marcacao-user" id="marcacaoUser">
                 <div class="marcacao-user-info">
                     <span class="marcacao-user-name" id="marcacaoNome">—</span>
                     <span class="marcacao-user-email" id="marcacaoEmail">—</span>
                 </div>
-                <button type="button" class="marcacao-logout" id="btnLogoutMarcacao"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                <button type="button" class="marcacao-logout" id="btnLogoutMarcacao"><i class="fas fa-sign-out-alt"></i> <span data-i18n="auth.logout">Sair</span></button>
             </div>
         </div>
     </header>
 
     <div class="marcacao-layout">
         <aside class="marcacao-sidebar">
-            <h2><i class="fas fa-calendar-alt"></i> As Minhas Marcações</h2>
+            <h2><i class="fas fa-calendar-alt"></i> <span data-i18n="marcacao.myBookings">As Minhas Marcações</span></h2>
             <div id="listaMarcacoes" class="marcacao-lista">
-                <p class="marcacao-empty"><i class="fas fa-spinner fa-spin"></i> A carregar...</p>
+                <p class="marcacao-empty"><i class="fas fa-spinner fa-spin"></i> <span data-i18n="common.loading">A carregar...</span></p>
             </div>
         </aside>
 
         <main class="marcacao-main">
             <div class="marcacao-intro">
-                <h1>Reservar Marcação</h1>
-                <p>Escolha o serviço e horário — com Geraldo Sense.</p>
+                <h1 data-i18n="marcacao.title">Reservar Marcação</h1>
+                <p data-i18n="marcacao.subtitle">Escolha o serviço e horário — com Geraldo Sense.</p>
             </div>
 
             <div class="booking-progress" id="bookingProgress">
-                <div class="booking-step active" data-step="1"><span>1</span> Serviço</div>
-                <div class="booking-step" data-step="2"><span>2</span> Barbeiro</div>
-                <div class="booking-step" data-step="3"><span>3</span> Data & Hora</div>
-                <div class="booking-step" data-step="4"><span>4</span> Confirmar</div>
+                <div class="booking-step active" data-step="1"><span>1</span> <span data-i18n="marcacao.step.service">Serviço</span></div>
+                <div class="booking-step" data-step="2"><span>2</span> <span data-i18n="marcacao.step.barber">Barbeiro</span></div>
+                <div class="booking-step" data-step="3"><span>3</span> <span data-i18n="marcacao.step.datetime">Data & Hora</span></div>
+                <div class="booking-step" data-step="4"><span>4</span> <span data-i18n="marcacao.step.confirm">Confirmar</span></div>
             </div>
 
             <form id="formMarcacao" class="booking-form">
                 <section class="booking-panel active" id="bkStep1">
-                    <h3><i class="fas fa-cut"></i> Escolha o Serviço</h3>
+                    <h3><i class="fas fa-cut"></i> <span data-i18n="marcacao.chooseService">Escolha o Serviço</span></h3>
                     <div class="booking-grid" id="bkServicos"></div>
                     <div class="booking-nav">
-                        <button type="button" class="btn-next" id="bkNext1">Continuar <i class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn-next" id="bkNext1" disabled><span data-i18n="common.continue">Continuar</span> <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </section>
 
                 <section class="booking-panel" id="bkStep2">
-                    <h3><i class="fas fa-user-tie"></i> Escolha o Barbeiro</h3>
+                    <h3><i class="fas fa-user-tie"></i> <span data-i18n="marcacao.chooseBarber">Escolha o Barbeiro</span></h3>
                     <div class="booking-grid booking-grid-barbeiros" id="bkBarbeiros"></div>
                     <div class="booking-nav">
-                        <button type="button" class="btn-back" data-goto="1"><i class="fas fa-arrow-left"></i> Voltar</button>
-                        <button type="button" class="btn-next" id="bkNext2">Continuar <i class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn-back" data-goto="1"><i class="fas fa-arrow-left"></i> <span data-i18n="common.back">Voltar</span></button>
+                        <button type="button" class="btn-next" id="bkNext2" disabled><span data-i18n="common.continue">Continuar</span> <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </section>
 
                 <section class="booking-panel" id="bkStep3">
-                    <h3><i class="fas fa-clock"></i> Data e Horário</h3>
+                    <h3><i class="fas fa-clock"></i> <span data-i18n="marcacao.dateTime">Data e Horário</span></h3>
                     <div class="booking-datetime">
                         <div class="form-group">
-                            <label for="bkData">Data</label>
+                            <label for="bkData" data-i18n="marcacao.date">Data</label>
                             <input type="date" id="bkData" required>
                         </div>
                         <div class="form-group">
-                            <label for="bkHora">Horário disponível</label>
+                            <label for="bkHora" data-i18n="marcacao.time">Horário disponível</label>
                             <select id="bkHora" required>
-                                <option value="">Selecione...</option>
+                                <option value="" data-i18n="common.select">Selecione...</option>
                             </select>
                         </div>
                     </div>
                     <div class="booking-nav">
-                        <button type="button" class="btn-back" data-goto="2"><i class="fas fa-arrow-left"></i> Voltar</button>
-                        <button type="button" class="btn-next" id="bkNext3">Continuar <i class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn-back" data-goto="2"><i class="fas fa-arrow-left"></i> <span data-i18n="common.back">Voltar</span></button>
+                        <button type="button" class="btn-next" id="bkNext3" disabled><span data-i18n="common.continue">Continuar</span> <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </section>
 
                 <section class="booking-panel" id="bkStep4">
-                    <h3><i class="fas fa-check-circle"></i> Confirmar Reserva</h3>
+                    <h3><i class="fas fa-check-circle"></i> <span data-i18n="marcacao.confirmTitle">Confirmar Reserva</span></h3>
                     <div class="booking-summary" id="bkResumo"></div>
                     <div class="booking-user-card" id="bkUserCard"></div>
                     <div class="booking-nav">
-                        <button type="button" class="btn-back" data-goto="3"><i class="fas fa-arrow-left"></i> Voltar</button>
-                        <button type="submit" class="btn-submit"><i class="fas fa-calendar-check"></i> Confirmar Marcação</button>
+                        <button type="button" class="btn-back" data-goto="3"><i class="fas fa-arrow-left"></i> <span data-i18n="common.back">Voltar</span></button>
+                        <button type="submit" class="btn-submit"><i class="fas fa-calendar-check"></i> <span data-i18n="marcacao.confirmBtn">Confirmar Marcação</span></button>
                     </div>
                 </section>
 
                 <section class="booking-panel" id="bkStep5">
                     <div class="booking-success">
                         <div class="booking-success-icon"><i class="fas fa-check"></i></div>
-                        <h3>Marcação Confirmada!</h3>
+                        <h3 data-i18n="marcacao.confirmed">Marcação Confirmada!</h3>
                         <div id="bkConfirmacao"></div>
-                        <button type="button" class="cta-button" id="bkNovaMarcacao">Nova Marcação</button>
-                        <a href="index.html" class="btn-back-link">Voltar ao site</a>
+                        <button type="button" class="cta-button" id="bkNovaMarcacao" data-i18n="marcacao.newBooking">Nova Marcação</button>
+                        <a href="index.html" class="btn-back-link" data-i18n="marcacao.backToSite">Voltar ao site</a>
                     </div>
                 </section>
             </form>
         </main>
     </div>
 
+    <!-- Modal editar marcação -->
+    <div class="marcacao-modal hidden" id="modalEditarMarcacao" role="dialog" aria-modal="true">
+        <div class="marcacao-modal-backdrop" id="modalEditarBackdrop"></div>
+        <div class="marcacao-modal-card">
+            <header class="marcacao-modal-header">
+                <h3>Editar marcação</h3>
+                <button type="button" class="marcacao-modal-fechar" id="btnFecharEditar" aria-label="Fechar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </header>
+            <form id="formEditarMarcacao" class="marcacao-modal-form">
+                <div class="form-group">
+                    <label for="editServico">Serviço</label>
+                    <select id="editServico" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="editBarbeiro">Barbeiro</label>
+                    <select id="editBarbeiro" required></select>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="editData">Data</label>
+                        <input type="date" id="editData" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editHora">Hora</label>
+                        <select id="editHora" required></select>
+                    </div>
+                </div>
+                <p class="marcacao-edit-aviso hidden" id="editAvisoPreco"></p>
+                <div class="marcacao-modal-actions">
+                    <button type="button" class="btn-marcacao-cancelar" id="btnCancelarEditar">Cancelar</button>
+                    <button type="submit" class="btn-marcacao-guardar"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="js/config.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/marcacao.js"></script>
 </body>

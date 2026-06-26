@@ -12,19 +12,29 @@ if [[ "$OSTYPE" != darwin* ]]; then
     exit 1
 fi
 
-# Substituir caminho do projeto no plist
+chmod +x "$ROOT/scripts/sense-server.sh" "$ROOT/scripts/launchd-server.sh" 2>/dev/null || true
+
 sed "s|__SENSE_ROOT__|$ROOT|g" "$PLIST_SRC" > "$PLIST_DST"
 
-launchctl unload "$PLIST_DST" 2>/dev/null || true
-launchctl load "$PLIST_DST"
+UID_NUM="$(id -u)"
+DOMAIN="gui/$UID_NUM"
+
+launchctl bootout "$DOMAIN" "$PLIST_DST" 2>/dev/null || launchctl unload "$PLIST_DST" 2>/dev/null || true
+if launchctl bootstrap "$DOMAIN" "$PLIST_DST" 2>/dev/null; then
+    :
+else
+    launchctl load "$PLIST_DST"
+fi
+
+# Garantir que o servidor está online agora
+"$ROOT/scripts/sense-server.sh" start || true
+
+# Criar / atualizar aplicação de arranque (sem janela de terminal)
+"$ROOT/scripts/build-launcher-app.sh" 2>/dev/null || true
 
 echo ""
-echo "✓ Arranque automático instalado!"
-echo "  O site inicia sozinho quando liga o Mac."
+echo "✓ Sense Barbershop configurado para arrancar automaticamente."
 echo "  URL: http://localhost:3000"
-echo ""
-echo "Comandos úteis:"
-echo "  ./scripts/sense-server.sh status   — ver se está online"
-echo "  ./scripts/sense-server.sh stop     — parar servidor"
-echo "  ./scripts/sense-server.sh start    — iniciar manualmente"
+echo "  Arranque ao ligar o Mac: ativo"
+echo "  Atalho: Sense Barbershop.app (duplo-clique, sem terminal)"
 echo ""

@@ -15,6 +15,10 @@ function guardarSessao(token, utilizador) {
     sessionStorage.removeItem('admPainelOk');
     localStorage.setItem('authToken', token);
     localStorage.setItem('utilizador', JSON.stringify(utilizador));
+    if (utilizador?.email) {
+        localStorage.setItem('senseUltimoEmail', utilizador.email.toLowerCase().trim());
+        localStorage.setItem('senseContaRegistada', '1');
+    }
     utilizadorAtual = utilizador;
     atualizarUIAuth();
 }
@@ -100,10 +104,10 @@ function atualizarUIAuth() {
                     <span class="user-name">${escapeHtml(utilizadorAtual.nome.split(' ')[0])}</span>
                     <span class="user-perfil">${perfilLabel}</span>
                 </div>
-                <button type="button" class="logout-btn" id="btnLogout">Sair</button>
+                <button type="button" class="logout-btn" id="btnLogout">${typeof t === 'function' ? t('auth.logout') : 'Sair'}</button>
             </div>
             ${painelBtn}
-            <a href="marcacao.html" class="register-btn" id="btnAgendarNav">Reservar</a>
+            <a href="marcacao.html" class="register-btn" id="btnAgendarNav">${typeof t === 'function' ? t('auth.bookNow') : 'Reservar'}</a>
         `;
 
         document.getElementById('btnLogout')?.addEventListener('click', (e) => {
@@ -125,8 +129,8 @@ function atualizarUIAuth() {
         if (typeof esconderAreaLogada === 'function') esconderAreaLogada();
         authButtons.classList.remove('auth-buttons--empty');
         authButtons.innerHTML = `
-            <a href="conta.html" class="login-btn" id="btnLogin"><i class="fas fa-user"></i> Entrar</a>
-            <a href="marcacao.html" class="register-btn" id="btnAgendarNav">Reservar</a>
+            <a href="conta.html" class="login-btn" id="btnLogin"><i class="fas fa-user"></i> ${typeof t === 'function' ? t('auth.login') : 'Entrar'}</a>
+            <a href="marcacao.html" class="register-btn" id="btnAgendarNav">${typeof t === 'function' ? t('auth.bookNow') : 'Reservar'}</a>
         `;
 
         document.getElementById('btnLogin')?.addEventListener('click', (e) => {
@@ -209,17 +213,23 @@ function mudarTabAuth(tab) {
     const titulo = document.getElementById('contaTitulo');
     const subtitulo = document.getElementById('contaSubtitulo');
     if (titulo && subtitulo) {
+        const tr = typeof t === 'function' ? t : (k) => k;
         if (tab === 'registo') {
-            titulo.textContent = 'Criar conta na Sense Barbershop';
-            subtitulo.textContent = 'Registe-se com Google ou email para marcar o seu corte';
+            titulo.textContent = tr('auth.titleRegister');
+            subtitulo.textContent = tr('auth.subRegister');
         } else if (tab === 'recuperar') {
-            titulo.textContent = 'Recuperar palavra-passe';
-            subtitulo.textContent = 'Enviaremos instruções para o seu email';
+            titulo.textContent = tr('auth.titleRecover');
+            subtitulo.textContent = tr('auth.subRecover');
         } else {
-            titulo.textContent = 'Entrar na Sense Barbershop';
-            subtitulo.textContent = 'Use Google ou email para reservar o seu corte';
+            titulo.textContent = tr('auth.titleLogin');
+            subtitulo.textContent = tr('auth.subLogin');
         }
     }
+
+    const esconderGoogle = tab === 'recuperar';
+    document.getElementById('googleSignInWrap')?.classList.toggle('hidden', esconderGoogle);
+    document.getElementById('authDivider')?.classList.toggle('hidden', esconderGoogle);
+    document.getElementById('googleNota')?.classList.toggle('hidden', esconderGoogle);
 }
 
 function mostrarAuthMessage(mensagem, tipo = 'info') {
@@ -233,6 +243,78 @@ function mostrarAuthMessage(mensagem, tipo = 'info') {
 function esconderAuthMessage() {
     const el = document.getElementById('authMessage');
     if (el) el.classList.add('hidden');
+}
+
+function guardarEmailCliente(email) {
+    const limpo = (email || '').toLowerCase().trim();
+    if (!limpo) return;
+    localStorage.setItem('senseUltimoEmail', limpo);
+    localStorage.setItem('senseContaRegistada', '1');
+}
+
+function preencherEmailGuardado() {
+    const email = localStorage.getItem('senseUltimoEmail');
+    const loginEl = document.getElementById('loginEmail');
+    if (!email || !loginEl || loginEl.value.trim()) return;
+    loginEl.value = email;
+    if (localStorage.getItem('senseContaRegistada') === '1') {
+        verificarEmailRegistado(email, 'login', true);
+    }
+}
+
+let verificarEmailTimer = null;
+
+async function verificarEmailRegistado(email, contexto = 'login', silencioso = false) {
+    const limpo = (email || '').trim();
+    if (!limpo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(limpo)) return;
+
+    try {
+        const res = await fetch(`${API_URL}/auth/verificar-email?email=${encodeURIComponent(limpo)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (contexto === 'login' && data.registado) {
+            if (!silencioso) {
+                if (data.auth_provider === 'google') {
+                    mostrarAuthMessage(
+                        `Conta encontrada (${data.nome}). Use o botão «Entrar com Google».`,
+                        'success'
+                    );
+                } else {
+                    mostrarAuthMessage(
+                        `Bem-vindo de volta, ${data.nome}! A sua conta já está registada — introduza a palavra-passe.`,
+                        'success'
+                    );
+                }
+            }
+            document.getElementById('loginPassword')?.focus();
+            return;
+        }
+
+        if (contexto === 'registo' && data.registado) {
+            document.getElementById('loginEmail').value = limpo;
+            mudarTabAuth('login');
+            if (data.auth_provider === 'google') {
+                mostrarAuthMessage(
+                    `Este email já está registado com Google (${data.nome}). Use o botão Google para entrar.`,
+                    'info'
+                );
+            } else {
+                mostrarAuthMessage(
+                    `Este email já está registado. Introduza a palavra-passe na aba Entrar.`,
+                    'info'
+                );
+                document.getElementById('loginPassword')?.focus();
+            }
+        }
+    } catch {
+        /* silencioso */
+    }
+}
+
+function agendarVerificacaoEmail(email, contexto) {
+    clearTimeout(verificarEmailTimer);
+    verificarEmailTimer = setTimeout(() => verificarEmailRegistado(email, contexto), 500);
 }
 
 function mostrarNotificacaoAuth(mensagem, tipo = 'info') {
@@ -282,7 +364,7 @@ async function loginComGoogle(credential) {
 
         await processarRespostaAuth(data);
     } catch {
-        mostrarAuthMessage('Servidor offline. Faça duplo-clique em Sense Barbershop.command ou aguarde a reconexão automática.', 'error');
+        mostrarAuthMessage('O sistema está a arrancar. Aguarde alguns segundos — a ligação é automática.', 'error');
     }
 }
 
@@ -401,17 +483,32 @@ async function submeterRegisto(e) {
         const data = await res.json();
 
         if (!res.ok) {
+            if (res.status === 409 || data.codigo === 'EMAIL_JA_REGISTADO') {
+                guardarEmailCliente(email);
+                document.getElementById('loginEmail').value = email;
+                mudarTabAuth('login');
+                mostrarAuthMessage(
+                    data.erro || 'Este email já está registado. Utilize a palavra-passe para entrar.',
+                    'info'
+                );
+                document.getElementById('loginPassword')?.focus();
+                return;
+            }
             mostrarAuthMessage(data.erro || 'Erro ao criar conta.', 'error');
             return;
         }
 
         if (data.token && data.utilizador) {
             guardarSessao(data.token, data.utilizador);
-            redirecionarAposAuth(data.utilizador);
+            guardarEmailCliente(email);
+            mostrarAuthMessage(data.mensagem || 'Conta criada e validada! A iniciar sessão...', 'success');
+            setTimeout(() => redirecionarAposAuth(data.utilizador), 900);
             return;
         }
 
-        mostrarAuthMessage(data.mensagem || 'Conta criada com sucesso!', 'success');
+        guardarEmailCliente(email);
+        document.getElementById('loginEmail').value = email;
+        mostrarAuthMessage(data.mensagem || 'Conta criada com sucesso! Pode entrar com o seu email.', 'success');
         mudarTabAuth('login');
     } catch {
         mostrarAuthMessage('Erro de ligação ao servidor.', 'error');
@@ -435,16 +532,30 @@ async function submeterLogin(e) {
         const data = await res.json();
 
         if (!res.ok) {
-            mostrarAuthMessage(data.erro || 'Email ou palavra-passe inválidos.', 'error');
+            if (data.codigo === 'EMAIL_NAO_REGISTADO') {
+                document.getElementById('regEmail').value = email;
+                mostrarAuthMessage(data.erro, 'info');
+                mudarTabAuth('registo');
+                return;
+            }
+            if (data.codigo === 'PASSWORD_INVALIDA') {
+                mostrarAuthMessage(data.erro, 'error');
+                document.getElementById('loginPassword')?.focus();
+                return;
+            }
+            const tipo = data.codigo === 'USE_GOOGLE' ? 'info' : 'error';
+            mostrarAuthMessage(data.erro || 'Email ou palavra-passe inválidos.', tipo);
             return;
         }
 
+        guardarEmailCliente(email);
         guardarSessao(data.token, data.utilizador);
         fecharModalAuth();
+        mostrarAuthMessage('Sessão iniciada com sucesso!', 'success');
         redirecionarAposAuth(data.utilizador);
     } catch {
         mostrarAuthMessage(
-            'Servidor offline. Use Sense Barbershop.command na pasta do projeto ou aguarde a ligação automática.',
+            'O Sense Barbershop está a iniciar. Aguarde — a ligação é feita automaticamente.',
             'error'
         );
     }
@@ -553,7 +664,41 @@ function configurarAuth() {
         mudarTabAuth('recuperar');
     });
 
+    document.getElementById('linkIrLogin')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        esconderAuthMessage();
+        const regEmail = document.getElementById('regEmail')?.value.trim();
+        if (regEmail) {
+            document.getElementById('loginEmail').value = regEmail;
+        }
+        mudarTabAuth('login');
+        if (regEmail) verificarEmailRegistado(regEmail, 'login');
+    });
+
+    document.getElementById('linkIrRegisto')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        esconderAuthMessage();
+        const loginEmail = document.getElementById('loginEmail')?.value.trim();
+        if (loginEmail) {
+            document.getElementById('regEmail').value = loginEmail;
+        }
+        mudarTabAuth('registo');
+    });
+
+    document.getElementById('loginEmail')?.addEventListener('blur', (e) => {
+        verificarEmailRegistado(e.target.value.trim(), 'login');
+    });
+
+    document.getElementById('loginEmail')?.addEventListener('input', (e) => {
+        agendarVerificacaoEmail(e.target.value.trim(), 'login');
+    });
+
+    document.getElementById('regEmail')?.addEventListener('blur', (e) => {
+        verificarEmailRegistado(e.target.value.trim(), 'registo');
+    });
+
     configurarTogglePassword();
+    preencherEmailGuardado();
     carregarConfigAuth().then(() => {
         inicializarGoogleSignIn();
         if (document.body.dataset.authPage !== 'conta') {
@@ -565,4 +710,10 @@ function configurarAuth() {
 document.addEventListener('DOMContentLoaded', () => {
     if (document.body.dataset.authPage === 'conta') return;
     configurarAuth();
+});
+
+document.addEventListener('sense:langchange', () => {
+    atualizarUIAuth();
+    const activeTab = document.querySelector('.auth-tab.active')?.dataset.tab || 'login';
+    if (document.getElementById('contaTitulo')) mudarTabAuth(activeTab);
 });

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-label="Corte + Barba">
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#121212"/>
+      <stop offset="100%" stop-color="#352d24"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="240" fill="url(#bg3)"/>
+  <ellipse cx="200" cy="78" rx="50" ry="54" fill="#c9a66b"/>
+  <path d="M150 72c10-20 30-30 50-30s40 10 50 30" fill="#1c1814"/>
+  <path d="M154 92 Q200 158 246 92 Q228 128 200 136 Q172 128 154 92Z" fill="#2a221c"/>
+  <rect x="168" y="138" width="64" height="56" rx="10" fill="#252018"/>
+  <g transform="translate(108,108) rotate(-12)">
+    <circle cx="0" cy="0" r="11" fill="none" stroke="#d4af37" stroke-width="3.5"/>
+    <path d="M-6 6 L-22 34" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+    <path d="M6 6 L22 34" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <text x="200" y="222" text-anchor="middle" fill="#d4af37" font-family="Arial,sans-serif" font-size="14" font-weight="700">CORTE + BARBA</text>
+</svg>

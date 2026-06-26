@@ -7,6 +7,9 @@
     if (protocol === 'file:') {
         window.API_URL = 'http://localhost:3000/api';
         window.SITE_URL = 'http://localhost:3000';
+        document.addEventListener('DOMContentLoaded', () => {
+            window.location.replace(SITE_URL);
+        });
         return;
     }
 
@@ -29,7 +32,20 @@ window.resolveMediaUrl = function (path) {
     return base + (path.startsWith('/') ? path : `/${path}`);
 };
 
-// ===== AVISO file:// =====
+window.obterImagemServico = function (servico) {
+    if (!servico) return 'assets/servicos/default.svg';
+    if (servico.imagem) return servico.imagem;
+
+    const nome = String(servico.nome || '').toLowerCase().trim();
+    if (nome.includes('corte') && nome.includes('barba')) return 'assets/servicos/corte-barba.png';
+    if (nome.includes('barba')) return 'assets/servicos/barba.png';
+    if (nome.includes('degrad')) return 'assets/servicos/degrade.svg';
+    if (nome.includes('tratamento')) return 'assets/servicos/tratamento.svg';
+    if (nome.includes('corte')) return 'assets/servicos/corte-normal.png';
+    return 'assets/servicos/default.svg';
+};
+
+// ===== AVISO file:// (fallback se o redirecionamento falhar) =====
 function mostrarAvisoProtocolo() {
     if (window.location.protocol !== 'file:') return;
 
@@ -39,8 +55,8 @@ function mostrarAvisoProtocolo() {
         const aviso = document.createElement('div');
         aviso.id = 'aviso-protocolo';
         aviso.innerHTML = [
-            '<strong>⚠️ Abra o site pelo servidor, não pela pasta</strong><br>',
-            'Faça duplo-clique em <strong>Sense Barbershop.command</strong> na pasta do projeto, ',
+            '<strong>A abrir Sense Barbershop...</strong><br>',
+            'Se não redirecionar, use a aplicação <strong>Sense Barbershop.app</strong> ',
             'ou abra <a href="http://localhost:3000" style="color:#fff;">http://localhost:3000</a>'
         ].join('');
         aviso.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b45309;color:#fff;padding:14px 20px;font-family:Roboto,sans-serif;font-size:14px;line-height:1.6;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.3)';
@@ -81,7 +97,7 @@ mostrarAvisoProtocolo();
             '<div class="sense-servidor-banner__inner">',
             '<span class="sense-servidor-banner__icon"><i class="fas fa-sync fa-spin"></i></span>',
             '<span class="sense-servidor-banner__text">',
-            '<strong>A ligar ao servidor...</strong> Aguarde — o site arranca automaticamente.',
+            '<strong>A iniciar Sense Barbershop...</strong> O sistema arranca automaticamente. Aguarde alguns segundos.',
             '</span>',
             '<button type="button" class="sense-servidor-banner__btn" id="senseBtnRetry">Tentar agora</button>',
             '</div>'
@@ -91,7 +107,7 @@ mostrarAvisoProtocolo();
         document.getElementById('senseBtnRetry')?.addEventListener('click', async () => {
             const ok = await verificarServidor(5000);
             if (ok) window.location.reload();
-            else aguardarServidor(5);
+            else aguardarServidor(30);
         });
     }
 
@@ -102,7 +118,7 @@ mostrarAvisoProtocolo();
     async function aguardarServidor(maxTentativas) {
         if (verificando) return servidorOnline;
         verificando = true;
-        const max = maxTentativas || 25;
+        const max = maxTentativas || 45;
 
         for (let i = 0; i < max; i++) {
             const ok = await verificarServidor(3000);
@@ -113,6 +129,7 @@ mostrarAvisoProtocolo();
                 ouvintes.clear();
                 verificando = false;
                 window.dispatchEvent(new CustomEvent('sense:servidor-online'));
+                if (i > 0) window.location.reload();
                 return true;
             }
             if (i === 0) mostrarBannerOffline();
@@ -122,7 +139,7 @@ mostrarAvisoProtocolo();
         verificando = false;
         const el = document.querySelector('#sense-servidor-banner .sense-servidor-banner__text');
         if (el) {
-            el.innerHTML = `<strong>Servidor offline.</strong> Faça duplo-clique em <strong>Sense Barbershop.command</strong> ou abra <a href="${SITE_URL}">${SITE_URL}</a>`;
+            el.innerHTML = `<strong>A aguardar o sistema...</strong> O Sense Barbershop arranca ao ligar o Mac. <a href="${SITE_URL}">Tentar novamente</a>`;
         }
         const icon = document.querySelector('#sense-servidor-banner .sense-servidor-banner__icon i');
         if (icon) icon.className = 'fas fa-exclamation-triangle';
@@ -143,6 +160,6 @@ mostrarAvisoProtocolo();
         if (window.location.protocol === 'file:') return;
         const ok = await verificarServidor(2500);
         servidorOnline = ok;
-        if (!ok) aguardarServidor(20);
+        if (!ok) aguardarServidor(45);
     });
 })();
