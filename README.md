@@ -10,39 +10,38 @@ Sistema de marcação online para a **Sense Barbershop** — serviços, galeria,
 | Site público (GitHub Pages) | https://geraldosense.github.io/Barber_Sense/ |
 | Local (Mac) | http://localhost:3000 |
 
-## Porque o GitHub não mostra o site completo?
+## Guia passo a passo (leia isto primeiro)
 
-O link `github.com/geraldosense/Barber_Sense` é o **repositório de código**, não a aplicação a correr.
+**Instruções completas em português:** [GUIA-ONLINE.md](GUIA-ONLINE.md)
 
-- **GitHub Pages** mostra o design do site (frontend).
-- **Marcações, login e pagamentos** precisam do servidor Node.js (backend).
+### Porque o projeto não aparece no Render?
 
-## Colocar o código no GitHub
+O Render **só mostra repositórios que já estão no GitHub**. O código novo ainda está no seu Mac — tem de enviá-lo primeiro.
 
-No Terminal (Mac):
+**Ordem obrigatória:**
+
+1. **Enviar para o GitHub** (Terminal → `./scripts/push-github.sh`)
+2. **Confirmar** em https://github.com/geraldosense/Barber_Sense que vê `frontend/`, `backend/`, `render.yaml`
+3. **Criar conta no Render** com "Sign up with GitHub"
+4. **New + → Blueprint** → escolher `geraldosense/Barber_Sense`
+5. Site online em `https://sense-barbershop.onrender.com`
+
+### Envio rápido para o GitHub
 
 ```bash
 cd /Users/Mac/sense_barber
-chmod +x scripts/push-github.sh
 ./scripts/push-github.sh
 ```
 
-Se pedir login: utilize o seu utilizador GitHub e um [Personal Access Token](https://github.com/settings/tokens) como palavra-passe.
+Login: utilizador `geraldosense` + [Personal Access Token](https://github.com/settings/tokens) como palavra-passe.
 
-## Ativar o site no GitHub Pages
+### Diferença GitHub vs Render
 
-1. Envie o código (comando acima).
-2. No GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. Após o push, o workflow publica automaticamente em:
-   **https://geraldosense.github.io/Barber_Sense/**
-
-## Site completo online (Render — gratuito)
-
-1. Envie o código para o GitHub.
-2. Crie conta em [render.com](https://render.com).
-3. **New → Blueprint** → ligue o repositório `Barber_Sense`.
-4. O ficheiro `render.yaml` instala e arranca o servidor.
-5. O Render dá um URL tipo `https://sense-barbershop.onrender.com` com **tudo a funcionar**.
+| Onde | O que mostra |
+|------|----------------|
+| Link do GitHub | Código-fonte (ficheiros) |
+| GitHub Pages | Só o design do site |
+| Render | Site **completo** (marcações, pagamentos, admin) |
 
 ## Correr no Mac (local)
 
