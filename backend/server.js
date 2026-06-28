@@ -27,7 +27,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // ===== INICIALIZAR BANCO DE DADOS =====
 const db = new Database();
-db.initialize();
 
 // ===== PASSAR DB PARA ROTAS =====
 app.use((req, res, next) => {
@@ -87,14 +86,21 @@ app.get('*', (req, res, next) => {
 });
 
 // ===== INICIAR SERVIDOR =====
-app.listen(PORT, () => {
-    console.log(`
+db.initialize()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`
     ╔═══════════════════════════════════════╗
     ║  🧔 Sense Barbershop - Backend         ║
     ║  Servidor iniciado em porta ${PORT}       ║
     ║  URL: http://localhost:${PORT}              ║
     ╚═══════════════════════════════════════╝
     `);
-});
+        });
+    })
+    .catch((err) => {
+        console.error('Falha ao iniciar o servidor:', err);
+        process.exit(1);
+    });
 
 module.exports = app;

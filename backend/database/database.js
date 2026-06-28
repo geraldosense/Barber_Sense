@@ -14,14 +14,22 @@ class Database {
      */
     initialize() {
         return new Promise((resolve, reject) => {
-            this.db = new sqlite3.Database(this.dbPath, (err) => {
+            this.db = new sqlite3.Database(this.dbPath, async (err) => {
                 if (err) {
                     console.error('Erro ao conectar ao banco:', err);
                     reject(err);
-                } else {
-                    console.log('✓ Banco de dados conectado');
-                    this.createTables();
+                    return;
+                }
+                console.log('✓ Banco de dados conectado');
+                try {
+                    await this.createTables();
+                    await this.migrarColunas();
+                    await this.inserirDadosExemplo();
+                    console.log('✓ Tabelas criadas/verificadas');
                     resolve();
+                } catch (initErr) {
+                    console.error('Erro ao inicializar banco:', initErr);
+                    reject(initErr);
                 }
             });
         });
@@ -30,9 +38,10 @@ class Database {
     /**
      * Criar tabelas se não existirem
      */
-    createTables() {
+    async createTables() {
+        const statements = [
         // Tabela de Serviços
-        this.db.run(`
+        `
             CREATE TABLE IF NOT EXISTS servicos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL UNIQUE,
@@ -42,10 +51,9 @@ class Database {
                 icone TEXT,
                 criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-        `);
-
+        `,
         // Tabela de Barbeiros
-        this.db.run(`
+        `
             CREATE TABLE IF NOT EXISTS barbeiros (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL UNIQUE,
@@ -57,10 +65,9 @@ class Database {
                 ativo INTEGER DEFAULT 1,
                 criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-        `);
-
+        `,
         // Tabela de Agendamentos
-        this.db.run(`
+        `
             CREATE TABLE IF NOT EXISTS agendamentos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 servico_id INTEGER NOT NULL,
@@ -78,10 +85,9 @@ class Database {
                 FOREIGN KEY (barbeiro_id) REFERENCES barbeiros(id),
                 UNIQUE(barbeiro_id, data, hora)
             )
-        `);
-
+        `,
         // Tabela de Cancelamentos
-        this.db.run(`
+        `
             CREATE TABLE IF NOT EXISTS cancelamentos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 agendamento_id INTEGER NOT NULL,
@@ -89,10 +95,9 @@ class Database {
                 cancelado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (agendamento_id) REFERENCES agendamentos(id)
             )
-        `);
-
+        `,
         // Tabela de Utilizadores
-        this.db.run(`
+        `
             CREATE TABLE IF NOT EXISTS utilizadores (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
@@ -104,10 +109,9 @@ class Database {
                 email_confirmado INTEGER DEFAULT 0,
                 criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-        `);
-
+        `,
         // Tabela de Tokens (confirmação email / recuperação password)
-        this.db.run(`
+        `
             CREATE TABLE IF NOT EXISTS tokens (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 usuario_id INTEGER NOT NULL,
@@ -119,10 +123,9 @@ class Database {
                 criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (usuario_id) REFERENCES utilizadores(id)
             )
-        `);
-
+        `,
         // Pedidos MB WAY pendentes
-        this.db.run(`
+        `
             CREATE TABLE IF NOT EXISTS pagamentos_mbway (
                 id TEXT PRIMARY KEY,
                 usuario_id INTEGER,
@@ -137,10 +140,9 @@ class Database {
                 confirmado_em DATETIME,
                 criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-        `);
-
+        `,
         // Galeria de cortes (portefólio)
-        this.db.run(`
+        `
             CREATE TABLE IF NOT EXISTS galeria (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 barbeiro_id INTEGER,
@@ -157,110 +159,103 @@ class Database {
                 FOREIGN KEY (barbeiro_id) REFERENCES barbeiros(id),
                 FOREIGN KEY (usuario_id) REFERENCES utilizadores(id)
             )
-        `);
-
+        `,
         // Tabela de Configurações do site
-        this.db.run(`
+        `
             CREATE TABLE IF NOT EXISTS configuracoes (
                 chave TEXT PRIMARY KEY,
                 valor TEXT NOT NULL,
                 atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP
             )
+        `
+        ];
+
+        for (const sql of statements) {
+            await this.run(sql);
+        }
+    }
+
+    async migrarColunas() {
+        const cols = await this.all('PRAGMA table_info(utilizadores)');
+        const addCol = async (name, sql) => {
+            if (!cols.some(c => c.name === name)) {
+                await this.run(sql);
+                cols.push({ name });
+            }
+        };
+
+        await addCol('barbeiro_id', 'ALTER TABLE utilizadores ADD COLUMN barbeiro_id INTEGER');
+        await addCol('google_id', 'ALTER TABLE utilizadores ADD COLUMN google_id TEXT');
+        await addCol('auth_provider', "ALTER TABLE utilizadores ADD COLUMN auth_provider TEXT DEFAULT 'local'");
+        await addCol('foto_url', 'ALTER TABLE utilizadores ADD COLUMN foto_url TEXT');
+        await addCol('metodo_pagamento', 'ALTER TABLE utilizadores ADD COLUMN metodo_pagamento TEXT');
+        await addCol('perfil_completo', 'ALTER TABLE utilizadores ADD COLUMN perfil_completo INTEGER DEFAULT 0');
+
+        await this.run(
+            'UPDATE utilizadores SET ativo = 1, email_confirmado = 1 WHERE ativo = 0 OR email_confirmado = 0'
+        );
+        await this.run(`
+            UPDATE utilizadores SET barbeiro_id = (
+                SELECT id FROM barbeiros WHERE barbeiros.email = utilizadores.email LIMIT 1
+            ) WHERE barbeiro_id IS NULL AND perfil = 'barbeiro'
         `);
 
-        this.migrarColunas(() => {
-            console.log('✓ Tabelas criadas/verificadas');
-            this.inserirDadosExemplo();
-        });
-    }
+        const colsG = await this.all('PRAGMA table_info(galeria)');
+        if (colsG && !colsG.some(c => c.name === 'preco')) {
+            await this.run('ALTER TABLE galeria ADD COLUMN preco REAL');
+        }
 
-    migrarColunas(done) {
-        this.db.all('PRAGMA table_info(utilizadores)', (err, cols) => {
-            if (err || !cols) return done?.();
-            const addCol = (name, sql) => {
-                if (!cols.some(c => c.name === name)) {
-                    this.db.run(sql);
-                }
-            };
-            addCol('barbeiro_id', 'ALTER TABLE utilizadores ADD COLUMN barbeiro_id INTEGER');
-            addCol('google_id', 'ALTER TABLE utilizadores ADD COLUMN google_id TEXT');
-            addCol('auth_provider', "ALTER TABLE utilizadores ADD COLUMN auth_provider TEXT DEFAULT 'local'");
-            addCol('foto_url', 'ALTER TABLE utilizadores ADD COLUMN foto_url TEXT');
-            addCol('metodo_pagamento', 'ALTER TABLE utilizadores ADD COLUMN metodo_pagamento TEXT');
-            addCol('perfil_completo', 'ALTER TABLE utilizadores ADD COLUMN perfil_completo INTEGER DEFAULT 0');
-            this.db.run(
-                'UPDATE utilizadores SET ativo = 1, email_confirmado = 1 WHERE ativo = 0 OR email_confirmado = 0'
+        const colsA = await this.all('PRAGMA table_info(agendamentos)');
+        if (colsA) {
+            if (!colsA.some(c => c.name === 'usuario_id')) {
+                await this.run('ALTER TABLE agendamentos ADD COLUMN usuario_id INTEGER');
+            }
+            if (!colsA.some(c => c.name === 'metodo_pagamento')) {
+                await this.run('ALTER TABLE agendamentos ADD COLUMN metodo_pagamento TEXT');
+            }
+            if (!colsA.some(c => c.name === 'referencia_pagamento')) {
+                await this.run('ALTER TABLE agendamentos ADD COLUMN referencia_pagamento TEXT');
+            }
+            if (!colsA.some(c => c.name === 'valor_pago')) {
+                await this.run('ALTER TABLE agendamentos ADD COLUMN valor_pago REAL');
+            }
+        }
+
+        const colsB = await this.all('PRAGMA table_info(barbeiros)');
+        if (!colsB || colsB.length === 0) return;
+
+        const colsServ = await this.all('PRAGMA table_info(servicos)');
+        if (colsServ) {
+            if (!colsServ.some(c => c.name === 'ativo')) {
+                await this.run('ALTER TABLE servicos ADD COLUMN ativo INTEGER DEFAULT 1');
+            }
+            if (!colsServ.some(c => c.name === 'imagem')) {
+                await this.run('ALTER TABLE servicos ADD COLUMN imagem TEXT');
+            }
+        }
+
+        if (!colsB.some(c => c.name === 'principal')) {
+            try {
+                await this.run('ALTER TABLE barbeiros ADD COLUMN principal INTEGER DEFAULT 0');
+                await this.run(
+                    'UPDATE barbeiros SET principal = 1 WHERE id = (SELECT MIN(id) FROM barbeiros WHERE ativo = 1)'
+                );
+            } catch {
+                await this.garantirAdminPrincipal();
+                return;
+            }
+        } else {
+            await this.run(
+                `UPDATE barbeiros SET principal = 1
+                 WHERE id = (SELECT MIN(id) FROM barbeiros WHERE ativo = 1)
+                 AND NOT EXISTS (SELECT 1 FROM barbeiros WHERE principal = 1)`
             );
-            this.db.run(`
-                UPDATE utilizadores SET barbeiro_id = (
-                    SELECT id FROM barbeiros WHERE barbeiros.email = utilizadores.email LIMIT 1
-                ) WHERE barbeiro_id IS NULL AND perfil = 'barbeiro'
-            `);
+        }
 
-            this.db.all('PRAGMA table_info(galeria)', (err2, colsG) => {
-                if (!err2 && colsG && !colsG.some(c => c.name === 'preco')) {
-                    this.db.run('ALTER TABLE galeria ADD COLUMN preco REAL');
-                }
-
-                this.db.all('PRAGMA table_info(agendamentos)', (err3, colsA) => {
-                    if (!err3 && colsA && !colsA.some(c => c.name === 'usuario_id')) {
-                        this.db.run('ALTER TABLE agendamentos ADD COLUMN usuario_id INTEGER');
-                    }
-                    if (!err3 && colsA && !colsA.some(c => c.name === 'metodo_pagamento')) {
-                        this.db.run('ALTER TABLE agendamentos ADD COLUMN metodo_pagamento TEXT');
-                    }
-                    if (!err3 && colsA && !colsA.some(c => c.name === 'referencia_pagamento')) {
-                        this.db.run('ALTER TABLE agendamentos ADD COLUMN referencia_pagamento TEXT');
-                    }
-                    if (!err3 && colsA && !colsA.some(c => c.name === 'valor_pago')) {
-                        this.db.run('ALTER TABLE agendamentos ADD COLUMN valor_pago REAL');
-                    }
-
-                    this.db.all('PRAGMA table_info(barbeiros)', (err4, colsB) => {
-                        if (err4 || !colsB) return done?.();
-
-                        this.db.all('PRAGMA table_info(servicos)', (errServ, colsServ) => {
-                            if (!errServ && colsServ) {
-                                if (!colsServ.some(c => c.name === 'ativo')) {
-                                    this.db.run('ALTER TABLE servicos ADD COLUMN ativo INTEGER DEFAULT 1');
-                                }
-                                if (!colsServ.some(c => c.name === 'imagem')) {
-                                    this.db.run('ALTER TABLE servicos ADD COLUMN imagem TEXT');
-                                }
-                            }
-
-                            if (!colsB.some(c => c.name === 'principal')) {
-                            this.db.run(
-                                'ALTER TABLE barbeiros ADD COLUMN principal INTEGER DEFAULT 0',
-                                (alterErr) => {
-                                    if (!alterErr) {
-                                        this.db.run(
-                                            'UPDATE barbeiros SET principal = 1 WHERE id = (SELECT MIN(id) FROM barbeiros WHERE ativo = 1)',
-                                            () => this.normalizarBarbeiroPrincipal(done)
-                                        );
-                                    } else {
-                                        this.garantirAdminPrincipal(done);
-                                    }
-                                }
-                            );
-                        } else {
-                            this.db.run(
-                                `UPDATE barbeiros SET principal = 1
-                                 WHERE id = (SELECT MIN(id) FROM barbeiros WHERE ativo = 1)
-                                 AND NOT EXISTS (SELECT 1 FROM barbeiros WHERE principal = 1)`,
-                                () => {
-                                    this.normalizarBarbeiroPrincipal(done);
-                                }
-                            );
-                        }
-                        });
-                    });
-                });
-            });
-        });
+        await this.normalizarBarbeiroPrincipal();
     }
 
-    async garantirAdminPrincipal(done) {
+    async garantirAdminPrincipal() {
         try {
             const email = 'sensegeraldo2@gmail.com';
             const hash = await bcrypt.hash('12sense12', 12);
@@ -283,10 +278,9 @@ class Database {
         } catch (err) {
             console.error('Erro ao garantir admin principal:', err.message);
         }
-        done?.();
     }
 
-    normalizarBarbeiroPrincipal(done) {
+    async normalizarBarbeiroPrincipal() {
         const dadosGeraldo = [
             'Geraldo Sense',
             '4 anos de profissionalismo na área da barbearia',
@@ -296,39 +290,35 @@ class Database {
             'sensegeraldo2@gmail.com'
         ];
 
-        this.db.get(
-            `SELECT id FROM barbeiros WHERE nome IN ('João Silva', 'Joao Silva', 'Geraldo Sense') ORDER BY id LIMIT 1`,
-            (err, row) => {
-                if (err || !row) return this.garantirAdminPrincipal(done);
-
-                this.db.run(
-                    `UPDATE barbeiros SET nome = ?, experiencia = ?, especialidades = ?, foto = ?, telefone = ?, email = ?, principal = 1, ativo = 1 WHERE id = ?`,
-                    [...dadosGeraldo, row.id],
-                    () => {
-                        this.db.run(
-                            'UPDATE barbeiros SET ativo = 0 WHERE id != ? AND nome IN (?, ?, ?)',
-                            [row.id, 'Carlos Santos', 'Miguel Costa', 'João Silva'],
-                            () => {
-                                this.db.run(
-                                    `UPDATE utilizadores SET nome = 'Geraldo Sense' WHERE email = 'joao@barbeariasense.pt'`,
-                                    () => this.garantirAdminPrincipal(done)
-                                );
-                            }
-                        );
-                    }
-                );
-            }
+        const row = await this.get(
+            `SELECT id FROM barbeiros WHERE nome IN ('João Silva', 'Joao Silva', 'Geraldo Sense') ORDER BY id LIMIT 1`
         );
+
+        if (!row) {
+            await this.garantirAdminPrincipal();
+            return;
+        }
+
+        await this.run(
+            `UPDATE barbeiros SET nome = ?, experiencia = ?, especialidades = ?, foto = ?, telefone = ?, email = ?, principal = 1, ativo = 1 WHERE id = ?`,
+            [...dadosGeraldo, row.id]
+        );
+        await this.run(
+            'UPDATE barbeiros SET ativo = 0 WHERE id != ? AND nome IN (?, ?, ?)',
+            [row.id, 'Carlos Santos', 'Miguel Costa', 'João Silva']
+        );
+        await this.run(
+            `UPDATE utilizadores SET nome = 'Geraldo Sense' WHERE email = 'joao@barbeariasense.pt'`
+        );
+        await this.garantirAdminPrincipal();
     }
 
     /**
      * Inserir dados de exemplo
      */
-    inserirDadosExemplo() {
-        // Verificar se já existem dados
-        this.db.get('SELECT COUNT(*) as count FROM servicos', (err, row) => {
-            if (err || !row || row.count !== 0) return;
-
+    async inserirDadosExemplo() {
+        const servicosCount = await this.get('SELECT COUNT(*) as count FROM servicos');
+        if (servicosCount && servicosCount.count === 0) {
             console.log('Inserindo dados de exemplo...');
 
             const servicos = [
@@ -339,30 +329,29 @@ class Database {
                 ['Tratamento Capilar', 30.00, 45, 'Hidratação e tratamento profissional', '💆']
             ];
 
-            servicos.forEach(servico => {
-                this.db.run(
+            for (const servico of servicos) {
+                await this.run(
                     'INSERT INTO servicos (nome, preco, tempo_estimado, descricao, icone) VALUES (?, ?, ?, ?, ?)',
                     servico
                 );
-            });
+            }
 
             const barbeiros = [
                 ['Geraldo Sense', '4 anos de profissionalismo na área da barbearia', 'Cortes clássicos, Degradê, Barba, Styling', 'assets/barbeiros/geraldo-sense.jpg', '+351 960 075 690', 'sensegeraldo2@gmail.com', 1]
             ];
 
-            barbeiros.forEach(barbeiro => {
-                this.db.run(
+            for (const barbeiro of barbeiros) {
+                await this.run(
                     'INSERT INTO barbeiros (nome, experiencia, especialidades, foto, telefone, email, principal) VALUES (?, ?, ?, ?, ?, ?, ?)',
                     barbeiro
                 );
-            });
+            }
 
             console.log('✓ Dados de exemplo inseridos');
-        });
+        }
 
-        this.db.get('SELECT COUNT(*) as count FROM utilizadores', async (err, row) => {
-            if (err || !row || row.count > 0) return;
-
+        const usersCount = await this.get('SELECT COUNT(*) as count FROM utilizadores');
+        if (usersCount && usersCount.count === 0) {
             const adminHash = await bcrypt.hash('admin123', 12);
             const barbeiroHash = await bcrypt.hash('barbeiro123', 12);
 
@@ -371,28 +360,21 @@ class Database {
                 ['Geraldo Sense', 'sensegeraldo2@gmail.com', '+351960075690', barbeiroHash, 'barbeiro', 1, 1]
             ];
 
-            utilizadores.forEach(u => {
-                this.db.run(
+            for (const u of utilizadores) {
+                await this.run(
                     `INSERT INTO utilizadores (nome, email, telefone, password_hash, perfil, ativo, email_confirmado)
                      VALUES (?, ?, ?, ?, ?, ?, ?)`,
                     u
                 );
-            });
+            }
 
             console.log('✓ Utilizadores de exemplo criados (admin@sensebarbearia.pt / admin123)');
 
-            setTimeout(() => {
-                this.db.run(
-                    'UPDATE utilizadores SET barbeiro_id = 1 WHERE email = ?',
-                    ['joao@barbeariasense.pt']
-                );
-            }, 500);
-        });
-
-        this.db.get('SELECT COUNT(*) as count FROM galeria', (err, row) => {
-            if (err || row.count > 0) return;
-            // Galeria vazia por defeito — fotos são publicadas pelo painel admin
-        });
+            await this.run(
+                'UPDATE utilizadores SET barbeiro_id = 1 WHERE email = ?',
+                ['sensegeraldo2@gmail.com']
+            );
+        }
     }
 
     /**
