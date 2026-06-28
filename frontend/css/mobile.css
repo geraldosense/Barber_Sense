@@ -1,0 +1,633 @@
+/* ===== Sense Barbershop — UI mobile moderna ===== */
+
+:root {
+    --mobile-header-h: 68px;
+    --mobile-radius: 16px;
+    --mobile-radius-lg: 20px;
+    --mobile-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    --mobile-gold: linear-gradient(135deg, #d4af37 0%, #e8c547 50%, #c9a227 100%);
+}
+
+/* Overlay menu */
+.nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 10, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+body.menu-open {
+    overflow: hidden;
+    touch-action: none;
+}
+
+@media (max-width: 900px) {
+    html {
+        scroll-padding-top: calc(var(--mobile-header-h) + 12px);
+    }
+
+    body {
+        background-attachment: scroll;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ----- Header compacto com vidro ----- */
+    .header {
+        height: var(--mobile-header-h);
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(14px) saturate(1.2);
+        -webkit-backdrop-filter: blur(14px) saturate(1.2);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+    }
+
+    .nav-container {
+        padding: 0 0.85rem;
+        gap: 0.4rem;
+        flex-wrap: nowrap;
+    }
+
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        order: 0;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        border-radius: 12px;
+        background: rgba(26, 26, 26, 0.06);
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .menu-toggle:active {
+        background: rgba(212, 175, 55, 0.2);
+        color: var(--secondary-color);
+    }
+
+    .menu-toggle.active {
+        position: fixed;
+        right: 0.85rem;
+        top: calc(0.5rem + env(safe-area-inset-top, 0px));
+        z-index: 1002;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+
+    .logo {
+        order: 1;
+        flex: 1;
+        justify-content: flex-start;
+        min-width: 0;
+    }
+
+    .logo img {
+        height: 52px;
+        max-width: 100%;
+    }
+
+    .header-actions {
+        order: 2;
+        gap: 0.35rem;
+    }
+
+    .auth-buttons {
+        height: auto;
+    }
+
+    .register-btn,
+    .login-btn {
+        padding: 0.5rem 0.9rem;
+        font-size: 0.78rem;
+        border-radius: 999px;
+        white-space: nowrap;
+    }
+
+    /* ----- Menu lateral moderno ----- */
+    .nav-menu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: min(88vw, 300px);
+        max-width: 300px;
+        height: 100%;
+        height: 100dvh;
+        background: linear-gradient(165deg, #141414 0%, #1f1f1f 45%, #121212 100%);
+        padding: calc(var(--mobile-header-h) + env(safe-area-inset-top, 0px) + 1.5rem) 1.5rem 2rem;
+        padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+        transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -8px 0 40px rgba(0, 0, 0, 0.35);
+        z-index: 999;
+        align-items: stretch;
+        overflow-y: auto;
+    }
+
+    .nav-menu.active {
+        right: 0;
+    }
+
+    .nav-menu ul {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+        height: auto;
+        width: 100%;
+    }
+
+    .nav-menu li {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border-bottom: none;
+    }
+
+    .nav-menu a {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.95rem 1rem;
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 1.05rem;
+        font-weight: 500;
+        border-radius: 12px;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .nav-menu a:hover,
+    .nav-menu a:focus-visible {
+        background: rgba(212, 175, 55, 0.12);
+        color: var(--secondary-color);
+    }
+
+    #navMinhaArea {
+        color: var(--secondary-color) !important;
+        background: rgba(212, 175, 55, 0.1);
+    }
+
+    /* ----- Hero ----- */
+    .hero {
+        min-height: 100svh;
+        min-height: 100dvh;
+        padding-top: var(--mobile-header-h);
+    }
+
+    .hero-slide--video video {
+        object-fit: cover;
+    }
+
+    .hero-content {
+        padding: 1.5rem 1.25rem 4.5rem;
+        gap: 1.25rem;
+    }
+
+    .hero h1,
+    .gold-text {
+        font-size: clamp(2rem, 8vw, 2.75rem);
+        letter-spacing: 1px;
+        line-height: 1.15;
+    }
+
+    .cta-button {
+        width: min(100%, 300px);
+        padding: 1rem 1.75rem;
+        border-radius: 999px;
+        font-size: 1.05rem;
+        letter-spacing: 0.02em;
+        box-shadow: 0 8px 28px rgba(212, 175, 55, 0.35);
+    }
+
+    .cta-button:active {
+        transform: scale(0.98);
+    }
+
+    .hero-indicators {
+        bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .hero-indicator {
+        width: 8px;
+        height: 8px;
+    }
+
+    .hero-indicator.active {
+        width: 24px;
+    }
+
+    /* ----- Secções ----- */
+    .courses-section,
+    .barbeiros-section,
+    .galeria-section,
+    .contato-section {
+        padding: 3rem 1.15rem;
+    }
+
+    .courses-section h2,
+    .barbeiros-section h2,
+    .galeria-section h2,
+    .contato-section h2 {
+        font-size: clamp(1.65rem, 5vw, 2.1rem);
+        margin-bottom: 1.75rem;
+        line-height: 1.2;
+    }
+
+    .courses-section {
+        background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+    }
+
+    .course-grid {
+        grid-template-columns: 1fr;
+        gap: 1.15rem;
+    }
+
+    .course-item {
+        border-radius: var(--mobile-radius);
+        box-shadow: var(--mobile-shadow);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .course-item-image {
+        height: 200px;
+    }
+
+    .course-item .learn-more {
+        width: calc(100% - 3rem);
+        text-align: center;
+        border-radius: 999px;
+        margin-bottom: 1.25rem;
+        padding: 0.85rem 1.25rem;
+    }
+
+    .barbeiros-section {
+        padding: 3.5rem 1.15rem;
+    }
+
+    .barbeiro-section-header {
+        margin-bottom: 2rem;
+    }
+
+    .barbeiro-showcase {
+        border-radius: var(--mobile-radius-lg);
+        padding: 1.75rem 1.25rem;
+        box-shadow: var(--mobile-shadow);
+    }
+
+    .barbeiro-showcase-cta {
+        width: 100%;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 1rem 1.25rem;
+    }
+
+    .barbeiro-avatar-btn {
+        width: 150px;
+        height: 150px;
+    }
+
+    .galeria-grid {
+        grid-template-columns: 1fr;
+        gap: 1.15rem;
+    }
+
+    .galeria-card {
+        border-radius: var(--mobile-radius);
+    }
+
+    .galeria-card-img {
+        height: 220px;
+    }
+
+    /* ----- Contacto & info ----- */
+    .contato-section {
+        border-radius: var(--mobile-radius-lg) var(--mobile-radius-lg) 0 0;
+        margin-top: 0.5rem;
+    }
+
+    .contato-detalhes p {
+        font-size: 1rem;
+        padding: 0.65rem 0;
+    }
+
+    .info-bar {
+        padding: 2rem 1.15rem;
+    }
+
+    .info-bar-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .info-item {
+        background: linear-gradient(135deg, #f8f8fa 0%, #fff 100%);
+        padding: 1.25rem 1.15rem;
+        border-radius: var(--mobile-radius);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    /* ----- Footer ----- */
+    .footer {
+        padding: 2.5rem 1.15rem 1.5rem;
+    }
+
+    .footer-content {
+        gap: 2rem;
+    }
+
+    .social-icons {
+        gap: 0.85rem;
+    }
+
+    .social-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .footer-bottom {
+        padding-top: 1.5rem;
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    /* ----- Modais auth ----- */
+    .modal-content,
+    .auth-modal-content {
+        border-radius: var(--mobile-radius-lg) var(--mobile-radius-lg) 0 0;
+        margin-top: auto;
+        max-height: 92dvh;
+        overflow-y: auto;
+    }
+
+    .modal {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    /* ----- Minha área ----- */
+    .minha-area {
+        padding: calc(var(--mobile-header-h) + 1.5rem) 1rem 2rem;
+    }
+
+    .area-wrapper {
+        border-radius: var(--mobile-radius);
+        overflow: hidden;
+    }
+
+    .hero-compact {
+        min-height: 40vh !important;
+        padding-top: var(--mobile-header-h);
+    }
+
+    /* ----- Marcação ----- */
+    .marcacao-header {
+        padding: 0.65rem 1rem;
+        padding-top: calc(0.65rem + env(safe-area-inset-top, 0px));
+    }
+
+    .marcacao-brand span {
+        font-size: 1rem;
+    }
+
+    .marcacao-brand img {
+        height: 40px;
+    }
+
+    .marcacao-layout {
+        padding: 1.15rem 1rem 2rem;
+        gap: 1.25rem;
+    }
+
+    .marcacao-main,
+    .marcacao-sidebar {
+        border-radius: var(--mobile-radius);
+    }
+
+    .marcacao-intro h1 {
+        font-size: clamp(1.5rem, 5vw, 1.85rem);
+    }
+
+    .booking-progress {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: #fff;
+        border-radius: var(--mobile-radius);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .booking-step {
+        font-size: 0.72rem;
+        padding: 0.5rem 0.35rem;
+        text-align: center;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .booking-step span:first-child {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+    }
+
+    .booking-panel {
+        border-radius: var(--mobile-radius);
+        padding: 1.25rem 1rem;
+    }
+
+    .booking-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .booking-option {
+        border-radius: 14px;
+        min-height: 44px;
+    }
+
+    .btn-next,
+    .btn-submit,
+    .btn-back {
+        min-height: 48px;
+        border-radius: 999px;
+        font-size: 1rem;
+    }
+
+    .marcacao-logout {
+        min-height: 44px;
+        border-radius: 999px;
+        padding: 0.5rem 0.75rem;
+    }
+
+    /* ----- Finalizar / Conta ----- */
+    .finalizar-header {
+        padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+    }
+
+    .finalizar-main {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .conta-shell {
+        padding: calc(1.25rem + env(safe-area-inset-top, 0px)) 1rem calc(2rem + env(safe-area-inset-bottom, 0px));
+        justify-content: flex-start;
+    }
+
+    .conta-card--cliente {
+        border-radius: var(--mobile-radius-lg);
+        padding: 1.5rem 1.25rem;
+    }
+
+    .conta-brand-top h1 {
+        font-size: 1.5rem;
+    }
+
+    .auth-tabs-pill button,
+    .conta-card--cliente input,
+    .conta-card--cliente .auth-submit {
+        min-height: 48px;
+    }
+
+    .finalizar-resumo {
+        border-radius: var(--mobile-radius);
+    }
+
+    .btn-finalizar-compra {
+        width: 100%;
+        min-height: 52px;
+        border-radius: 999px;
+        font-size: 1.05rem;
+    }
+
+    .pagamento-sheet {
+        max-height: 92dvh;
+        border-radius: var(--mobile-radius-lg) var(--mobile-radius-lg) 0 0;
+    }
+
+    .pagamento-metodos-grid,
+    .pagamento-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.65rem;
+    }
+
+    /* ----- Banner servidor ----- */
+    #sense-servidor-banner {
+        padding-top: calc(12px + env(safe-area-inset-top, 0px));
+    }
+
+    .sense-servidor-banner__inner {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+
+    .sense-servidor-banner__btn {
+        width: 100%;
+        min-height: 44px;
+        border-radius: 999px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --mobile-header-h: 64px;
+    }
+
+    .logo img {
+        height: 46px;
+    }
+
+    .header-actions .auth-buttons .login-btn {
+        display: none;
+    }
+
+    .register-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    .hero h1,
+    .gold-text {
+        font-size: 1.85rem;
+    }
+
+    .marcacao-brand span {
+        display: none;
+    }
+
+    .booking-progress {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .payment-methods-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pagamento-metodos-grid,
+    .pagamento-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .marcacao-header-inner {
+        flex-wrap: wrap;
+    }
+
+    .marcacao-user {
+        width: 100%;
+        justify-content: space-between;
+        padding-top: 0.35rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Botão flutuante — Reservar (mobile) */
+.mobile-fab {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .mobile-fab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        position: fixed;
+        bottom: calc(1.15rem + env(safe-area-inset-bottom, 0px));
+        left: 50%;
+        transform: translateX(-50%) translateY(120%);
+        z-index: 900;
+        padding: 0.9rem 1.5rem;
+        background: var(--mobile-gold);
+        color: #1a1a1a;
+        font-weight: 700;
+        font-size: 0.95rem;
+        border-radius: 999px;
+        box-shadow: 0 8px 32px rgba(212, 175, 55, 0.45);
+        text-decoration: none;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .mobile-fab.visible {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .mobile-fab:active {
+        transform: translateX(-50%) scale(0.96);
+    }
+
+    .mobile-fab i {
+        font-size: 1rem;
+    }
+}

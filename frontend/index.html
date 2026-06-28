@@ -2,7 +2,10 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Sense Barbershop - Cortes profissionais com estilo e qualidade. Agende o seu corte online.">
     <meta name="keywords" content="Barbershop, Sense, Corte, Barba, Agendamento, Fundão">
 
@@ -18,6 +21,7 @@
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/i18n.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -53,6 +57,13 @@
             </div>
         </nav>
     </header>
+
+    <div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
+
+    <a href="marcacao.html" class="mobile-fab" id="mobileFab" aria-label="Reservar marcação">
+        <i class="fas fa-calendar-check"></i>
+        <span data-i18n="hero.cta">Reservar Marcação</span>
+    </a>
 
     <!-- Hero -->
     <section class="hero" id="home">
