@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const Database = require('./database/database');
@@ -35,10 +36,26 @@ app.use((req, res, next) => {
 });
 
 // ===== FRONTEND (mesmo servidor = sem erro de ligação) =====
-const frontendPath = path.join(__dirname, '..', 'frontend');
+const publicPath = path.join(__dirname, 'public');
+const devFrontendPath = path.join(__dirname, '..', 'frontend');
+const frontendPath = fs.existsSync(publicPath) ? publicPath : devFrontendPath;
 const uploadsPath = path.join(__dirname, 'uploads');
+
+app.use((req, res, next) => {
+    if (/\.(html?|css|js)$/i.test(req.path) || req.path === '/') {
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+    next();
+});
+
 app.use('/uploads', express.static(uploadsPath));
-app.use(express.static(frontendPath));
+app.use(express.static(frontendPath, {
+    setHeaders(res, filePath) {
+        if (/\.(html?|css|js)$/i.test(filePath)) {
+            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        }
+    }
+}));
 
 // ===== ROTAS API =====
 app.use('/api/servicos', servicosRoutes);
@@ -53,7 +70,13 @@ app.use('/api/pagamentos', pagamentosRoutes);
 
 // ===== ROTA DE SAÚDE =====
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', online: true, hora: new Date().toISOString() });
+    res.json({
+        status: 'ok',
+        online: true,
+        hora: new Date().toISOString(),
+        frontend: fs.existsSync(publicPath) ? 'public' : 'dev',
+        versao: '1.1.0'
+    });
 });
 
 // ===== ROTA DE TESTE =====
