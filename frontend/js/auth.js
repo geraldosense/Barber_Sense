@@ -77,9 +77,45 @@ async function verificarSessao() {
     }
 }
 
+function authElId(prefix, name) {
+    if (!prefix) return name;
+    return prefix + name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+function ligarBotoesAuth(prefix) {
+    document.getElementById(authElId(prefix, 'btnLogout'))?.addEventListener('click', (e) => {
+        e.preventDefault();
+        limparSessao();
+        if (typeof esconderAreaLogada === 'function') esconderAreaLogada();
+        mostrarNotificacaoAuth('Sessão terminada com sucesso.', 'info');
+        window.location.href = 'conta.html';
+    });
+
+    document.getElementById(authElId(prefix, 'btnLogin'))?.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'conta.html';
+    });
+
+    document.getElementById(authElId(prefix, 'btnAgendarNav'))?.addEventListener('click', (e) => {
+        e.preventDefault();
+        irParaMarcacao();
+    });
+}
+
+function botaoReservarHtml(id) {
+    const full = typeof t === 'function' ? t('auth.bookNow') : 'Reservar Marcação';
+    const short = typeof t === 'function' ? t('auth.bookShort') : 'Reservar';
+    return `<a href="marcacao.html" class="register-btn" id="${id}"><span class="btn-text-full">${full}</span><span class="btn-text-short">${short}</span></a>`;
+}
+
 function atualizarUIAuth() {
     const authButtons = document.getElementById('authButtons');
-    if (!authButtons) return;
+    const authMobile = document.getElementById('authButtonsMobile');
+    if (!authButtons && !authMobile) return;
+
+    const bookLabel = typeof t === 'function' ? t('auth.bookNow') : 'Reservar Marcação';
+    const loginLabel = typeof t === 'function' ? t('auth.login') : 'Entrar';
+    const logoutLabel = typeof t === 'function' ? t('auth.logout') : 'Sair';
 
     if (utilizadorAtual && obterToken()) {
         const perfilIcon = {
@@ -94,53 +130,60 @@ function atualizarUIAuth() {
             administrador: 'Admin'
         }[utilizadorAtual.perfil] || 'Utilizador';
 
-        const painelBtn = '';
+        const nome = escapeHtml(utilizadorAtual.nome.split(' ')[0]);
 
-        authButtons.classList.remove('auth-buttons--empty');
-        authButtons.innerHTML = `
-            <div class="user-profile">
-                <div class="user-avatar"><i class="fas ${perfilIcon}"></i></div>
-                <div class="user-info">
-                    <span class="user-name">${escapeHtml(utilizadorAtual.nome.split(' ')[0])}</span>
-                    <span class="user-perfil">${perfilLabel}</span>
+        if (authButtons) {
+            authButtons.classList.remove('auth-buttons--empty');
+            authButtons.innerHTML = `
+                <div class="user-profile">
+                    <div class="user-avatar"><i class="fas ${perfilIcon}"></i></div>
+                    <div class="user-info">
+                        <span class="user-name">${nome}</span>
+                        <span class="user-perfil">${perfilLabel}</span>
+                    </div>
+                    <button type="button" class="logout-btn" id="btnLogout">${logoutLabel}</button>
                 </div>
-                <button type="button" class="logout-btn" id="btnLogout">${typeof t === 'function' ? t('auth.logout') : 'Sair'}</button>
-            </div>
-            ${painelBtn}
-            <a href="marcacao.html" class="register-btn" id="btnAgendarNav">${typeof t === 'function' ? t('auth.bookNow') : 'Reservar'}</a>
-        `;
+                ${botaoReservarHtml('btnAgendarNav')}
+            `;
+            ligarBotoesAuth('');
+        }
 
-        document.getElementById('btnLogout')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            limparSessao();
-            if (typeof esconderAreaLogada === 'function') esconderAreaLogada();
-            mostrarNotificacaoAuth('Sessão terminada com sucesso.', 'info');
-            window.location.href = 'conta.html';
-        });
-
-        document.getElementById('btnAgendarNav')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            irParaMarcacao();
-        });
+        if (authMobile) {
+            authMobile.innerHTML = `
+                <div class="nav-auth-user">
+                    <i class="fas ${perfilIcon}"></i>
+                    <div>
+                        <strong>${nome}</strong>
+                        <span>${perfilLabel}</span>
+                    </div>
+                </div>
+                <a href="marcacao.html" class="nav-auth-btn nav-auth-btn--gold" id="mBtnAgendarNav"><i class="fas fa-calendar-check"></i> ${bookLabel}</a>
+                <button type="button" class="nav-auth-btn nav-auth-btn--ghost" id="mBtnLogout"><i class="fas fa-sign-out-alt"></i> ${logoutLabel}</button>
+            `;
+            ligarBotoesAuth('m');
+        }
 
         if (typeof renderPendingBadge === 'function') renderPendingBadge();
         if (typeof mostrarAreaLogada === 'function') mostrarAreaLogada(false);
     } else {
         if (typeof esconderAreaLogada === 'function') esconderAreaLogada();
-        authButtons.classList.remove('auth-buttons--empty');
-        authButtons.innerHTML = `
-            <a href="conta.html" class="login-btn" id="btnLogin"><i class="fas fa-user"></i> ${typeof t === 'function' ? t('auth.login') : 'Entrar'}</a>
-            <a href="marcacao.html" class="register-btn" id="btnAgendarNav">${typeof t === 'function' ? t('auth.bookNow') : 'Reservar'}</a>
-        `;
 
-        document.getElementById('btnLogin')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = 'conta.html';
-        });
-        document.getElementById('btnAgendarNav')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            irParaMarcacao();
-        });
+        if (authButtons) {
+            authButtons.classList.remove('auth-buttons--empty');
+            authButtons.innerHTML = `
+                <a href="conta.html" class="login-btn" id="btnLogin"><i class="fas fa-user"></i> ${loginLabel}</a>
+                ${botaoReservarHtml('btnAgendarNav')}
+            `;
+            ligarBotoesAuth('');
+        }
+
+        if (authMobile) {
+            authMobile.innerHTML = `
+                <a href="conta.html" class="nav-auth-btn nav-auth-btn--outline" id="mBtnLogin"><i class="fas fa-user"></i> ${loginLabel}</a>
+                <a href="marcacao.html" class="nav-auth-btn nav-auth-btn--gold" id="mBtnAgendarNav"><i class="fas fa-calendar-check"></i> ${bookLabel}</a>
+            `;
+            ligarBotoesAuth('m');
+        }
     }
 }
 
@@ -716,4 +759,8 @@ document.addEventListener('sense:langchange', () => {
     atualizarUIAuth();
     const activeTab = document.querySelector('.auth-tab.active')?.dataset.tab || 'login';
     if (document.getElementById('contaTitulo')) mudarTabAuth(activeTab);
+});
+
+document.addEventListener('sense:sync', () => {
+    if (obterToken()) verificarSessao();
 });

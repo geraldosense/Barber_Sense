@@ -345,3 +345,11 @@ function escDash(text) {
     d.textContent = text;
     return d.innerHTML;
 }
+
+document.addEventListener('sense:sync', () => {
+    const main = document.getElementById('area-main-content');
+    if (!main || !utilizadorAtual || document.getElementById('minha-area')?.classList.contains('hidden')) return;
+    if (['agendamentos', 'pendentes', 'aprovar'].includes(dashTabAtual)) {
+        mudarTabArea(dashTabAtual);
+    }
+});

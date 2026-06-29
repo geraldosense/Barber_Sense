@@ -67,6 +67,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('sense:langchange', () => {
         renderizarBarbeiros();
     });
+    document.addEventListener('sense:sync', async () => {
+        await carregarDados();
+        if (typeof carregarGaleria === 'function') carregarGaleria();
+    });
 });
 
 async function carregarDados() {

@@ -111,6 +111,7 @@
             'auth.completeBtn': 'Concluir e Reservar',
             'auth.adminHint': 'Administração da barbearia: use o link Admin no rodapé do site.',
             'auth.bookNow': 'Reservar Marcação',
+            'auth.bookShort': 'Reservar',
             'auth.myAccount': 'Minha Conta'
         },
         en: {
@@ -210,6 +211,7 @@
             'auth.completeBtn': 'Complete & Book',
             'auth.adminHint': 'Barbershop administration: use the Admin link in the site footer.',
             'auth.bookNow': 'Book Appointment',
+            'auth.bookShort': 'Book',
             'auth.myAccount': 'My Account'
         },
         fr: {
@@ -309,6 +311,7 @@
             'auth.completeBtn': 'Terminer et Réserver',
             'auth.adminHint': 'Administration du salon : utilisez le lien Admin dans le pied de page.',
             'auth.bookNow': 'Réserver',
+            'auth.bookShort': 'Réserver',
             'auth.myAccount': 'Mon Compte'
         },
         es: {
@@ -408,6 +411,7 @@
             'auth.completeBtn': 'Completar y Reservar',
             'auth.adminHint': 'Administración de la barbería: usa el enlace Admin en el pie de página.',
             'auth.bookNow': 'Reservar Cita',
+            'auth.bookShort': 'Reservar',
             'auth.myAccount': 'Mi Cuenta'
         }
     };

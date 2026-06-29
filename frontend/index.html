@@ -30,10 +30,6 @@
     <!-- Header -->
     <header class="header">
         <nav class="nav-container">
-            <button class="menu-toggle" id="menuToggle" data-i18n-aria="nav.openMenu" aria-label="Abrir menu">
-                <i class="fas fa-bars"></i>
-            </button>
-
             <div class="logo">
                 <a href="#home">
                     <img src="assets/logo.png" alt="Sense Barbershop">
@@ -41,6 +37,10 @@
             </div>
 
             <div class="nav-menu" id="navMenu">
+                <div class="nav-menu-brand">
+                    <img src="assets/logo.png" alt="Sense Barbershop" class="nav-menu-logo">
+                    <span>Sense Barbershop</span>
+                </div>
                 <ul>
                     <li><a href="#home" data-i18n="nav.home">Início</a></li>
                     <li><a href="#servicos" data-i18n="nav.services">Serviços</a></li>
@@ -49,12 +49,17 @@
                     <li><a href="#contato" data-i18n="nav.contact">Contactos</a></li>
                     <li><a href="#minha-area" id="navMinhaArea" style="display:none;" data-i18n="nav.myArea">Minha Área</a></li>
                 </ul>
+                <div class="nav-menu-auth" id="authButtonsMobile" aria-label="Conta"></div>
             </div>
 
             <div class="header-actions">
                 <div data-lang-mount></div>
                 <div class="auth-buttons" id="authButtons"></div>
             </div>
+
+            <button class="menu-toggle" id="menuToggle" data-i18n-aria="nav.openMenu" aria-label="Abrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
         </nav>
     </header>
 
@@ -197,6 +202,7 @@
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-info">
+                <img src="assets/logo.png" alt="Sense Barbershop" class="footer-logo">
                 <h3>Sense Barbershop</h3>
                 <p>Rua Principal, Caminho Nossa Senhora da Luz n6</p>
                 <p><span data-i18n="footer.phoneLabel">Telefone:</span> +351 960 075 690</p>
@@ -406,6 +412,7 @@
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="js/config.js"></script>
+    <script src="js/sync.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>

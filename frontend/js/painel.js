@@ -12,12 +12,24 @@ const TITULOS_SECAO = {
     site: 'Site & Contactos'
 };
 
+let secaoPainelAtual = 'inicio';
+
 document.addEventListener('DOMContentLoaded', () => {
     if (!verificarAcessoPainel()) return;
     configurarPainelApp();
     carregarStats();
     atualizarBadgePendentes();
     atualizarBadgeAgendamentos();
+});
+
+document.addEventListener('sense:sync', () => {
+    carregarStats();
+    atualizarBadgePendentes();
+    atualizarBadgeAgendamentos();
+    if (secaoPainelAtual === 'pendentes') carregarPendentes();
+    if (secaoPainelAtual === 'servicos') carregarServicos();
+    if (secaoPainelAtual === 'agendamentos') carregarAgendamentos();
+    if (secaoPainelAtual === 'barbeiros') carregarBarbeiros();
 });
 
 function verificarAcessoPainel() {
@@ -144,6 +156,7 @@ function tratarErroAuthPainel(res) {
 }
 
 function irSecaoPainel(sec) {
+    secaoPainelAtual = sec;
     document.querySelectorAll('.painel-nav-item').forEach(b => {
         b.classList.toggle('active', b.dataset.section === sec);
     });

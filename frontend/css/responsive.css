@@ -36,67 +36,9 @@
 
     .menu-toggle {
         display: block;
-        order: 3;
     }
 
-    .nav-container {
-        flex-wrap: wrap;
-        position: relative;
-    }
-
-    .logo {
-        order: 1;
-    }
-
-    .auth-buttons {
-        order: 2;
-        margin-left: auto;
-    }
-
-    .logo img {
-        height: 70px;
-    }
-
-    .nav-menu {
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 80%;
-        max-width: 300px;
-        height: 100vh;
-        background-color: var(--white);
-        padding: 5rem 2rem 2rem;
-        transition: right 0.3s ease;
-        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-        z-index: 999;
-        align-items: flex-start;
-    }
-
-    .nav-menu.active {
-        right: 0;
-    }
-
-    .nav-menu ul {
-        flex-direction: column;
-        gap: 0;
-        align-items: flex-start;
-        width: 100%;
-        height: auto;
-    }
-
-    .nav-menu li {
-        margin: 0;
-        width: 100%;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .menu-toggle.active {
-        position: fixed;
-        right: 1rem;
-        top: 1.5rem;
-        z-index: 1001;
-    }
+    /* Header mobile: regras em mobile.css */
 
     .hero h1,
     .gold-text {
@@ -165,21 +107,9 @@
 }
 
 @media (max-width: 480px) {
-    .header {
-        height: 100px;
-    }
-
-    .logo img {
-        height: 60px;
-    }
-
     .register-btn {
         padding: 0.5rem 1rem;
         font-size: 0.85rem;
-    }
-
-    .hero {
-        padding-top: 100px;
     }
 
     .hero h1,

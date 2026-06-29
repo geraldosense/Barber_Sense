@@ -123,6 +123,11 @@ button {
     color: var(--secondary-color);
 }
 
+.nav-menu-brand,
+.nav-menu-auth {
+    display: none;
+}
+
 .auth-buttons {
     height: 100%;
     display: flex;
@@ -142,6 +147,14 @@ button {
     color: var(--white);
     border: 2px solid var(--secondary-color);
     transition: all 0.3s ease;
+}
+
+.register-btn .btn-text-short {
+    display: none;
+}
+
+.register-btn .btn-text-full {
+    display: inline;
 }
 
 .register-btn:hover {

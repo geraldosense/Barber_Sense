@@ -31,6 +31,11 @@ document.addEventListener('sense:langchange', () => {
     if (document.getElementById('bkData')?.value) atualizarHorariosMarcacao();
 });
 
+document.addEventListener('sense:sync', () => {
+    carregarMinhasMarcacoes();
+    if (document.getElementById('bkData')?.value) atualizarHorariosMarcacao();
+});
+
 async function verificarAcessoMarcacao() {
     await verificarSessao();
 
