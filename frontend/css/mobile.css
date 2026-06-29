@@ -1,17 +1,17 @@
 /* ===== Sense Barbershop — UI mobile moderna ===== */
 
 :root {
-    --mobile-header-h: 60px;
+    --mobile-header-h: 68px;
     --mobile-radius: 16px;
     --mobile-radius-lg: 20px;
     --mobile-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     --mobile-gold: linear-gradient(135deg, #d4af37 0%, #e8c547 50%, #c9a227 100%);
 }
 
-/* Logotipo — remove caixa branca no header claro */
-.logo img,
-.footer-logo {
-    object-fit: contain;
+/* Logotipo no header — fundo branco do PNG funde com a barra clara */
+.header .logo,
+.header .logo a {
+    background: transparent;
 }
 
 .logo img {
@@ -19,6 +19,7 @@
 }
 
 .footer-logo {
+    object-fit: contain;
     width: 52px;
     height: 52px;
     border-radius: 50%;
@@ -63,33 +64,37 @@ body.menu-open {
         -webkit-tap-highlight-color: transparent;
     }
 
-    /* ----- Header mobile: logo esquerda | botões | menu direita ----- */
+    /* ----- Header mobile: uma linha — logo | botões | menu ----- */
     .header {
         height: calc(var(--mobile-header-h) + env(safe-area-inset-top, 0px));
         padding-top: env(safe-area-inset-top, 0px);
         background: #fff;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        overflow: visible;
     }
 
     .nav-container {
-        display: flex;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
+        grid-template-rows: 1fr;
         align-items: center;
-        justify-content: flex-start;
-        gap: 0.4rem;
-        padding: 0 0.65rem 0 0.75rem;
+        column-gap: 0.35rem;
+        padding: 0 0.5rem 0 0.65rem;
         height: var(--mobile-header-h);
-        flex-wrap: nowrap !important;
+        max-width: 100%;
     }
 
     .logo {
-        flex: 0 0 auto;
-        order: 1;
+        grid-column: 1;
+        grid-row: 1;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: flex-start;
         min-width: 0;
-        max-width: 38%;
+        max-width: none;
+        flex-shrink: 0;
+        z-index: 2;
     }
 
     .logo a {
@@ -98,12 +103,13 @@ body.menu-open {
         justify-content: flex-start;
         height: 100%;
         line-height: 0;
+        padding: 0;
     }
 
     .logo img {
-        height: 48px;
+        height: 56px;
         width: auto;
-        max-width: 100%;
+        max-width: min(42vw, 150px);
         object-fit: contain;
         object-position: left center;
         mix-blend-mode: multiply;
@@ -111,32 +117,35 @@ body.menu-open {
     }
 
     .header-actions {
-        flex: 1 1 auto;
-        order: 3;
+        grid-column: 3;
+        grid-row: 1;
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 0.3rem;
+        gap: 0.25rem;
         min-width: 0;
-        margin-left: auto;
+        flex-shrink: 1;
     }
 
     .header-actions .auth-buttons {
         display: flex !important;
         align-items: center;
-        gap: 0.28rem;
-        flex-wrap: nowrap;
+        gap: 0.22rem;
+        flex-wrap: nowrap !important;
+        flex-shrink: 1;
+        min-width: 0;
     }
 
     .header-actions .login-btn {
-        padding: 0.32rem 0.55rem;
-        font-size: 0.68rem;
+        padding: 0.28rem 0.5rem;
+        font-size: 0.65rem;
         font-weight: 600;
         border-width: 1.5px;
         border-radius: 999px;
         margin-right: 0;
         line-height: 1.2;
         white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .header-actions .login-btn i {
@@ -145,13 +154,14 @@ body.menu-open {
     }
 
     .header-actions .register-btn {
-        padding: 0.32rem 0.55rem;
-        font-size: 0.65rem;
+        padding: 0.28rem 0.5rem;
+        font-size: 0.62rem;
         font-weight: 600;
         border-radius: 999px;
         border-width: 1.5px;
         line-height: 1.2;
         white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .header-actions .register-btn .btn-text-full {
@@ -171,30 +181,39 @@ body.menu-open {
     }
 
     .header-actions .lang-switcher-btn {
-        min-height: 34px;
-        min-width: 34px;
-        padding: 0.3rem 0.45rem;
+        min-height: 30px;
+        min-width: 30px;
+        padding: 0.22rem 0.35rem;
         flex-shrink: 0;
+        border-radius: 10px;
     }
 
+    .header-actions .lang-switcher-text,
+    .header-actions .lang-switcher-globe,
     .header-actions .lang-switcher-kicker,
     .header-actions .lang-switcher-current {
         display: none;
     }
 
+    .header-actions .lang-switcher-flag {
+        font-size: 1.15rem;
+    }
+
     .menu-toggle {
-        flex: 0 0 auto;
-        order: 4;
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        margin-left: 0.15rem;
+        grid-column: 4;
+        grid-row: 1;
+        justify-self: end;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        margin-left: 0;
         border-radius: 10px;
         background: rgba(26, 26, 26, 0.07);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.15rem;
+        font-size: 1.1rem;
+        flex-shrink: 0;
     }
 
     .menu-toggle.active {
@@ -525,15 +544,15 @@ body.menu-open {
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     }
 
-    /* ----- Footer compacto ----- */
+    /* ----- Footer compacto (telemóvel) ----- */
     .footer {
-        padding: 1.75rem 1rem 0;
+        padding: 1.15rem 0.75rem 0;
     }
 
     .footer-content {
         grid-template-columns: 1fr 1fr;
-        gap: 1.25rem 1rem;
-        padding: 0 0.25rem;
+        gap: 0.85rem 0.65rem;
+        padding: 0;
     }
 
     .footer-info {
@@ -542,41 +561,47 @@ body.menu-open {
     }
 
     .footer-info h3 {
-        font-size: 1.15rem;
-        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        margin-bottom: 0.35rem;
     }
 
     .footer-info p {
-        font-size: 0.85rem;
-        line-height: 1.5;
-        margin-bottom: 0.25rem;
+        font-size: 0.72rem;
+        line-height: 1.45;
+        margin-bottom: 0.15rem;
     }
 
     .footer-logo {
-        width: 48px;
-        height: 48px;
+        width: 36px;
+        height: 36px;
+        margin-bottom: 0.45rem;
+        padding: 2px;
     }
 
     .footer-links h4,
     .footer-social h4 {
-        font-size: 0.9rem;
-        margin-bottom: 0.6rem;
+        font-size: 0.78rem;
+        margin-bottom: 0.4rem;
     }
 
     .footer-links a {
-        font-size: 0.85rem;
-        margin-bottom: 0.35rem;
+        font-size: 0.72rem;
+        margin-bottom: 0.2rem;
     }
 
     .social-icons {
         justify-content: center;
-        gap: 0.65rem;
-        margin-top: 0.5rem;
+        gap: 0.45rem;
+        margin-top: 0.25rem;
     }
 
     .social-icon {
-        width: 42px;
-        height: 42px;
+        width: 34px;
+        height: 34px;
+    }
+
+    .social-icon i {
+        font-size: 0.95rem;
     }
 
     .social-icon .social-tooltip {
@@ -584,11 +609,11 @@ body.menu-open {
     }
 
     .footer-bottom {
-        margin-top: 1.5rem;
-        padding: 1.15rem 0;
-        padding-bottom: calc(1.15rem + env(safe-area-inset-bottom, 0px));
-        font-size: 0.78rem;
-        line-height: 1.5;
+        margin-top: 0.85rem;
+        padding: 0.75rem 0;
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+        font-size: 0.68rem;
+        line-height: 1.4;
     }
 
     /* ----- Modais auth ----- */
@@ -774,36 +799,80 @@ body.menu-open {
 
 @media (max-width: 480px) {
     :root {
-        --mobile-header-h: 56px;
-    }
-
-    .logo {
-        max-width: 34%;
+        --mobile-header-h: 62px;
     }
 
     .logo img {
-        height: 42px;
+        height: 50px;
+        max-width: min(38vw, 130px);
     }
 
     .header-actions .login-btn {
-        padding: 0.28rem 0.45rem;
-        font-size: 0.62rem;
+        padding: 0.24rem 0.38rem;
+        font-size: 0;
     }
 
     .header-actions .login-btn i {
-        margin-right: 0.1rem;
+        font-size: 0.8rem;
+        margin-right: 0;
     }
 
     .header-actions .register-btn {
-        padding: 0.28rem 0.45rem;
-        font-size: 0.6rem;
+        padding: 0.24rem 0.42rem;
+        font-size: 0.58rem;
+    }
+
+    .header-actions .lang-switcher-btn {
+        min-height: 28px;
+        min-width: 28px;
+        padding: 0.18rem;
     }
 
     .menu-toggle {
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        font-size: 1.05rem;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        font-size: 1rem;
+    }
+
+    .footer {
+        padding: 0.9rem 0.6rem 0;
+    }
+
+    .footer-info h3 {
+        font-size: 0.88rem;
+    }
+
+    .footer-info p {
+        font-size: 0.68rem;
+    }
+
+    .footer-logo {
+        width: 30px;
+        height: 30px;
+    }
+
+    .footer-links h4,
+    .footer-social h4 {
+        font-size: 0.72rem;
+    }
+
+    .footer-links a {
+        font-size: 0.68rem;
+    }
+
+    .social-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .social-icon i {
+        font-size: 0.85rem;
+    }
+
+    .footer-bottom {
+        font-size: 0.62rem;
+        margin-top: 0.65rem;
     }
 
     .footer-content {

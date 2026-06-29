@@ -107,11 +107,6 @@
 }
 
 @media (max-width: 480px) {
-    .register-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-    }
-
     .hero h1,
     .gold-text {
         font-size: 1.8rem;
