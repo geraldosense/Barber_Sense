@@ -538,16 +538,11 @@ function configurarMenuMobile() {
 
 function configurarMobileFab() {
     const fab = document.getElementById('mobileFab');
-    const hero = document.getElementById('home');
-    if (!fab || !hero) return;
-
-    const observer = new IntersectionObserver(
-        ([entry]) => {
-            fab.classList.toggle('visible', !entry.isIntersecting);
-        },
-        { threshold: 0.15, rootMargin: '-60px 0px 0px 0px' }
-    );
-    observer.observe(hero);
+    if (fab) {
+        fab.classList.remove('visible');
+        fab.setAttribute('hidden', '');
+        fab.style.display = 'none';
+    }
 }
 
 function configurarScroll() {

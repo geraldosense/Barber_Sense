@@ -476,30 +476,42 @@ body.menu-open {
     }
 
     .courses-section {
-        background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+        background-color: rgba(255, 255, 255, 0.95);
+        background-image: none;
+        padding: 3rem 1.15rem;
     }
 
     .course-grid {
         grid-template-columns: 1fr;
-        gap: 1.15rem;
+        gap: 1.5rem;
+        max-width: 420px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .course-item {
-        border-radius: var(--mobile-radius);
-        box-shadow: var(--mobile-shadow);
-        border: 1px solid rgba(0, 0, 0, 0.04);
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: none;
+        background: #fff;
+    }
+
+    .course-item:hover {
+        transform: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .course-item-image {
-        height: 200px;
+        height: 180px;
     }
 
     .course-item .learn-more {
-        width: calc(100% - 3rem);
+        width: auto;
+        align-self: flex-start;
         text-align: center;
-        border-radius: 999px;
-        margin-bottom: 1.25rem;
-        padding: 0.85rem 1.25rem;
+        border-radius: 4px;
+        margin: 0 1.5rem 1.25rem;
+        padding: 0.65rem 1.35rem;
     }
 
     .barbeiros-section {
@@ -988,43 +1000,11 @@ body.menu-open {
     }
 }
 
-/* Botão flutuante — Reservar (mobile) */
-.mobile-fab {
-    display: none;
-}
-
-@media (max-width: 900px) {
-    .mobile-fab {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        position: fixed;
-        bottom: calc(1.15rem + env(safe-area-inset-bottom, 0px));
-        left: 50%;
-        transform: translateX(-50%) translateY(120%);
-        z-index: 900;
-        padding: 0.9rem 1.5rem;
-        background: var(--mobile-gold);
-        color: #1a1a1a;
-        font-weight: 700;
-        font-size: 0.95rem;
-        border-radius: 999px;
-        box-shadow: 0 8px 32px rgba(212, 175, 55, 0.45);
-        text-decoration: none;
-        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
-        white-space: nowrap;
-    }
-
-    .mobile-fab.visible {
-        transform: translateX(-50%) translateY(0);
-    }
-
-    .mobile-fab:active {
-        transform: translateX(-50%) scale(0.96);
-    }
-
-    .mobile-fab i {
-        font-size: 1rem;
+/* Em tablets estreitos, grelha de serviços a 2 colunas (mais perto do PC) */
+@media (min-width: 640px) and (max-width: 900px) {
+    .course-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 720px;
+        gap: 1.5rem;
     }
 }
