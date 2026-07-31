@@ -476,6 +476,13 @@ button {
     gap: 2rem;
 }
 
+.course-grid-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #666;
+    padding: 2.5rem 1rem;
+}
+
 .course-item {
     background-color: var(--white);
     border-radius: 8px;

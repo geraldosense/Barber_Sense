@@ -109,21 +109,27 @@ function configurarMarcacaoPage() {
 }
 
 async function carregarDadosMarcacao() {
+    const fetchFn = typeof window.senseFetch === 'function' ? window.senseFetch : fetch;
     try {
         const [r1, r2] = await Promise.all([
-            fetch(`${API_URL}/servicos`),
-            fetch(`${API_URL}/barbeiros`)
+            fetchFn(`${API_URL}/servicos`, { cache: 'no-store' }),
+            fetchFn(`${API_URL}/barbeiros`, { cache: 'no-store' })
         ]);
-        if (r1.ok) bkServicos = await r1.json();
-        if (r2.ok) bkBarbeiros = await r2.json();
+        if (r1.ok) {
+            const data = await r1.json();
+            bkServicos = Array.isArray(data) ? data : [];
+        } else {
+            bkServicos = [];
+        }
+        if (r2.ok) {
+            const data = await r2.json();
+            bkBarbeiros = Array.isArray(data) ? data : [];
+        } else {
+            bkBarbeiros = [];
+        }
     } catch {
-        bkServicos = [
-            { id: 1, nome: 'Corte Normal', preco: 15, tempo: 30, icon: '✂️' },
-            { id: 2, nome: 'Degradê', preco: 20, tempo: 40, icon: '💇' }
-        ];
-        bkBarbeiros = [
-            { id: 1, nome: 'Geraldo Sense' }
-        ];
+        bkServicos = [];
+        bkBarbeiros = [];
     }
 
     bkUmBarbeiro = bkBarbeiros.length === 1;

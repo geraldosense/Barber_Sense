@@ -47,7 +47,11 @@ window.resolveMediaUrl = function (path) {
 
 window.obterImagemServico = function (servico) {
     if (!servico) return 'assets/servicos/default.svg';
-    if (servico.imagem) return servico.imagem;
+    if (servico.imagem) {
+        return typeof window.resolveMediaUrl === 'function'
+            ? window.resolveMediaUrl(servico.imagem)
+            : servico.imagem;
+    }
 
     const nome = String(servico.nome || '').toLowerCase().trim();
     if (nome.includes('corte') && nome.includes('barba')) return 'assets/servicos/corte-barba.png';

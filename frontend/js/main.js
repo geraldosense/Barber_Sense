@@ -9,12 +9,11 @@ const HORARIOS = [
 ];
 
 const DADOS_EXEMPLO = {
+    // Apenas para pré-visualização local sem API — nunca no Render/produção
     servicos: [
         { id: 1, nome: 'Corte Normal', preco: 15, tempo: 30, descricao: 'Corte clássico com acabamento perfeito', icon: '✂️' },
-        { id: 2, nome: 'Degradê', preco: 20, tempo: 40, descricao: 'Degradê moderno com transição suave', icon: '💇' },
-        { id: 3, nome: 'Barba', preco: 12, tempo: 25, descricao: 'Aparagem e modelagem de barba', icon: '🧔' },
-        { id: 4, nome: 'Corte + Barba', preco: 25, tempo: 55, descricao: 'Combinação de corte e barba', icon: '👔' },
-        { id: 5, nome: 'Tratamento Capilar', preco: 30, tempo: 45, descricao: 'Hidratação e tratamento profissional', icon: '💆' }
+        { id: 2, nome: 'Barba', preco: 12, tempo: 25, descricao: 'Aparagem e modelagem de barba', icon: '🧔' },
+        { id: 3, nome: 'Corte + Barba', preco: 25, tempo: 55, descricao: 'Combinação de corte e barba', icon: '👔' }
     ],
     barbeiros: [
         {
@@ -26,6 +25,27 @@ const DADOS_EXEMPLO = {
         }
     ]
 };
+
+function podeUsarDadosExemplo() {
+    return !window.API_URL || !!window.GITHUB_PAGES_PREVIEW || window.location.hostname === 'localhost';
+}
+
+function normalizarListaApi(data) {
+    return Array.isArray(data) ? data : [];
+}
+
+function normalizarServico(s) {
+    if (!s || typeof s !== 'object') return null;
+    const preco = Number(s.preco);
+    const tempo = Number(s.tempo ?? s.tempo_estimado);
+    return {
+        ...s,
+        preco: Number.isFinite(preco) ? preco : 0,
+        tempo: Number.isFinite(tempo) ? tempo : 0,
+        nome: s.nome || '',
+        descricao: s.descricao || ''
+    };
+}
 
 const FOTO_BARBEIRO_PADRAO = 'assets/barbeiros/geraldo-sense.jpg';
 
@@ -61,7 +81,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await carregarDados();
     configurarEventos();
     configurarMenuMobile();
-    configurarMobileFab();
     configurarScroll();
     configurarHeroSlider();
     document.addEventListener('sense:langchange', () => {
@@ -71,23 +90,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         await carregarDados();
         if (typeof carregarGaleria === 'function') carregarGaleria();
     });
+    document.addEventListener('sense:servidor-online', async () => {
+        await carregarDados();
+    });
 });
 
 async function carregarDados() {
+    const fetchFn = typeof window.senseFetch === 'function' ? window.senseFetch : fetch;
+    let carregouApi = false;
+
     try {
         const [resServicos, resBarbeiros] = await Promise.all([
-            fetch(`${API_URL}/servicos`),
-            fetch(`${API_URL}/barbeiros`)
+            fetchFn(`${API_URL}/servicos`, { cache: 'no-store' }),
+            fetchFn(`${API_URL}/barbeiros`, { cache: 'no-store' })
         ]);
 
-        if (resServicos.ok) servicos = await resServicos.json();
-        if (resBarbeiros.ok) barbeiros = await resBarbeiros.json();
+        if (resServicos.ok) {
+            servicos = normalizarListaApi(await resServicos.json())
+                .map(normalizarServico)
+                .filter(Boolean);
+            carregouApi = true;
+        }
+        if (resBarbeiros.ok) {
+            barbeiros = normalizarListaApi(await resBarbeiros.json());
+            carregouApi = true;
+        }
     } catch (error) {
-        console.warn('Backend indisponível, usando dados de exemplo.');
+        console.warn('Backend indisponível ao carregar serviços/barbeiros.', error);
     }
 
-    if (!servicos.length) servicos = DADOS_EXEMPLO.servicos;
-    if (!barbeiros.length) barbeiros = DADOS_EXEMPLO.barbeiros;
+    // Nunca misturar dados de exemplo com a API do admin
+    if (!servicos.length) {
+        if (!carregouApi && podeUsarDadosExemplo()) {
+            servicos = DADOS_EXEMPLO.servicos.map(normalizarServico);
+        } else {
+            servicos = [];
+        }
+    }
+    if (!barbeiros.length) {
+        if (!carregouApi && podeUsarDadosExemplo()) {
+            barbeiros = DADOS_EXEMPLO.barbeiros;
+        } else {
+            barbeiros = [];
+        }
+    }
 
     // Mostrar apenas o barbeiro principal no site público
     const principal = barbeiros.find(b => b.principal) || barbeiros[0];
@@ -102,6 +148,15 @@ function renderizarServicos() {
     const grid = document.getElementById('servicosGrid');
     if (!grid) return;
 
+    if (!servicos.length) {
+        grid.innerHTML = `
+            <div class="course-grid-empty">
+                <p>A carregar os serviços da Sense Barbershop…</p>
+            </div>
+        `;
+        return;
+    }
+
     grid.innerHTML = servicos.map(s => `
         <div class="course-item">
             <div class="course-item-image">
@@ -110,7 +165,7 @@ function renderizarServicos() {
             <div class="course-item-body">
                 <div class="course-item-header">
                     <h3>${s.nome}</h3>
-                    <div class="course-item-price">${s.preco.toFixed(2)}€</div>
+                    <div class="course-item-price">${Number(s.preco).toFixed(2)}€</div>
                 </div>
                 <p>${s.descricao || ''}</p>
                 <div class="course-item-tempo"><i class="fas fa-clock"></i> ${s.tempo} min</div>
@@ -534,15 +589,6 @@ function configurarMenuMobile() {
     navMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', fecharMenu);
     });
-}
-
-function configurarMobileFab() {
-    const fab = document.getElementById('mobileFab');
-    if (fab) {
-        fab.classList.remove('visible');
-        fab.setAttribute('hidden', '');
-        fab.style.display = 'none';
-    }
 }
 
 function configurarScroll() {
