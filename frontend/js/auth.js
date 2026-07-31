@@ -460,12 +460,27 @@ async function carregarConfigAuth() {
 
 function inicializarGoogleSignIn() {
     const wrap = document.getElementById('googleSignInWrap');
+    const block = document.getElementById('googleAuthBlock');
+    const divider = document.getElementById('authDivider');
+    const nota = document.getElementById('googleNota');
+
     if (!googleClientId) {
-        if (wrap) {
-            wrap.innerHTML = '<p class="auth-google-nota"><i class="fas fa-info-circle"></i> Configure <strong>GOOGLE_CLIENT_ID</strong> no ficheiro backend/.env para activar o login Google.</p>';
+        block?.classList.add('hidden');
+        wrap?.classList.add('hidden');
+        nota?.classList.add('hidden');
+        if (divider) {
+            const span = divider.querySelector('span');
+            if (span && typeof t === 'function') span.textContent = t('auth.orEmail');
+            // Sem Google: o divisor fica só como separador visual opcional — esconder
+            divider.classList.add('hidden');
         }
         return;
     }
+
+    block?.classList.remove('hidden');
+    wrap?.classList.remove('hidden');
+    nota?.classList.remove('hidden');
+    divider?.classList.remove('hidden');
 
     const init = () => {
         if (!window.google?.accounts?.id) return;
@@ -481,17 +496,16 @@ function inicializarGoogleSignIn() {
             btn.innerHTML = '';
             window.google.accounts.id.renderButton(btn, {
                 type: 'standard',
-                theme: 'outline',
+                theme: 'filled_black',
                 size: 'large',
                 text: 'continue_with',
                 shape: 'pill',
-                width: 320
+                width: Math.min(360, (wrap?.clientWidth || 320))
             });
         }
 
-        const nota = document.getElementById('googleNota');
         if (nota) {
-            nota.innerHTML = '<i class="fab fa-google"></i> Entrar com conta Google verificada';
+            nota.innerHTML = `<i class="fab fa-google"></i> <span>${typeof t === 'function' ? t('auth.googleNote') : 'Entrar com conta Google verificada'}</span>`;
         }
     };
 

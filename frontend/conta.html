@@ -12,22 +12,27 @@
     <link rel="stylesheet" href="css/conta.css">
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <body class="conta-page conta-page--cliente" data-i18n-title="auth.titleLogin">
     <div class="conta-shell">
-        <div class="conta-lang-wrap" data-lang-mount></div>
-        <a href="index.html" class="conta-back-top"><i class="fas fa-arrow-left"></i> <span data-i18n="auth.backToSite">Voltar ao site</span></a>
-
-        <div class="conta-brand-top">
-            <img src="assets/logo.png" alt="Sense Barbershop" class="conta-logo-top">
-            <h1>Sense Barbershop</h1>
-        </div>
+        <header class="conta-topbar">
+            <a href="index.html" class="conta-back-top"><i class="fas fa-arrow-left"></i> <span data-i18n="auth.backToSite">Voltar ao site</span></a>
+            <div class="conta-lang-wrap" data-lang-mount></div>
+        </header>
 
         <div class="conta-card conta-card--cliente">
+            <div class="conta-brand-inline">
+                <img src="assets/logo.png" alt="Sense Barbershop" class="conta-logo-top">
+                <div>
+                    <p class="conta-brand-name">Sense Barbershop</p>
+                    <p class="conta-brand-tag" data-i18n="auth.brandTag">A sua conta</p>
+                </div>
+            </div>
+
             <div class="conta-card-header">
                 <h2 id="contaTitulo" data-i18n="auth.titleLogin">Entrar na Sense Barbershop</h2>
-                <p id="contaSubtitulo" data-i18n="auth.subLogin">Use Google ou email para reservar o seu corte</p>
+                <p id="contaSubtitulo" data-i18n="auth.subLogin">Entre com o seu email para reservar o seu corte</p>
             </div>
 
             <div class="auth-tabs auth-tabs-pill" id="authTabs">
@@ -35,12 +40,14 @@
                 <button type="button" class="auth-tab active" data-tab="login" data-i18n="auth.login">Entrar</button>
             </div>
 
-            <div id="googleSignInWrap" class="google-signin-wrap google-signin-wrap--pill">
-                <div id="googleSignInBtn"></div>
+            <div id="googleAuthBlock" class="google-auth-block">
+                <div id="googleSignInWrap" class="google-signin-wrap google-signin-wrap--pill">
+                    <div id="googleSignInBtn"></div>
+                </div>
+                <p class="auth-google-nota" id="googleNota">
+                    <i class="fab fa-google"></i> <span data-i18n="auth.googleNote">Entrar com conta Google verificada</span>
+                </p>
             </div>
-            <p class="auth-google-nota" id="googleNota">
-                <i class="fab fa-google"></i> <span data-i18n="auth.googleNote">Entrar com conta Google verificada</span>
-            </p>
 
             <div id="panelCompletarPerfil" class="auth-panel hidden">
                 <h3><i class="fas fa-phone"></i> <span data-i18n="auth.completeProfile">Último passo</span></h3>
@@ -72,7 +79,6 @@
                     <button type="submit" class="auth-submit-btn auth-submit-btn--pill" data-i18n="auth.login">Entrar</button>
                     <p class="auth-switch">
                         <a href="#" id="linkEsqueciPassword" data-i18n="auth.forgot">Esqueci a palavra-passe</a>
-                        · <span data-i18n="auth.noAccount">Ainda não tem conta?</span> <a href="#" id="linkIrRegisto" data-i18n="auth.register">Registar</a>
                     </p>
                 </form>
             </div>
@@ -114,14 +120,11 @@
                         <input type="email" id="recEmail" required placeholder="seu@email.com">
                     </div>
                     <button type="submit" class="auth-submit-btn secondary">Enviar instruções</button>
+                    <p class="auth-switch"><a href="#" id="linkIrLoginRec" data-i18n="auth.login">Voltar a entrar</a></p>
                 </form>
             </div>
 
             <div class="auth-message hidden" id="authMessage"></div>
-
-            <p class="conta-admin-hint">
-                <i class="fas fa-lock"></i> <span data-i18n="auth.adminHint">Administração da barbearia: use o link Admin no rodapé do site.</span>
-            </p>
         </div>
     </div>
 
@@ -146,6 +149,11 @@
             const tab = new URLSearchParams(window.location.search).get('tab');
             if (tab === 'registo') mudarTabAuth('registo');
             else preencherEmailGuardado();
+
+            document.getElementById('linkIrLoginRec')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                mudarTabAuth('login');
+            });
         });
         document.addEventListener('sense:langchange', () => {
             const tab = document.querySelector('.auth-tab.active')?.dataset.tab || 'login';

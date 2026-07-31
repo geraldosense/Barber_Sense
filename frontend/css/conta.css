@@ -1,99 +1,158 @@
-/* ===== PÁGINA CONTA — CLIENTES (estilo profissional) ===== */
+/* ===== PÁGINA CONTA — Sense Barbershop ===== */
 .conta-page--cliente {
     min-height: 100vh;
-    background: linear-gradient(165deg, #e8f5f0 0%, #f0f4f8 45%, #eef2f7 100%);
+    min-height: 100dvh;
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(212, 175, 55, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 100%, rgba(212, 175, 55, 0.06) 0%, transparent 45%),
+        #0a0a0a;
+    font-family: 'DM Sans', system-ui, sans-serif;
 }
 
 .conta-shell {
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 2rem 1.25rem 3rem;
+    justify-content: flex-start;
+    padding: 1.25rem 1rem 2.5rem;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.conta-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-top: env(safe-area-inset-top, 0px);
 }
 
 .conta-back-top {
-    align-self: flex-start;
-    max-width: 440px;
-    width: 100%;
-    margin: 0 auto 1rem;
-    color: #555;
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 500;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.2s ease;
 }
 
 .conta-back-top:hover {
     color: var(--secondary-color);
 }
 
-.conta-brand-top {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.conta-logo-top {
-    width: 72px;
-    height: 72px;
-    object-fit: contain;
-    margin-bottom: 0.5rem;
-}
-
-.conta-brand-top h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.75rem;
-    color: #1a1a1a;
+.conta-lang-wrap {
     margin: 0;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .conta-card--cliente {
     width: 100%;
-    max-width: 440px;
+    background: #141414;
+    border-radius: 18px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    padding: 1.5rem 1.35rem 1.35rem;
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    color: #e8e8e8;
+}
+
+.conta-brand-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.conta-logo-top {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
     background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.1);
-    padding: 2rem 1.75rem 1.5rem;
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    padding: 0.2rem;
+    flex-shrink: 0;
+}
+
+.conta-brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--secondary-color);
+    margin: 0 0 0.15rem;
+    line-height: 1.2;
+}
+
+.conta-brand-tag {
+    margin: 0;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.conta-card--cliente .conta-card-header {
+    text-align: left;
+    margin-bottom: 1rem;
 }
 
 .conta-card--cliente .conta-card-header h2 {
     font-family: 'Playfair Display', serif;
     font-size: 1.35rem;
-    color: #1a1a1a;
+    color: #fff;
     margin: 0 0 0.35rem;
+    line-height: 1.25;
 }
 
 .conta-card--cliente .conta-card-header p {
-    color: #666;
-    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.88rem;
     margin: 0;
+    line-height: 1.45;
 }
 
 .auth-tabs-pill {
     display: flex;
     gap: 0;
-    margin: 1.25rem 0 1rem;
-    background: #f3f4f6;
+    margin: 0 0 1.15rem;
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 999px;
-    padding: 4px;
+    padding: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .auth-tabs-pill .auth-tab {
     flex: 1;
     border: none;
     background: transparent;
-    padding: 0.65rem 1rem;
+    padding: 0.55rem 0.85rem;
     border-radius: 999px;
     font-weight: 600;
-    color: #666;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
 .auth-tabs-pill .auth-tab.active {
-    background: #fff;
-    color: #1a73e8;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    background: var(--secondary-color);
+    color: #1a1a1a;
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+}
+
+.google-auth-block {
+    margin-bottom: 0.25rem;
+}
+
+.google-auth-block.hidden {
+    display: none !important;
 }
 
 .google-signin-wrap--pill {
@@ -102,36 +161,157 @@
     margin-bottom: 0.35rem;
 }
 
+.google-signin-wrap--pill > div {
+    width: 100% !important;
+    display: flex;
+    justify-content: center;
+}
+
 .conta-card--cliente .auth-google-nota {
     text-align: center;
-    font-size: 0.82rem;
-    color: #888;
-    margin: 0 0 1rem;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin: 0 0 0.75rem;
 }
 
 .conta-card--cliente .auth-divider {
-    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.85rem 0 1rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.78rem;
 }
 
-.auth-submit-btn--pill {
+.conta-card--cliente .auth-divider::before,
+.conta-card--cliente .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.conta-card--cliente .auth-divider span {
+    white-space: nowrap;
+}
+
+.conta-card--cliente .auth-panel {
+    padding: 0;
+}
+
+.conta-card--cliente .form-group {
+    margin-bottom: 0.85rem;
+}
+
+.conta-card--cliente .form-group label {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin: 0 0 0.35rem;
+}
+
+.conta-card--cliente .form-group input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-radius: 10px;
+    padding: 0.7rem 0.85rem;
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.conta-card--cliente .form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.conta-card--cliente .form-group input:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    outline: none;
+}
+
+.conta-card--cliente .password-input {
+    position: relative;
+}
+
+.conta-card--cliente .password-input input {
+    width: 100%;
+    padding-right: 2.75rem;
+}
+
+.conta-card--cliente .toggle-password {
+    position: absolute;
+    right: 0.65rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.45);
+    padding: 0.35rem;
+    cursor: pointer;
+}
+
+.conta-card--cliente .toggle-password:hover {
+    color: var(--secondary-color);
+}
+
+.auth-submit-btn--pill,
+.conta-card--cliente .auth-submit-btn {
     border-radius: 999px !important;
     width: 100%;
-    padding: 0.9rem !important;
-    font-weight: 600;
+    padding: 0.85rem 1rem !important;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    background: var(--secondary-color) !important;
+    color: #1a1a1a !important;
+    border: 2px solid var(--secondary-color) !important;
+    margin-top: 0.35rem;
+    transition: background 0.2s, transform 0.15s;
 }
 
-.conta-admin-hint {
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
-    font-size: 0.78rem;
-    color: #999;
+.auth-submit-btn--pill:hover,
+.conta-card--cliente .auth-submit-btn:hover {
+    background: var(--accent-color) !important;
+    transform: translateY(-1px);
+}
+
+.conta-card--cliente .auth-submit-btn.secondary {
+    background: transparent !important;
+    color: var(--secondary-color) !important;
+}
+
+.conta-card--cliente .auth-switch {
     text-align: center;
-    line-height: 1.5;
+    margin-top: 0.85rem;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.5);
 }
 
-.conta-admin-hint i {
-    color: #bbb;
+.conta-card--cliente .auth-switch a {
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.conta-card--cliente .auth-switch a:hover {
+    text-decoration: underline;
+}
+
+.conta-card--cliente .auth-panel h3 {
+    color: #fff;
+    font-size: 1.05rem;
+    margin: 0 0 0.35rem;
+}
+
+.conta-card--cliente .auth-subtitle {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.88rem;
+    margin: 0 0 1rem;
+}
+
+.conta-card--cliente #authMessage {
+    margin-top: 0.85rem;
 }
 
 /* Layout antigo (fallback) */
@@ -302,5 +482,27 @@
 
     .conta-benefits {
         display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .conta-shell {
+        padding: 0.85rem 0.85rem 2rem;
+    }
+
+    .conta-card--cliente {
+        padding: 1.25rem 1.1rem 1.15rem;
+        border-radius: 16px;
+    }
+
+    .conta-card--cliente .conta-card-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .conta-back-top span {
+        max-width: 12ch;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
