@@ -1,4 +1,4 @@
-/* ===== SELETOR DE IDIOMA — destaque visual ===== */
+/* ===== SELETOR DE IDIOMA — compacto profissional ===== */
 .lang-switcher {
     position: relative;
     flex-shrink: 0;
@@ -9,156 +9,124 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
-    padding: 0.55rem 0.95rem 0.55rem 0.65rem;
-    min-height: 48px;
-    border: 2px solid transparent;
-    border-radius: 14px;
-    background:
-        linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(255, 255, 255, 0.08) 45%, rgba(212, 175, 55, 0.12) 100%);
-    background-clip: padding-box;
-    color: inherit;
+    gap: 0.45rem;
+    padding: 0.4rem 0.7rem;
+    min-height: 36px;
+    border: 1px solid rgba(26, 42, 74, 0.12);
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #1a2a4a;
     font-family: inherit;
     cursor: pointer;
-    overflow: hidden;
-    box-shadow:
-        0 4px 18px rgba(212, 175, 55, 0.28),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-    animation: langSwitcherPulse 3s ease-in-out infinite;
+    overflow: visible;
+    box-shadow: none;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    animation: none;
 }
 
-.lang-switcher-glow {
-    position: absolute;
-    inset: -2px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #d4af37, #f5e6a8, #b8942e, #d4af37);
-    background-size: 300% 300%;
-    animation: langBorderShift 4s ease infinite;
-    z-index: -2;
-    opacity: 0.85;
-}
-
-.lang-switcher-ring {
-    position: absolute;
-    inset: 2px;
-    border-radius: 12px;
-    background: rgba(20, 20, 20, 0.92);
-    z-index: -1;
-}
-
-.header .lang-switcher-ring {
-    background: linear-gradient(145deg, #1f1f1f 0%, #141414 100%);
-}
-
-.marcacao-header .lang-switcher-ring,
-.finalizar-header .lang-switcher-ring,
-.conta-page .lang-switcher-ring {
-    background: linear-gradient(145deg, #ffffff 0%, #f7f7f8 100%);
-}
-
-.lang-switcher-flag {
-    font-size: 1.55rem;
-    line-height: 1;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
-    flex-shrink: 0;
+.lang-switcher-glow,
+.lang-switcher-ring,
+.lang-switcher-flag,
+.lang-switcher-kicker {
+    display: none !important;
 }
 
 .lang-switcher-text {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 1.15;
-    text-align: left;
-}
-
-.lang-switcher-kicker {
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--secondary-color);
-    opacity: 0.95;
+    align-items: center;
+    line-height: 1;
 }
 
 .lang-switcher-current {
-    font-size: 0.92rem;
+    font-size: 0.8rem;
     font-weight: 700;
-    color: #fff;
+    color: #1a2a4a;
     white-space: nowrap;
-}
-
-.marcacao-header .lang-switcher-current,
-.finalizar-header .lang-switcher-current,
-.conta-page .lang-switcher-current {
-    color: var(--primary-color);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 
 .lang-switcher-globe {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: rgba(212, 175, 55, 0.2);
-    color: var(--secondary-color);
-    font-size: 0.95rem;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: transparent;
+    color: #1a2a4a;
+    font-size: 0.85rem;
     flex-shrink: 0;
-    transition: transform 0.35s ease;
+    order: -1;
+}
+
+.lang-switcher-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a2a4a;
+    font-size: 0.65rem;
+    margin-left: 0.05rem;
+    transition: transform 0.2s ease;
+}
+
+.lang-switcher-btn.is-open .lang-switcher-chevron {
+    transform: rotate(180deg);
 }
 
 .lang-switcher-btn:hover,
 .lang-switcher-btn:focus-visible {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow:
-        0 8px 28px rgba(212, 175, 55, 0.42),
-        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    background: #eceef2;
+    border-color: rgba(26, 42, 74, 0.22);
+    box-shadow: none;
     outline: none;
-}
-
-.lang-switcher-btn:hover .lang-switcher-globe,
-.lang-switcher-btn.is-open .lang-switcher-globe {
-    transform: rotate(20deg) scale(1.08);
+    transform: none;
 }
 
 .lang-switcher-btn.is-open {
-    animation: none;
-    box-shadow:
-        0 10px 32px rgba(212, 175, 55, 0.5),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    background: #e8eaee;
+    border-color: rgba(26, 42, 74, 0.25);
+    box-shadow: none;
 }
 
-@keyframes langSwitcherPulse {
-    0%, 100% { box-shadow: 0 4px 18px rgba(212, 175, 55, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
-    50% { box-shadow: 0 6px 26px rgba(212, 175, 55, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+.marcacao-header .lang-switcher-btn,
+.finalizar-header .lang-switcher-btn,
+.conta-page .lang-switcher-btn {
+    background: #f3f4f6;
+    border-color: rgba(26, 42, 74, 0.12);
 }
 
-@keyframes langBorderShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+.marcacao-header .lang-switcher-current,
+.finalizar-header .lang-switcher-current,
+.conta-page .lang-switcher-current,
+.marcacao-header .lang-switcher-globe,
+.finalizar-header .lang-switcher-globe,
+.conta-page .lang-switcher-globe,
+.marcacao-header .lang-switcher-chevron,
+.finalizar-header .lang-switcher-chevron,
+.conta-page .lang-switcher-chevron {
+    color: #1a2a4a;
 }
 
 .lang-switcher-menu {
     position: absolute;
-    top: calc(100% + 0.65rem);
+    top: calc(100% + 0.5rem);
     right: 0;
-    min-width: 220px;
-    background: linear-gradient(180deg, #fff 0%, #fafafa 100%);
-    border-radius: 16px;
+    min-width: 200px;
+    background: #fff;
+    border-radius: 12px;
     box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.22),
-        0 0 0 1px rgba(212, 175, 55, 0.25);
-    padding: 0.65rem;
+        0 12px 32px rgba(0, 0, 0, 0.14),
+        0 0 0 1px rgba(0, 0, 0, 0.06);
+    padding: 0.5rem;
     z-index: 1200;
     overflow: hidden;
-    animation: langMenuIn 0.28s ease;
+    animation: langMenuIn 0.22s ease;
 }
 
 @keyframes langMenuIn {
-    from { opacity: 0; transform: translateY(-8px) scale(0.96); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .lang-switcher-menu.hidden {
@@ -166,11 +134,11 @@
 }
 
 .lang-switcher-menu-title {
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.4rem;
     padding: 0 0.5rem;
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #999;
 }
@@ -178,20 +146,20 @@
 .lang-switcher-option {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.65rem;
     width: 100%;
     text-align: left;
-    padding: 0.7rem 0.75rem;
+    padding: 0.6rem 0.65rem;
     border: none;
     background: transparent;
     color: var(--primary-color);
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.15s ease;
+    transition: background 0.15s ease;
 }
 
 .lang-switcher-option-flag {
-    font-size: 1.45rem;
+    font-size: 1.25rem;
     line-height: 1;
     flex-shrink: 0;
 }
@@ -204,55 +172,51 @@
 }
 
 .lang-switcher-option-text strong {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     font-weight: 700;
 }
 
 .lang-switcher-option-text small {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: #888;
     font-weight: 600;
-    letter-spacing: 0.06em;
 }
 
 .lang-switcher-option-check {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--secondary-color);
     opacity: 0;
-    transform: scale(0.6);
-    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .lang-switcher-option:hover {
-    background: rgba(212, 175, 55, 0.12);
-    transform: translateX(3px);
+    background: rgba(26, 42, 74, 0.06);
 }
 
 .lang-switcher-option.active {
-    background: linear-gradient(90deg, rgba(212, 175, 55, 0.18), rgba(212, 175, 55, 0.06));
-    box-shadow: inset 3px 0 0 var(--secondary-color);
+    background: rgba(212, 175, 55, 0.12);
 }
 
 .lang-switcher-option.active .lang-switcher-option-check {
     opacity: 1;
-    transform: scale(1);
 }
 
 .nav-container .lang-switcher {
-    margin-right: 0.25rem;
+    margin-right: 0;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    justify-content: flex-end;
+    gap: 0.55rem;
     flex-shrink: 0;
+    margin-left: auto;
 }
 
 .marcacao-header-inner .lang-switcher,
 .finalizar-header-inner .lang-switcher {
     margin-left: auto;
-    margin-right: 0.75rem;
+    margin-right: 0.5rem;
 }
 
 .conta-lang-wrap {
@@ -262,37 +226,21 @@
 }
 
 .conta-lang-wrap .lang-switcher-btn {
-    min-width: 200px;
-}
-
-@media (max-width: 900px) {
-    .lang-switcher-kicker {
-        display: none;
-    }
-
-    .lang-switcher-current {
-        font-size: 0.85rem;
-    }
-
-    .lang-switcher-btn {
-        padding: 0.5rem 0.75rem 0.5rem 0.55rem;
-        min-height: 44px;
-    }
+    min-width: auto;
 }
 
 @media (max-width: 520px) {
-    .lang-switcher-text {
-        display: none;
+    .lang-switcher-btn {
+        padding: 0.32rem 0.55rem;
+        min-height: 32px;
+        gap: 0.35rem;
     }
 
-    .lang-switcher-btn {
-        padding: 0.5rem;
-        min-width: 48px;
-        justify-content: center;
+    .lang-switcher-current {
+        font-size: 0.72rem;
     }
 
     .lang-switcher-globe {
-        width: 28px;
-        height: 28px;
+        font-size: 0.78rem;
     }
 }

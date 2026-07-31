@@ -143,7 +143,6 @@ function atualizarUIAuth() {
                     </div>
                     <button type="button" class="logout-btn" id="btnLogout">${logoutLabel}</button>
                 </div>
-                ${botaoReservarHtml('btnAgendarNav')}
             `;
             ligarBotoesAuth('');
         }
@@ -171,15 +170,17 @@ function atualizarUIAuth() {
         if (authButtons) {
             authButtons.classList.remove('auth-buttons--empty');
             authButtons.innerHTML = `
-                <a href="conta.html" class="login-btn" id="btnLogin"><i class="fas fa-user"></i> ${loginLabel}</a>
-                ${botaoReservarHtml('btnAgendarNav')}
+                <a href="conta.html" class="login-btn" id="btnLogin" aria-label="${loginLabel}">
+                    <i class="fas fa-lock" aria-hidden="true"></i>
+                    <span class="login-btn-label">login</span>
+                </a>
             `;
             ligarBotoesAuth('');
         }
 
         if (authMobile) {
             authMobile.innerHTML = `
-                <a href="conta.html" class="nav-auth-btn nav-auth-btn--outline" id="mBtnLogin"><i class="fas fa-user"></i> ${loginLabel}</a>
+                <a href="conta.html" class="nav-auth-btn nav-auth-btn--outline" id="mBtnLogin"><i class="fas fa-lock"></i> ${loginLabel}</a>
                 <a href="marcacao.html" class="nav-auth-btn nav-auth-btn--gold" id="mBtnAgendarNav"><i class="fas fa-calendar-check"></i> ${bookLabel}</a>
             `;
             ligarBotoesAuth('m');

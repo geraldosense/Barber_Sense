@@ -469,12 +469,8 @@
         });
 
         document.querySelectorAll('.lang-switcher').forEach((sw) => {
-            const flag = sw.querySelector('.lang-switcher-flag');
             const label = sw.querySelector('.lang-switcher-current');
-            const kicker = sw.querySelector('.lang-switcher-kicker');
-            if (flag) flag.textContent = LANG_META[currentLang]?.flag || '🌐';
-            if (label) label.textContent = LANG_META[currentLang]?.label || 'Português';
-            if (kicker) kicker.textContent = t('lang.select');
+            if (label) label.textContent = LANG_META[currentLang]?.short || 'PT';
         });
 
         document.dispatchEvent(new CustomEvent('sense:langchange', { detail: { lang: currentLang } }));
@@ -508,14 +504,11 @@
         const meta = LANG_META[currentLang];
         container.innerHTML = `
             <button type="button" class="lang-switcher-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="${t('lang.select')}">
-                <span class="lang-switcher-glow" aria-hidden="true"></span>
-                <span class="lang-switcher-ring" aria-hidden="true"></span>
-                <span class="lang-switcher-flag">${meta.flag}</span>
+                <span class="lang-switcher-globe" aria-hidden="true"><i class="fas fa-globe"></i></span>
                 <span class="lang-switcher-text">
-                    <span class="lang-switcher-kicker">${t('lang.select')}</span>
-                    <span class="lang-switcher-current">${meta.label}</span>
+                    <span class="lang-switcher-current">${meta.short}</span>
                 </span>
-                <span class="lang-switcher-globe" aria-hidden="true"><i class="fas fa-globe-americas"></i></span>
+                <span class="lang-switcher-chevron" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
             </button>
             <div class="lang-switcher-menu hidden" role="listbox" aria-label="${t('lang.select')}">
                 <p class="lang-switcher-menu-title">${t('lang.select')}</p>

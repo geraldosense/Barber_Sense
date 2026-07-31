@@ -122,54 +122,46 @@ body.menu-open {
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 0.25rem;
+        gap: 0.4rem;
         min-width: 0;
         flex-shrink: 1;
+        margin-left: auto;
     }
 
     .header-actions .auth-buttons {
         display: flex !important;
         align-items: center;
-        gap: 0.22rem;
+        gap: 0.35rem;
         flex-wrap: nowrap !important;
-        flex-shrink: 1;
+        flex-shrink: 0;
         min-width: 0;
     }
 
     .header-actions .login-btn {
-        padding: 0.28rem 0.5rem;
-        font-size: 0.65rem;
-        font-weight: 600;
+        width: 40px;
+        height: 40px;
+        padding: 0;
         border-width: 1.5px;
-        border-radius: 999px;
+        border-radius: 50%;
         margin-right: 0;
-        line-height: 1.2;
-        white-space: nowrap;
+        font-size: inherit;
+        color: #1a1a1a;
+        border-color: #1a1a1a;
+        background: #fff;
         flex-shrink: 0;
     }
 
     .header-actions .login-btn i {
-        font-size: 0.72rem;
-        margin-right: 0.15rem;
+        font-size: 0.8rem;
+        margin-right: 0;
+    }
+
+    .header-actions .login-btn .login-btn-label {
+        font-size: 0.45rem;
     }
 
     .header-actions .register-btn {
-        padding: 0.28rem 0.5rem;
-        font-size: 0.62rem;
-        font-weight: 600;
-        border-radius: 999px;
-        border-width: 1.5px;
-        line-height: 1.2;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-
-    .header-actions .register-btn .btn-text-full {
-        display: none;
-    }
-
-    .header-actions .register-btn .btn-text-short {
-        display: inline;
+        display: none !important;
     }
 
     .header-actions .user-profile {
@@ -181,22 +173,21 @@ body.menu-open {
     }
 
     .header-actions .lang-switcher-btn {
-        min-height: 30px;
-        min-width: 30px;
-        padding: 0.22rem 0.35rem;
+        min-height: 32px;
+        padding: 0.3rem 0.55rem;
         flex-shrink: 0;
-        border-radius: 10px;
     }
 
     .header-actions .lang-switcher-text,
     .header-actions .lang-switcher-globe,
-    .header-actions .lang-switcher-kicker,
+    .header-actions .lang-switcher-chevron,
     .header-actions .lang-switcher-current {
-        display: none;
+        display: inline-flex;
     }
 
-    .header-actions .lang-switcher-flag {
-        font-size: 1.15rem;
+    .header-actions .lang-switcher-flag,
+    .header-actions .lang-switcher-kicker {
+        display: none !important;
     }
 
     .menu-toggle {
@@ -808,24 +799,28 @@ body.menu-open {
     }
 
     .header-actions .login-btn {
-        padding: 0.24rem 0.38rem;
-        font-size: 0;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        font-size: inherit;
     }
 
     .header-actions .login-btn i {
-        font-size: 0.8rem;
+        font-size: 0.72rem;
         margin-right: 0;
     }
 
+    .header-actions .login-btn .login-btn-label {
+        font-size: 0.4rem;
+    }
+
     .header-actions .register-btn {
-        padding: 0.24rem 0.42rem;
-        font-size: 0.58rem;
+        display: none !important;
     }
 
     .header-actions .lang-switcher-btn {
-        min-height: 28px;
-        min-width: 28px;
-        padding: 0.18rem;
+        min-height: 30px;
+        padding: 0.28rem 0.45rem;
     }
 
     .menu-toggle {
