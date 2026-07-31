@@ -616,7 +616,6 @@ async function carregarSiteInfo() {
         document.getElementById('siteMorada').value = site.morada || '';
         document.getElementById('siteInstagram').value = site.instagram || '';
         document.getElementById('siteTiktok').value = site.tiktok || '';
-        document.getElementById('siteFacebook').value = site.facebook || '';
         document.getElementById('siteWhatsapp').value = site.whatsapp || '';
     } catch { /* silencioso */ }
 }
@@ -629,7 +628,6 @@ async function guardarSiteInfo(e) {
         morada: document.getElementById('siteMorada').value.trim(),
         instagram: document.getElementById('siteInstagram').value.trim(),
         tiktok: document.getElementById('siteTiktok').value.trim(),
-        facebook: document.getElementById('siteFacebook').value.trim(),
         whatsapp: document.getElementById('siteWhatsapp').value.trim()
     };
     const res = await fetch(`${API_URL}/config/site`, {
