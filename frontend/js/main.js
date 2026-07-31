@@ -114,7 +114,7 @@ function renderizarServicos() {
                 </div>
                 <p>${s.descricao || ''}</p>
                 <div class="course-item-tempo"><i class="fas fa-clock"></i> ${s.tempo} min</div>
-                <button class="learn-more" onclick="abrirModalComServico(${s.id})">${typeof t === 'function' ? t('services.book') : 'Agendar'}</button>
+                <button class="learn-more" onclick="abrirModalComServico(${s.id})">Agendar</button>
             </div>
         </div>
     `).join('');
