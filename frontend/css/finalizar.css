@@ -479,12 +479,15 @@
 }
 
 .pagamento-brand-logo--sense {
-    width: 80px;
+    width: 96px;
     height: auto;
-    max-height: 80px;
-    mix-blend-mode: multiply;
+    max-height: 96px;
+    mix-blend-mode: normal;
     filter: none;
-    background: transparent;
+    background: transparent !important;
+    border: none;
+    border-radius: 0;
+    padding: 0;
 }
 
 .pagamento-brand-logo.hidden {

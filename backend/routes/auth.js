@@ -673,6 +673,17 @@ router.post('/completar-perfil', verificarToken, async (req, res) => {
     }
 });
 
+function obterBaseFrontend(req) {
+    const envUrl = (process.env.FRONTEND_URL || FRONTEND_URL || '').replace(/\/$/, '');
+    const host = req.get('x-forwarded-host') || req.get('host');
+    const proto = req.get('x-forwarded-proto') || req.protocol || 'http';
+    const fromRequest = host ? `${proto}://${host}`.replace(/\/$/, '') : '';
+
+    if (envUrl && !/localhost|127\.0\.0\.1/i.test(envUrl)) return envUrl;
+    if (fromRequest && !/localhost|127\.0\.0\.1/i.test(fromRequest)) return fromRequest;
+    return envUrl || fromRequest || 'http://localhost:3000';
+}
+
 /**
  * POST /api/auth/recuperar-password
  */
@@ -684,19 +695,38 @@ router.post('/recuperar-password', async (req, res) => {
             return res.status(400).json({ erro: 'Email inválido.' });
         }
 
+        const emailLimpo = email.toLowerCase().trim();
         const utilizador = await req.db.get(
-            'SELECT id, nome, email FROM utilizadores WHERE email = ?',
-            [email.toLowerCase().trim()]
+            `SELECT id, nome, email, password_hash, google_id, auth_provider
+             FROM utilizadores WHERE email = ?`,
+            [emailLimpo]
         );
 
         // Resposta genérica por segurança (não revelar se email existe)
         const respostaGenerica = {
-            mensagem: 'Se o email existir na nossa base de dados, receberá instruções de recuperação.'
+            mensagem: 'Se o email existir na nossa base de dados, receberá um código e um link para redefinir a palavra-passe.',
+            emailEnviado: true
         };
 
         if (!utilizador) {
             return res.json(respostaGenerica);
         }
+
+        const semPassword = !utilizador.password_hash;
+        const soGoogle = semPassword && (utilizador.google_id || utilizador.auth_provider === 'google');
+        if (soGoogle) {
+            return res.json({
+                mensagem: 'Esta conta inicia sessão com Google. Use o botão Google para entrar — não há palavra-passe para recuperar.',
+                soGoogle: true,
+                emailEnviado: false
+            });
+        }
+
+        await req.db.run(
+            `UPDATE tokens SET usado = 1
+             WHERE usuario_id = ? AND tipo = 'recuperacao' AND usado = 0`,
+            [utilizador.id]
+        );
 
         const token = gerarTokenSeguro();
         const codigo = gerarCodigo();
@@ -707,31 +737,54 @@ router.post('/recuperar-password', async (req, res) => {
             [utilizador.id, token, codigo, expira]
         );
 
-        const linkRecuperacao = `${FRONTEND_URL}/redefinir-password.html?token=${token}`;
+        const baseUrl = obterBaseFrontend(req);
+        const linkRecuperacao = `${baseUrl}/redefinir-password.html?token=${token}`;
 
         const html = templateBase('Recuperação de Palavra-passe', `
             <p>Olá <strong>${utilizador.nome}</strong>,</p>
-            <p>Recebemos um pedido para redefinir a sua palavra-passe.</p>
+            <p>Recebemos um pedido para redefinir a sua palavra-passe na Sense Barbershop.</p>
             <p style="text-align:center;margin:25px 0;">
                 <a href="${linkRecuperacao}" style="background:#d4af37;color:#1a1a1a;padding:14px 28px;border-radius:5px;text-decoration:none;font-weight:bold;">
                     Redefinir Palavra-passe
                 </a>
             </p>
-            <p><strong>Código temporário:</strong> <span style="font-size:24px;letter-spacing:4px;color:#d4af37;">${codigo}</span></p>
+            <p>Ou introduza este <strong>código temporário</strong> na página de recuperação:</p>
+            <p style="text-align:center;font-size:28px;letter-spacing:6px;color:#d4af37;font-weight:bold;margin:16px 0;">${codigo}</p>
             <p style="font-size:13px;color:#666;">O link e o código expiram em 1 hora.</p>
             <p style="font-size:13px;color:#666;">Se não solicitou esta alteração, ignore este email.</p>
         `);
 
-        await enviarEmail({
+        const resultadoEmail = await enviarEmail({
             para: utilizador.email,
             assunto: 'Recuperação de Palavra-passe - Sense Barbershop',
-            html
+            html,
+            texto: `Olá ${utilizador.nome},\n\nCódigo de recuperação: ${codigo}\nLink: ${linkRecuperacao}\n\nExpira em 1 hora.`
         });
 
         console.log(`🔑 Link recuperação: ${linkRecuperacao}`);
         console.log(`🔑 Código temporário: ${codigo}`);
+        console.log(`🔑 Email enviado: ${!!resultadoEmail.enviado}`);
 
-        res.json(respostaGenerica);
+        if (resultadoEmail.enviado) {
+            return res.json({
+                mensagem: 'Enviámos um email com o link e um código de 6 dígitos. Verifique a caixa de entrada (e o spam).',
+                emailEnviado: true
+            });
+        }
+
+        // Sem SMTP (ou falha): permitir concluir no ecrã com o código
+        const emProducaoComSmtp = process.env.NODE_ENV === 'production' && emailConfigurado();
+        if (emProducaoComSmtp) {
+            return res.status(503).json({
+                erro: 'Não foi possível enviar o email de recuperação. Tente novamente dentro de momentos.'
+            });
+        }
+
+        return res.json({
+            mensagem: 'O email não está disponível neste momento. Use o código abaixo para redefinir a palavra-passe (válido 1 hora).',
+            emailEnviado: false,
+            codigo
+        });
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -758,11 +811,12 @@ router.post('/redefinir-password', async (req, res) => {
                 [token]
             );
         } else if (codigo && email) {
+            const codigoLimpo = String(codigo).trim();
             registo = await req.db.get(
                 `SELECT t.*, u.email FROM tokens t
                  JOIN utilizadores u ON u.id = t.usuario_id
-                 WHERE t.codigo = ? AND u.email = ? AND t.tipo = 'recuperacao' AND t.usado = 0`,
-                [codigo, email.toLowerCase().trim()]
+                 WHERE t.codigo = ? AND LOWER(u.email) = ? AND t.tipo = 'recuperacao' AND t.usado = 0`,
+                [codigoLimpo, email.toLowerCase().trim()]
             );
         } else {
             return res.status(400).json({ erro: 'Token ou código de recuperação necessário.' });
@@ -782,7 +836,11 @@ router.post('/redefinir-password', async (req, res) => {
             'UPDATE utilizadores SET password_hash = ? WHERE id = ?',
             [passwordHash, registo.usuario_id]
         );
-        await req.db.run('UPDATE tokens SET usado = 1 WHERE id = ?', [registo.id]);
+        await req.db.run(
+            `UPDATE tokens SET usado = 1
+             WHERE usuario_id = ? AND tipo = 'recuperacao' AND usado = 0`,
+            [registo.usuario_id]
+        );
 
         res.json({ mensagem: 'Palavra-passe redefinida com sucesso. Pode fazer login.' });
     } catch (error) {

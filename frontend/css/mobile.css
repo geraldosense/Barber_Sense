@@ -8,27 +8,34 @@
     --mobile-gold: linear-gradient(135deg, #d4af37 0%, #e8c547 50%, #c9a227 100%);
 }
 
-/* Logotipo no header — fundo branco do PNG funde com a barra clara */
+/* Logotipo — PNG transparente, sem “card” branco */
 .header .logo,
 .header .logo a {
-    background: transparent;
+    background: transparent !important;
+    box-shadow: none !important;
 }
 
 .logo img {
-    mix-blend-mode: multiply;
+    mix-blend-mode: normal;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
 }
 
 .footer-logo {
     object-fit: contain;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: 2px solid var(--secondary-color);
-    padding: 3px;
-    background: #fff;
+    width: 72px;
+    height: 72px;
+    border-radius: 0;
+    border: none;
+    padding: 0;
+    background: transparent !important;
     display: block;
     margin: 0 auto 0.75rem;
     mix-blend-mode: normal;
+    box-shadow: none;
 }
 
 /* Overlay menu */
@@ -107,12 +114,16 @@ body.menu-open {
     }
 
     .logo img {
-        height: 56px;
+        height: 58px;
         width: auto;
-        max-width: min(42vw, 150px);
+        max-width: min(46vw, 160px);
         object-fit: contain;
         object-position: left center;
-        mix-blend-mode: multiply;
+        mix-blend-mode: normal;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
         display: block;
     }
 
@@ -125,7 +136,7 @@ body.menu-open {
         gap: 0.4rem;
         min-width: 0;
         flex-shrink: 1;
-        margin-left: auto;
+        margin-left: 0;
     }
 
     .header-actions .auth-buttons {
@@ -164,12 +175,34 @@ body.menu-open {
         display: none !important;
     }
 
+    /* Manter perfil/sair acessíveis no header (iguais ao PC) + detalhe no drawer */
     .header-actions .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        max-width: 42vw;
+    }
+
+    .header-actions .user-info {
         display: none;
     }
 
+    .header-actions .user-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
     .header-actions .logout-btn {
-        display: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0.3rem 0.55rem;
+        font-size: 0.72rem;
+        border-radius: 999px;
+        white-space: nowrap;
     }
 
     .header-actions .lang-switcher-btn {
@@ -253,13 +286,14 @@ body.menu-open {
     }
 
     .nav-menu-logo {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        border: 2px solid var(--secondary-color);
-        padding: 2px;
-        background: #fff;
+        width: 56px;
+        height: 56px;
+        border-radius: 0;
+        border: none;
+        padding: 0;
+        background: transparent !important;
         object-fit: contain;
+        box-shadow: none;
     }
 
     .nav-menu-brand span {
@@ -735,16 +769,36 @@ body.menu-open {
 
     .conta-card--cliente {
         border-radius: var(--mobile-radius-lg);
-        padding: 1.5rem 1.25rem;
+        padding: 1.25rem 1.15rem 1.35rem;
     }
 
-    .conta-brand-top h1 {
-        font-size: 1.5rem;
+    .conta-brand-center {
+        margin-bottom: 1rem;
+    }
+
+    .conta-logo-top {
+        width: 110px;
+        height: 110px;
+        max-width: 48vw;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .conta-card-top {
+        margin-bottom: 0.65rem;
+    }
+
+    .recuperar-codigo-destaque {
+        letter-spacing: 0.2em;
+        font-size: 1.2rem;
     }
 
     .auth-tabs-pill button,
     .conta-card--cliente input,
-    .conta-card--cliente .auth-submit {
+    .conta-card--cliente .auth-submit-btn {
         min-height: 48px;
     }
 
@@ -794,8 +848,10 @@ body.menu-open {
     }
 
     .logo img {
-        height: 50px;
-        max-width: min(38vw, 130px);
+        height: 52px;
+        max-width: min(42vw, 140px);
+        background: transparent !important;
+        border-radius: 0 !important;
     }
 
     .header-actions .login-btn {
@@ -812,6 +868,17 @@ body.menu-open {
 
     .header-actions .login-btn .login-btn-label {
         font-size: 0.4rem;
+    }
+
+    .header-actions .user-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .header-actions .logout-btn {
+        min-height: 32px;
+        padding: 0.25rem 0.45rem;
+        font-size: 0.68rem;
     }
 
     .header-actions .register-btn {

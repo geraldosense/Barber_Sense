@@ -16,18 +16,13 @@
 </head>
 <body class="conta-page conta-page--cliente" data-i18n-title="auth.titleLogin">
     <div class="conta-shell">
-        <header class="conta-topbar">
-            <a href="index.html" class="conta-back-top"><i class="fas fa-arrow-left"></i> <span data-i18n="auth.backToSite">Voltar ao site</span></a>
-            <div class="conta-lang-wrap" data-lang-mount></div>
-        </header>
-
         <div class="conta-card conta-card--cliente">
-            <div class="conta-brand-inline">
+            <div class="conta-card-top">
+                <a href="index.html" class="conta-back-top"><i class="fas fa-arrow-left"></i> <span data-i18n="auth.backToSite">Voltar ao site</span></a>
+            </div>
+
+            <div class="conta-brand-center">
                 <img src="assets/logo.png" alt="Sense Barbershop" class="conta-logo-top">
-                <div>
-                    <p class="conta-brand-name">Sense Barbershop</p>
-                    <p class="conta-brand-tag" data-i18n="auth.brandTag">A sua conta</p>
-                </div>
             </div>
 
             <div class="conta-card-header">
@@ -116,12 +111,39 @@
             <div class="auth-panel" id="panel-recuperar">
                 <form id="formRecuperar">
                     <div class="form-group">
-                        <label for="recEmail">Email</label>
-                        <input type="email" id="recEmail" required placeholder="seu@email.com">
+                        <label for="recEmail" data-i18n="auth.email">Email</label>
+                        <input type="email" id="recEmail" required placeholder="seu@email.com" autocomplete="email">
                     </div>
-                    <button type="submit" class="auth-submit-btn secondary">Enviar instruções</button>
-                    <p class="auth-switch"><a href="#" id="linkIrLoginRec" data-i18n="auth.login">Voltar a entrar</a></p>
+                    <button type="submit" class="auth-submit-btn auth-submit-btn--pill" data-i18n="auth.sendRecover">Enviar código</button>
+                    <p class="auth-switch"><a href="#" id="linkIrLoginRec" data-i18n="auth.backToLogin">Voltar a entrar</a></p>
                 </form>
+
+                <div id="recuperarCodigoWrap" class="recuperar-codigo-wrap hidden">
+                    <p class="auth-subtitle" id="recuperarCodigoHint" data-i18n="auth.enterCodeHint">Introduza o código de 6 dígitos e a nova palavra-passe.</p>
+                    <p class="recuperar-codigo-destaque hidden" id="recuperarCodigoDestaque"></p>
+                    <form id="formRecuperarCodigo">
+                        <div class="form-group">
+                            <label for="recEmailCodigo" data-i18n="auth.email">Email</label>
+                            <input type="email" id="recEmailCodigo" required placeholder="seu@email.com" autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="recCodigo" data-i18n="auth.tempCode">Código temporário</label>
+                            <input type="text" id="recCodigo" required placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code">
+                        </div>
+                        <div class="form-group">
+                            <label for="recNovaPassword" data-i18n="auth.newPassword">Nova palavra-passe</label>
+                            <div class="password-input">
+                                <input type="password" id="recNovaPassword" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                                <button type="button" class="toggle-password" aria-label="Mostrar"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="recNovaPasswordConfirm" data-i18n="auth.confirmPassword">Confirmar palavra-passe</label>
+                            <input type="password" id="recNovaPasswordConfirm" required minlength="6" placeholder="Repita a palavra-passe" autocomplete="new-password">
+                        </div>
+                        <button type="submit" class="auth-submit-btn auth-submit-btn--pill" data-i18n="auth.resetPassword">Redefinir palavra-passe</button>
+                    </form>
+                </div>
             </div>
 
             <div class="auth-message hidden" id="authMessage"></div>
@@ -149,11 +171,6 @@
             const tab = new URLSearchParams(window.location.search).get('tab');
             if (tab === 'registo') mudarTabAuth('registo');
             else preencherEmailGuardado();
-
-            document.getElementById('linkIrLoginRec')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                mudarTabAuth('login');
-            });
         });
         document.addEventListener('sense:langchange', () => {
             const tab = document.querySelector('.auth-tab.active')?.dataset.tab || 'login';

@@ -148,6 +148,7 @@ function atualizarUIAuth() {
         }
 
         if (authMobile) {
+            const minhaAreaLabel = typeof t === 'function' ? t('nav.myArea') : 'Minha Área';
             authMobile.innerHTML = `
                 <div class="nav-auth-user">
                     <i class="fas ${perfilIcon}"></i>
@@ -156,10 +157,16 @@ function atualizarUIAuth() {
                         <span>${perfilLabel}</span>
                     </div>
                 </div>
+                <a href="#minha-area" class="nav-auth-btn nav-auth-btn--outline" id="mBtnMinhaArea"><i class="fas fa-user-circle"></i> ${minhaAreaLabel}</a>
                 <a href="marcacao.html" class="nav-auth-btn nav-auth-btn--gold" id="mBtnAgendarNav"><i class="fas fa-calendar-check"></i> ${bookLabel}</a>
                 <button type="button" class="nav-auth-btn nav-auth-btn--ghost" id="mBtnLogout"><i class="fas fa-sign-out-alt"></i> ${logoutLabel}</button>
             `;
             ligarBotoesAuth('m');
+            document.getElementById('mBtnMinhaArea')?.addEventListener('click', () => {
+                document.getElementById('navMenu')?.classList.remove('active');
+                document.getElementById('navOverlay')?.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            });
         }
 
         if (typeof renderPendingBadge === 'function') renderPendingBadge();
@@ -271,9 +278,143 @@ function mudarTabAuth(tab) {
     }
 
     const esconderGoogle = tab === 'recuperar';
+    document.getElementById('googleAuthBlock')?.classList.toggle('hidden', esconderGoogle);
     document.getElementById('googleSignInWrap')?.classList.toggle('hidden', esconderGoogle);
     document.getElementById('authDivider')?.classList.toggle('hidden', esconderGoogle);
     document.getElementById('googleNota')?.classList.toggle('hidden', esconderGoogle);
+    document.getElementById('authTabs')?.classList.toggle('hidden', esconderGoogle);
+
+    if (tab !== 'recuperar') {
+        resetPainelRecuperacao();
+    }
+}
+
+function resetPainelRecuperacao() {
+    const wrap = document.getElementById('recuperarCodigoWrap');
+    const destaque = document.getElementById('recuperarCodigoDestaque');
+    if (wrap && document.body.dataset.authPage === 'conta') {
+        wrap.classList.add('hidden');
+    }
+    if (destaque) {
+        destaque.textContent = '';
+        destaque.classList.add('hidden');
+    }
+}
+
+async function submeterRecuperar(e) {
+    e.preventDefault();
+    esconderAuthMessage();
+
+    const email = document.getElementById('recEmail').value.trim();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const textoOriginal = btn?.textContent;
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'A enviar…';
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/auth/recuperar-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            mostrarAuthMessage(data.erro || 'Não foi possível iniciar a recuperação.', 'error');
+            return;
+        }
+
+        if (data.soGoogle) {
+            mostrarAuthMessage(data.mensagem, 'info');
+            return;
+        }
+
+        const emailCodigo = document.getElementById('recEmailCodigo');
+        if (emailCodigo) emailCodigo.value = email;
+
+        const wrap = document.getElementById('recuperarCodigoWrap');
+        wrap?.classList.remove('hidden');
+
+        const destaque = document.getElementById('recuperarCodigoDestaque');
+        if (destaque) {
+            if (data.codigo) {
+                destaque.textContent = `Código: ${data.codigo}`;
+                destaque.classList.remove('hidden');
+            } else {
+                destaque.textContent = '';
+                destaque.classList.add('hidden');
+            }
+        }
+
+        const tipo = data.emailEnviado === false ? 'info' : 'success';
+        mostrarAuthMessage(data.mensagem || 'Instruções enviadas.', tipo);
+        document.getElementById('recCodigo')?.focus();
+    } catch {
+        mostrarAuthMessage('Erro de ligação ao servidor.', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = textoOriginal || 'Enviar código';
+        }
+    }
+}
+
+async function submeterRecuperarCodigo(e) {
+    e.preventDefault();
+    esconderAuthMessage();
+
+    const email = document.getElementById('recEmailCodigo').value.trim();
+    const codigo = document.getElementById('recCodigo').value.trim();
+    const password = document.getElementById('recNovaPassword').value;
+    const confirm = document.getElementById('recNovaPasswordConfirm')?.value;
+
+    if (confirm !== undefined && password !== confirm) {
+        mostrarAuthMessage('As palavras-passe não coincidem.', 'error');
+        return;
+    }
+
+    if (password.length < 6) {
+        mostrarAuthMessage('A nova palavra-passe deve ter pelo menos 6 caracteres.', 'error');
+        return;
+    }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    const textoOriginal = btn?.textContent;
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'A guardar…';
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/auth/redefinir-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, codigo, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            mostrarAuthMessage(data.erro || 'Código inválido.', 'error');
+            return;
+        }
+
+        mostrarAuthMessage(data.mensagem, 'success');
+        document.getElementById('formRecuperar')?.reset();
+        document.getElementById('formRecuperarCodigo')?.reset();
+        resetPainelRecuperacao();
+        setTimeout(() => mudarTabAuth('login'), 2000);
+    } catch {
+        mostrarAuthMessage('Erro de ligação ao servidor.', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = textoOriginal || 'Redefinir palavra-passe';
+        }
+    }
 }
 
 function mostrarAuthMessage(mensagem, tipo = 'info') {
@@ -619,57 +760,6 @@ async function submeterLogin(e) {
     }
 }
 
-async function submeterRecuperar(e) {
-    e.preventDefault();
-    esconderAuthMessage();
-
-    const email = document.getElementById('recEmail').value.trim();
-
-    try {
-        const res = await fetch(`${API_URL}/auth/recuperar-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-
-        const data = await res.json();
-        mostrarAuthMessage(data.mensagem || 'Instruções enviadas por email.', 'success');
-        document.getElementById('formRecuperar').reset();
-    } catch {
-        mostrarAuthMessage('Erro de ligação ao servidor.', 'error');
-    }
-}
-
-async function submeterRecuperarCodigo(e) {
-    e.preventDefault();
-    esconderAuthMessage();
-
-    const email = document.getElementById('recEmailCodigo').value.trim();
-    const codigo = document.getElementById('recCodigo').value.trim();
-    const password = document.getElementById('recNovaPassword').value;
-
-    try {
-        const res = await fetch(`${API_URL}/auth/redefinir-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, codigo, password })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            mostrarAuthMessage(data.erro || 'Código inválido.', 'error');
-            return;
-        }
-
-        mostrarAuthMessage(data.mensagem, 'success');
-        document.getElementById('formRecuperarCodigo').reset();
-        setTimeout(() => mudarTabAuth('login'), 2500);
-    } catch {
-        mostrarAuthMessage('Erro de ligação ao servidor.', 'error');
-    }
-}
-
 function configurarTogglePassword() {
     document.querySelectorAll('.toggle-password').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -716,10 +806,16 @@ function configurarAuth() {
     document.getElementById('formRegisto')?.addEventListener('submit', submeterRegisto);
     document.getElementById('formCompletarPerfil')?.addEventListener('submit', submeterCompletarPerfil);
     document.getElementById('formRecuperar')?.addEventListener('submit', submeterRecuperar);
+    document.getElementById('formRecuperarCodigo')?.addEventListener('submit', submeterRecuperarCodigo);
 
     document.getElementById('linkEsqueciPassword')?.addEventListener('click', (e) => {
         e.preventDefault();
         mudarTabAuth('recuperar');
+    });
+
+    document.getElementById('linkIrLoginRec')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        mudarTabAuth('login');
     });
 
     document.getElementById('linkIrLogin')?.addEventListener('click', (e) => {

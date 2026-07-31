@@ -35,8 +35,13 @@
 }
 
 .marcacao-brand img {
-    height: 48px;
+    height: 56px;
     width: auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    mix-blend-mode: normal;
 }
 
 .marcacao-brand span {

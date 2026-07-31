@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/mobile.css?v=7">
+    <link rel="stylesheet" href="css/mobile.css?v=8">
     <link rel="stylesheet" href="css/i18n.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -307,26 +307,34 @@
                 <form id="formRecuperar">
                     <div class="form-group">
                         <label for="recEmail"><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="recEmail" required placeholder="seu@email.com">
+                        <input type="email" id="recEmail" required placeholder="seu@email.com" autocomplete="email">
                     </div>
-                    <button type="submit" class="auth-submit-btn secondary">Enviar instruções</button>
+                    <button type="submit" class="auth-submit-btn secondary">Enviar código</button>
                 </form>
-                <div class="auth-divider"><span>ou use o código</span></div>
-                <form id="formRecuperarCodigo">
-                    <div class="form-group">
-                        <label for="recEmailCodigo">Email</label>
-                        <input type="email" id="recEmailCodigo" required placeholder="seu@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="recCodigo">Código temporário</label>
-                        <input type="text" id="recCodigo" required placeholder="000000" maxlength="6" pattern="[0-9]{6}">
-                    </div>
-                    <div class="form-group">
-                        <label for="recNovaPassword">Nova palavra-passe</label>
-                        <input type="password" id="recNovaPassword" required placeholder="Mínimo 6 caracteres" minlength="6">
-                    </div>
-                    <button type="submit" class="auth-submit-btn secondary">Redefinir com código</button>
-                </form>
+                <div id="recuperarCodigoWrap" class="recuperar-codigo-wrap">
+                    <div class="auth-divider"><span>código recebido</span></div>
+                    <p class="auth-subtitle" id="recuperarCodigoHint">Introduza o código de 6 dígitos e a nova palavra-passe.</p>
+                    <p class="recuperar-codigo-destaque hidden" id="recuperarCodigoDestaque"></p>
+                    <form id="formRecuperarCodigo">
+                        <div class="form-group">
+                            <label for="recEmailCodigo">Email</label>
+                            <input type="email" id="recEmailCodigo" required placeholder="seu@email.com" autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="recCodigo">Código temporário</label>
+                            <input type="text" id="recCodigo" required placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code">
+                        </div>
+                        <div class="form-group">
+                            <label for="recNovaPassword">Nova palavra-passe</label>
+                            <input type="password" id="recNovaPassword" required placeholder="Mínimo 6 caracteres" minlength="6" autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="recNovaPasswordConfirm">Confirmar palavra-passe</label>
+                            <input type="password" id="recNovaPasswordConfirm" required placeholder="Repita a palavra-passe" minlength="6" autocomplete="new-password">
+                        </div>
+                        <button type="submit" class="auth-submit-btn secondary">Redefinir com código</button>
+                    </form>
+                </div>
             </div>
 
             <div class="auth-message hidden" id="authMessage"></div>
