@@ -21,10 +21,10 @@
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/mobile.css?v=4">
+    <link rel="stylesheet" href="css/mobile.css?v=5">
     <link rel="stylesheet" href="css/i18n.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <body data-i18n-title="meta.title">
     <!-- Header -->
@@ -103,8 +103,13 @@
         <div class="hero-overlay" aria-hidden="true"></div>
 
         <div class="hero-content">
-            <h1 class="gold-text">Sense Barbershop</h1>
-            <a href="marcacao.html" class="cta-button" id="btnAgendar" data-i18n="hero.cta">Reservar Marcação</a>
+            <p class="hero-brand gold-text">Sense Barbershop</p>
+            <h1 class="hero-title"><span data-i18n="hero.headlineBefore">Mais que um corte,</span> <span class="accent" data-i18n="hero.headlineAccent">uma experiência.</span></h1>
+            <p class="hero-lead" data-i18n="hero.lead">Cortes precisos, ambiente premium e marcação online em poucos minutos.</p>
+            <div class="hero-actions">
+                <a href="marcacao.html" class="cta-button" id="btnAgendar" data-i18n="hero.cta">Reservar Marcação</a>
+                <a href="#servicos" class="cta-button cta-button--ghost" data-i18n="hero.ctaSecondary">Ver Serviços</a>
+            </div>
         </div>
 
         <div class="hero-indicators" id="heroIndicators" aria-label="Slides de publicidade"></div>
@@ -130,9 +135,34 @@
 
         <!-- Serviços -->
         <section class="courses-section" id="servicos">
-            <h2 data-i18n="services.title">Nossos Serviços</h2>
-            <div class="course-grid" id="servicosGrid">
-                <!-- Carregado via JavaScript -->
+            <div class="services-layout">
+                <div class="services-intro">
+                    <span class="section-eyebrow" data-i18n="services.eyebrow">O que fazemos</span>
+                    <h2 data-i18n="services.title">Nossos Serviços</h2>
+                    <p class="services-intro-lead" data-i18n="services.lead">Do clássico ao degradê — escolha o serviço e marque em poucos cliques.</p>
+                    <a href="marcacao.html" class="cta-button" data-i18n="services.viewAll">Ver todos</a>
+                </div>
+                <div class="course-grid" id="servicosGrid">
+                    <!-- Carregado via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Marcação fácil -->
+        <section class="booking-features" id="marcar">
+            <div class="booking-features-inner">
+                <div>
+                    <span class="section-eyebrow" data-i18n="booking.eyebrow">Agendamento online</span>
+                    <h2 data-i18n="booking.title">Rápido, fácil e seguro</h2>
+                    <p class="booking-features-lead" data-i18n="booking.lead">Reserve o seu horário na Sense Barbershop sem chamadas nem espera.</p>
+                    <ul class="booking-checklist">
+                        <li><i class="fas fa-check-circle"></i> <span data-i18n="booking.step1">Escolha o serviço e o barbeiro</span></li>
+                        <li><i class="fas fa-check-circle"></i> <span data-i18n="booking.step2">Selecione data e hora disponíveis</span></li>
+                        <li><i class="fas fa-check-circle"></i> <span data-i18n="booking.step3">Confirme e receba a marcação na hora</span></li>
+                    </ul>
+                    <a href="marcacao.html" class="cta-button" data-i18n="hero.cta">Reservar Marcação</a>
+                </div>
+                <div class="booking-features-visual" role="img" aria-label="Sense Barbershop"></div>
             </div>
         </section>
 
@@ -150,6 +180,7 @@
 
         <!-- Galeria de Cortes -->
         <section class="galeria-section" id="galeria">
+            <span class="section-eyebrow" data-i18n="gallery.eyebrow">Trabalhos reais</span>
             <h2 data-i18n="gallery.title">Galeria de Cortes</h2>
             <p class="galeria-intro" data-i18n="gallery.intro">Trabalhos publicados na Sense Barbershop</p>
             <div class="galeria-grid" id="galeriaGrid">
@@ -160,10 +191,11 @@
         <!-- Contacto -->
         <section class="contato-section" id="contato">
             <div class="contato-content">
+                <span class="section-eyebrow" data-i18n="contact.eyebrow">Contactos</span>
                 <h2 data-i18n="contact.title">Fale Connosco</h2>
                 <p data-i18n="contact.lead">Estamos prontos para o receber. Entre em contacto ou agende o seu corte online.</p>
                 <div class="contato-detalhes">
-                    <p><i class="fas fa-envelope"></i> contato@barbeariasense.pt</p>
+                    <p><i class="fas fa-envelope"></i> sensegeraldo2@gmail.com</p>
                     <p><i class="fas fa-phone"></i> +351 960 075 690</p>
                     <p><i class="fas fa-map-marker-alt"></i> Rua Principal, Caminho Nossa Senhora da Luz n6</p>
                 </div>
@@ -194,6 +226,16 @@
                         <p>+351 960 075 690</p>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section class="cta-band">
+            <div class="cta-band-inner">
+                <div>
+                    <h2 data-i18n="ctaBand.title">Pronto para um novo visual?</h2>
+                    <p data-i18n="ctaBand.lead">Marque agora e garanta o seu horário na Sense Barbershop.</p>
+                </div>
+                <a href="marcacao.html" class="cta-button" data-i18n="hero.cta">Reservar Marcação</a>
             </div>
         </section>
     </main>
