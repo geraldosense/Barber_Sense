@@ -152,7 +152,8 @@ router.get('/site', async (req, res) => {
             telefone: '+351 960 075 690',
             email: 'sensegeraldo2@gmail.com',
             morada: 'Rua Principal, Caminho Nossa Senhora da Luz n6',
-            instagram: 'https://www.instagram.com/geraldo_sense/?hl=pt',
+            instagram: 'https://www.instagram.com/sense_barber',
+            tiktok: 'https://www.tiktok.com/@sense_barber',
             facebook: 'https://www.facebook.com/people/Geraldo-De-Assun%C3%A7%C3%A3o/pfbid0EZsz9R6EauiSC1JbNyjtnJEh8BsPz21VbpjJB8gwT3FhUw7QJzhTi6FU5Y825esvl/',
             whatsapp: 'https://wa.me/+351960075690'
         });

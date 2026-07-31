@@ -615,6 +615,7 @@ async function carregarSiteInfo() {
         document.getElementById('siteEmail').value = site.email || '';
         document.getElementById('siteMorada').value = site.morada || '';
         document.getElementById('siteInstagram').value = site.instagram || '';
+        document.getElementById('siteTiktok').value = site.tiktok || '';
         document.getElementById('siteFacebook').value = site.facebook || '';
         document.getElementById('siteWhatsapp').value = site.whatsapp || '';
     } catch { /* silencioso */ }
@@ -627,6 +628,7 @@ async function guardarSiteInfo(e) {
         email: document.getElementById('siteEmail').value.trim(),
         morada: document.getElementById('siteMorada').value.trim(),
         instagram: document.getElementById('siteInstagram').value.trim(),
+        tiktok: document.getElementById('siteTiktok').value.trim(),
         facebook: document.getElementById('siteFacebook').value.trim(),
         whatsapp: document.getElementById('siteWhatsapp').value.trim()
     };
