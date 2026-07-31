@@ -141,6 +141,8 @@ router.post('/', verificarToken, verificarPerfil('barbeiro', 'administrador'), a
 
         const corte = await req.db.get(`${SQL_BASE} WHERE g.id = ?`, [resultado.id]);
 
+        await req.db.bumpSync('galeria_criar');
+
         res.status(201).json({
             mensagem: status === 'aprovado'
                 ? 'Corte publicado com sucesso!'
@@ -170,6 +172,8 @@ router.post('/:id/aprovar', verificarToken, verificarPerfil('administrador'), as
         );
 
         const atualizado = await req.db.get(`${SQL_BASE} WHERE g.id = ?`, [id]);
+
+        await req.db.bumpSync('galeria_aprovar');
 
         res.json({
             mensagem: 'Corte aprovado e publicado na galeria!',

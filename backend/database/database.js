@@ -1,12 +1,36 @@
 // ===== DATABASE CLASS =====
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 const bcrypt = require('bcryptjs');
+
+function resolverCaminhoBaseDados() {
+    const fromEnv = (process.env.DATABASE_PATH || '').trim();
+    if (fromEnv) {
+        const absolute = path.isAbsolute(fromEnv)
+            ? fromEnv
+            : path.resolve(__dirname, '..', fromEnv);
+        const dir = path.dirname(absolute);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        return absolute;
+    }
+
+    // Disco persistente Render (se existir)
+    const renderDisk = '/var/data';
+    if (process.env.NODE_ENV === 'production' && fs.existsSync(renderDisk)) {
+        return path.join(renderDisk, 'barbearia_sense.db');
+    }
+
+    return path.join(__dirname, 'barbearia_sense.db');
+}
 
 class Database {
     constructor() {
-        this.dbPath = path.join(__dirname, 'barbearia_sense.db');
+        this.dbPath = resolverCaminhoBaseDados();
         this.db = null;
+        console.log(`✓ Caminho da base de dados: ${this.dbPath}`);
     }
 
     /**
@@ -25,6 +49,7 @@ class Database {
                     await this.createTables();
                     await this.migrarColunas();
                     await this.inserirDadosExemplo();
+                    await this.bumpSync('init');
                     console.log('✓ Tabelas criadas/verificadas');
                     resolve();
                 } catch (initErr) {
@@ -387,6 +412,31 @@ class Database {
                 else resolve({ id: this.lastID, changes: this.changes });
             });
         });
+    }
+
+    async bumpSync(motivo = 'update') {
+        const versao = String(Date.now());
+        await this.run(
+            `INSERT INTO configuracoes (chave, valor, atualizado_em) VALUES ('sync_version', ?, CURRENT_TIMESTAMP)
+             ON CONFLICT(chave) DO UPDATE SET valor = excluded.valor, atualizado_em = CURRENT_TIMESTAMP`,
+            [versao]
+        );
+        return { versao, motivo };
+    }
+
+    async obterSync() {
+        const row = await this.get(
+            `SELECT valor, atualizado_em FROM configuracoes WHERE chave = 'sync_version'`
+        );
+        const servicos = await this.get(
+            `SELECT COUNT(*) as total FROM servicos WHERE COALESCE(ativo, 1) = 1`
+        );
+        return {
+            versao: row?.valor || '0',
+            atualizado_em: row?.atualizado_em || null,
+            servicos_ativos: servicos?.total || 0,
+            db: path.basename(this.dbPath)
+        };
     }
 
     /**

@@ -16,6 +16,11 @@ let secaoPainelAtual = 'inicio';
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!verificarAcessoPainel()) return;
+    const syncLink = document.getElementById('painelSyncLink');
+    if (syncLink) {
+        syncLink.href = window.SITE_URL || window.location.origin;
+        syncLink.textContent = window.location.host || 'este endereço';
+    }
     configurarPainelApp();
     carregarStats();
     atualizarBadgePendentes();
@@ -299,6 +304,7 @@ async function submeterNovoCorte(e) {
         e.target.reset();
         document.getElementById('corteImgPreview')?.classList.add('hidden');
         carregarStats();
+        window.SenseSync?.notificarPublicacao();
     } catch (err) {
         toast(err.message || 'Erro ao publicar.', 'error');
     }
@@ -342,7 +348,12 @@ async function carregarPendentes() {
 
 async function aprovarCorte(id) {
     const res = await fetch(`${API_URL}/galeria/${id}/aprovar`, { method: 'POST', headers: authHeaders() });
-    if (res.ok) { toast('Corte aprovado!'); carregarPendentes(); carregarStats(); }
+    if (res.ok) {
+        toast('Corte aprovado!');
+        carregarPendentes();
+        carregarStats();
+        window.SenseSync?.notificarPublicacao();
+    }
     else toast('Erro ao aprovar.', 'error');
 }
 
@@ -386,6 +397,7 @@ async function guardarPreco(id) {
     });
     if (res.ok) toast('Preço atualizado!');
     else toast('Erro ao guardar.', 'error');
+    if (res.ok) window.SenseSync?.notificarPublicacao();
 }
 
 async function eliminarServico(id, nome) {
@@ -404,6 +416,7 @@ async function eliminarServico(id, nome) {
             toast(data.mensagem || 'Serviço eliminado.');
             carregarServicos();
             carregarStats();
+            window.SenseSync?.notificarPublicacao();
         } else {
             toast(data.erro || 'Erro ao eliminar serviço.', 'error');
         }
@@ -449,13 +462,14 @@ async function submeterNovoServico(e) {
     }
 
     if (resposta.ok) {
-        toast('Serviço adicionado!');
+        toast('Serviço adicionado! Já está no site (telemóvel e PC).');
         e.target.reset();
         const preview = document.getElementById('novoServicoImgPreview');
         preview?.classList.add('hidden');
         if (preview) preview.innerHTML = '';
         carregarServicos();
         carregarStats();
+        window.SenseSync?.notificarPublicacao();
     } else {
         toast(resposta.data.erro || 'Erro ao adicionar serviço.', 'error');
     }

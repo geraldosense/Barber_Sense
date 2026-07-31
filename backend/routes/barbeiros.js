@@ -106,6 +106,8 @@ router.post('/', verificarToken, verificarPerfil('administrador'), async (req, r
             [nome, experiencia || '', especialidades || '', foto || 'assets/default-barbeiro.jpg', telefone || '', email || '', principal ? 1 : 0]
         );
 
+        await req.db.bumpSync('barbeiro_criar');
+
         res.status(201).json({
             id: resultado.id,
             nome,
@@ -152,6 +154,8 @@ router.put('/:id', verificarToken, verificarPerfil('administrador'), async (req,
              WHERE id = ?`,
             [nome, experiencia, especialidades, foto, telefone, email, ativo, id]
         );
+
+        await req.db.bumpSync('barbeiro_atualizar');
 
         res.json({
             id,
@@ -216,6 +220,8 @@ router.delete('/:id', verificarToken, verificarPerfil('administrador'), async (r
                 await req.db.run('UPDATE barbeiros SET principal = 1 WHERE id = ?', [proximo.id]);
             }
         }
+
+        await req.db.bumpSync('barbeiro_eliminar');
 
         res.json({
             mensagem: `Barbeiro eliminado com sucesso.${extra}`,

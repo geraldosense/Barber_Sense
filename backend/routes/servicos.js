@@ -62,6 +62,8 @@ router.post('/', verificarToken, verificarPerfil('administrador'), async (req, r
             [nome, preco, tempo, descricao || '', icon || '✂️', imagem || null]
         );
 
+        await req.db.bumpSync('servico_criar');
+
         res.status(201).json({
             id: resultado.id,
             nome,
@@ -109,6 +111,8 @@ router.put('/:id', verificarToken, verificarPerfil('administrador'), async (req,
             [nome, preco, tempo, descricao, icon, imagem, id]
         );
 
+        await req.db.bumpSync('servico_atualizar');
+
         res.json({
             id,
             nome: nome || servico.nome,
@@ -140,6 +144,8 @@ router.delete('/:id', verificarToken, verificarPerfil('administrador'), async (r
         }
 
         await req.db.run('UPDATE servicos SET ativo = 0 WHERE id = ?', [id]);
+
+        await req.db.bumpSync('servico_eliminar');
 
         res.json({
             mensagem: 'Serviço eliminado com sucesso',

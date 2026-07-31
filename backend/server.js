@@ -16,6 +16,7 @@ const galeriaRoutes = require('./routes/galeria');
 const uploadRoutes = require('./routes/upload');
 const configRoutes = require('./routes/config');
 const pagamentosRoutes = require('./routes/pagamentos');
+const syncRoutes = require('./routes/sync');
 
 // ===== CONFIGURAÇÃO DA APLICAÇÃO =====
 const app = express();
@@ -67,15 +68,22 @@ app.use('/api/galeria', galeriaRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/pagamentos', pagamentosRoutes);
+app.use('/api/sync', syncRoutes);
 
 // ===== ROTA DE SAÚDE =====
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+    let sync = null;
+    try {
+        sync = await db.obterSync();
+    } catch (_) { /* ignore */ }
+
     res.json({
         status: 'ok',
         online: true,
         hora: new Date().toISOString(),
         frontend: fs.existsSync(publicPath) ? 'public' : 'dev',
-        versao: '1.1.0'
+        versao: require('./package.json').version,
+        sync
     });
 });
 

@@ -12,3 +12,5 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
+      # Disco persistente (Render): monte em /var/data e defina:
+      # DATABASE_PATH=/var/data/barbearia_sense.db
