@@ -455,20 +455,13 @@ body.finalizar-page::before {
     height: 28px;
 }
 
-.mbway-aguardar-sense {
-    height: 48px;
-    width: auto;
-    object-fit: contain;
-    margin-bottom: 0.75rem;
-    opacity: 0.9;
-}
-
 .mbway-aguardar-logo {
-    height: 56px;
-    width: 56px;
-    border-radius: 12px;
+    height: 64px;
+    width: 64px;
+    border-radius: 14px;
     object-fit: cover;
-    margin-bottom: 1rem;
+    margin: 0 auto 1.15rem;
+    display: block;
 }
 
 .mbway-aguardar-card h3 {
