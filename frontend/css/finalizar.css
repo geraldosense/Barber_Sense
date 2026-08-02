@@ -98,18 +98,6 @@ body.finalizar-page::before {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.finalizar-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin: 0 0 0.65rem;
-    color: var(--secondary-color, #d4af37);
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
 .finalizar-main h1 {
     font-family: 'Playfair Display', serif;
     font-size: clamp(1.65rem, 5vw, 2.05rem);
