@@ -39,6 +39,10 @@
             const versao = String(data.versao || '0');
             if (ultimaVersao === null) {
                 ultimaVersao = versao;
+                // Após cold start / servidor-online, forçar reload do conteúdo configurado
+                if (motivo === 'servidor-online' || motivo === 'forcar' || motivo === 'admin') {
+                    dispararSincronizacao(motivo);
+                }
                 return;
             }
             if (versao !== ultimaVersao) {

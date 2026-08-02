@@ -25,13 +25,21 @@
         return;
     }
 
-    if (hostname.includes('onrender.com') || port === '3000' || (port === '' && origin.includes('localhost'))) {
+    // Servido pelo Express (mesmo host:porta) — um só site, mesma API em PC e telemóvel
+    const mesmoServidor =
+        hostname.includes('onrender.com') ||
+        port === '3000' ||
+        (port === '' && (hostname === 'localhost' || hostname === '127.0.0.1'));
+
+    if (mesmoServidor) {
         window.API_URL = apiMeta || `${origin}/api`;
         window.SITE_URL = origin;
         return;
     }
 
-    window.API_URL = apiMeta || 'http://localhost:3000/api';
+    // Live Server / porta errada: só aponta para localhost no próprio Mac
+    const localHost = hostname === 'localhost' || hostname === '127.0.0.1';
+    window.API_URL = apiMeta || (localHost ? 'http://localhost:3000/api' : `${origin}/api`);
     window.SITE_URL = origin;
 })();
 

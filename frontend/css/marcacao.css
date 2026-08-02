@@ -353,8 +353,10 @@
 .booking-progress {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 2rem;
     position: relative;
+    gap: 0.25rem;
 }
 
 .booking-progress::before {
@@ -372,15 +374,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
     font-size: 0.75rem;
     color: #999;
     position: relative;
     z-index: 1;
     flex: 1;
+    min-width: 0;
+    text-align: center;
 }
 
-.booking-step span {
+.booking-step-num {
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -391,16 +395,24 @@
     justify-content: center;
     font-weight: 700;
     font-size: 0.9rem;
-    transition: all 0.3s;
+    flex-shrink: 0;
+    transition: background 0.3s, color 0.3s;
 }
 
-.booking-step.active span,
-.booking-step.done span {
+.booking-step-label {
+    line-height: 1.2;
+    max-width: 100%;
+    padding: 0 0.15rem;
+    word-break: break-word;
+}
+
+.booking-step.active .booking-step-num,
+.booking-step.done .booking-step-num {
     background: var(--secondary-color);
     color: var(--primary-color);
 }
 
-.booking-step.done span {
+.booking-step.done .booking-step-num {
     background: var(--primary-color);
     color: var(--secondary-color);
 }
@@ -681,12 +693,25 @@
     }
 
     .booking-progress {
-        flex-wrap: wrap;
-        gap: 0.5rem;
+        flex-wrap: nowrap;
+        gap: 0.15rem;
+        margin-bottom: 1.5rem;
     }
 
     .booking-progress::before {
-        display: none;
+        left: 12%;
+        right: 12%;
+        top: 16px;
+    }
+
+    .booking-step-num {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+
+    .booking-step-label {
+        font-size: 0.65rem;
     }
 
     .marcacao-user-info {

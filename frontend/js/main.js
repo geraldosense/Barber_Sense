@@ -8,27 +8,7 @@ const HORARIOS = [
     '19:00', '19:30'
 ];
 
-const DADOS_EXEMPLO = {
-    // Apenas para pré-visualização local sem API — nunca no Render/produção
-    servicos: [
-        { id: 1, nome: 'Corte Normal', preco: 15, tempo: 30, descricao: 'Corte clássico com acabamento perfeito', icon: '✂️' },
-        { id: 2, nome: 'Barba', preco: 12, tempo: 25, descricao: 'Aparagem e modelagem de barba', icon: '🧔' },
-        { id: 3, nome: 'Corte + Barba', preco: 25, tempo: 55, descricao: 'Combinação de corte e barba', icon: '👔' }
-    ],
-    barbeiros: [
-        {
-            id: 1,
-            nome: 'Geraldo Sense',
-            experiencia: '4 anos de profissionalismo na área da barbearia',
-            especialidades: 'Cortes clássicos, Degradê, Barba, Styling',
-            foto: 'assets/barbeiros/geraldo-sense.jpg'
-        }
-    ]
-};
-
-function podeUsarDadosExemplo() {
-    return !window.API_URL || !!window.GITHUB_PAGES_PREVIEW || window.location.hostname === 'localhost';
-}
+const FOTO_BARBEIRO_PADRAO = 'assets/barbeiros/geraldo-sense.jpg';
 
 function normalizarListaApi(data) {
     return Array.isArray(data) ? data : [];
@@ -46,8 +26,6 @@ function normalizarServico(s) {
         descricao: s.descricao || ''
     };
 }
-
-const FOTO_BARBEIRO_PADRAO = 'assets/barbeiros/geraldo-sense.jpg';
 
 function obterFotoBarbeiro(barbeiro) {
     const foto = barbeiro?.foto;
@@ -98,7 +76,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function carregarDados() {
     const fetchFn = typeof window.senseFetch === 'function' ? window.senseFetch : fetch;
-    let carregouApi = false;
+    servicos = [];
+    barbeiros = [];
 
     try {
         const [resServicos, resBarbeiros] = await Promise.all([
@@ -110,30 +89,12 @@ async function carregarDados() {
             servicos = normalizarListaApi(await resServicos.json())
                 .map(normalizarServico)
                 .filter(Boolean);
-            carregouApi = true;
         }
         if (resBarbeiros.ok) {
             barbeiros = normalizarListaApi(await resBarbeiros.json());
-            carregouApi = true;
         }
     } catch (error) {
         console.warn('Backend indisponível ao carregar serviços/barbeiros.', error);
-    }
-
-    // Nunca misturar dados de exemplo com a API do admin
-    if (!servicos.length) {
-        if (!carregouApi && podeUsarDadosExemplo()) {
-            servicos = DADOS_EXEMPLO.servicos.map(normalizarServico);
-        } else {
-            servicos = [];
-        }
-    }
-    if (!barbeiros.length) {
-        if (!carregouApi && podeUsarDadosExemplo()) {
-            barbeiros = DADOS_EXEMPLO.barbeiros;
-        } else {
-            barbeiros = [];
-        }
     }
 
     // Mostrar apenas o barbeiro principal no site público
@@ -152,7 +113,7 @@ function renderizarServicos() {
     if (!servicos.length) {
         grid.innerHTML = `
             <div class="course-grid-empty">
-                <p>A carregar os serviços da Sense Barbershop…</p>
+                <p>Nenhum serviço publicado ainda.</p>
             </div>
         `;
         return;

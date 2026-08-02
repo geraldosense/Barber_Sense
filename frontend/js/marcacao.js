@@ -211,7 +211,7 @@ function atualizarBotoesMarcacao() {
 function atualizarNumeracaoPassos() {
     const visiveis = [...document.querySelectorAll('.booking-step:not(.hidden-step)')];
     visiveis.forEach((step, index) => {
-        const bubble = step.querySelector('span');
+        const bubble = step.querySelector('.booking-step-num');
         if (bubble) bubble.textContent = String(index + 1);
     });
 }
