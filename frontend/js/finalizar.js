@@ -28,7 +28,7 @@ const METODOS_UI = [
         label: 'MB WAY',
         subtitle: 'Confirme no telemóvel com notificação ou SMS',
         logoHtml: PAY_LOGOS.mbway,
-        btnLabel: 'Confirmar encomenda',
+        btnLabel: 'Confirmar marcação',
         needsForm: true,
         formType: 'mbway',
         expandInline: true
@@ -360,7 +360,7 @@ function atualizarBotaoPrincipal() {
     if (m.id === 'visa') {
         btn.textContent = `Pagar ${formatarEuro(precoEsperado)} com Visa`;
     } else if (m.id === 'mbway') {
-        btn.textContent = 'Confirmar encomenda';
+        btn.textContent = 'Confirmar marcação';
     } else if (m.id === 'paypal') {
         btn.textContent = `Pagar ${formatarEuro(precoEsperado)} com PayPal`;
     } else if (m.id === 'revolut') {
@@ -454,7 +454,7 @@ function renderizarFormulario(m) {
                 </div>
             </div>
         `;
-        btn.textContent = 'Confirmar encomenda';
+        btn.textContent = 'Confirmar marcação';
         return;
     }
 
