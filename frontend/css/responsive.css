@@ -23,9 +23,7 @@
         font-size: 0.75rem;
     }
 
-    .user-profile {
-        display: none;
-    }
+    /* Perfil/sair: regras em mobile.css (não esconder aqui) */
 
     .auth-panel {
         padding: 1.5rem;
@@ -43,8 +41,6 @@
     .menu-toggle {
         display: block;
     }
-
-    /* Header mobile: regras em mobile.css */
 
     .hero h1,
     .gold-text {
