@@ -132,11 +132,27 @@ function formatarEuro(valor) {
 
 function renderizarResumo() {
     document.getElementById('finalizarResumo').innerHTML = `
-        <div class="finalizar-resumo-row"><span>Serviço</span><strong>${esc(dadosReserva.servico_nome || '—')}</strong></div>
-        <div class="finalizar-resumo-row"><span>Barbeiro</span><strong>${esc(dadosReserva.barbeiro_nome || 'Geraldo Sense')}</strong></div>
-        <div class="finalizar-resumo-row"><span>Data</span><strong>${esc(dadosReserva.data_fmt || dadosReserva.data)}</strong></div>
-        <div class="finalizar-resumo-row"><span>Hora</span><strong>${esc(dadosReserva.hora)}</strong></div>
-        <div class="finalizar-resumo-row"><span>Total</span><strong>${formatarEuro(precoEsperado)}</strong></div>
+        <div class="finalizar-resumo-badge"><i class="fas fa-calendar-check"></i> Reservar Marcação</div>
+        <div class="finalizar-resumo-row">
+            <span><i class="fas fa-scissors"></i> Serviço</span>
+            <strong>${esc(dadosReserva.servico_nome || '—')}</strong>
+        </div>
+        <div class="finalizar-resumo-row">
+            <span><i class="fas fa-user"></i> Barbeiro</span>
+            <strong>${esc(dadosReserva.barbeiro_nome || 'Geraldo Sense')}</strong>
+        </div>
+        <div class="finalizar-resumo-row">
+            <span><i class="fas fa-calendar-day"></i> Data</span>
+            <strong>${esc(dadosReserva.data_fmt || dadosReserva.data)}</strong>
+        </div>
+        <div class="finalizar-resumo-row">
+            <span><i class="fas fa-clock"></i> Hora</span>
+            <strong>${esc(dadosReserva.hora)}</strong>
+        </div>
+        <div class="finalizar-resumo-row finalizar-resumo-total">
+            <span>Total</span>
+            <strong>${formatarEuro(precoEsperado)}</strong>
+        </div>
     `;
 }
 

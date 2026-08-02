@@ -1,12 +1,28 @@
-.finalizar-page {
+/* ===== FINALIZAR MARCAÇÃO — visual Sense Barbershop ===== */
+body.finalizar-page {
     min-height: 100vh;
-    background: #f5f5f5;
+    min-height: 100dvh;
+    background:
+        radial-gradient(ellipse at 15% 0%, rgba(212, 175, 55, 0.14) 0%, transparent 48%),
+        radial-gradient(ellipse at 90% 85%, rgba(212, 175, 55, 0.07) 0%, transparent 42%),
+        #121212;
+    color: #f5f5f5;
+    font-family: 'Roboto', sans-serif;
+}
+
+body.finalizar-page::before {
+    display: none !important;
 }
 
 .finalizar-header {
-    background: #fff;
-    border-bottom: 1px solid #e8e8e8;
-    padding: 1rem 1.5rem;
+    background: var(--primary-color, #1a1a1a);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.28);
+    padding: 0.85rem 1.25rem;
+    padding-top: max(0.85rem, env(safe-area-inset-top, 0px));
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
 }
 
 .finalizar-header-inner {
@@ -15,89 +31,197 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .finalizar-brand {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    color: #111;
+    gap: 0.65rem;
+    color: var(--secondary-color, #d4af37);
     text-decoration: none;
     font-family: 'Playfair Display', serif;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
+    min-width: 0;
 }
 
 .finalizar-brand img {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     object-fit: contain;
+    background: transparent;
+    flex-shrink: 0;
 }
 
-.marcacao-user-email {
-    color: #555;
-    font-size: 0.9rem;
+.finalizar-brand span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.finalizar-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-shrink: 0;
+}
+
+.finalizar-voltar {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.65rem;
+    border-radius: 6px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.finalizar-voltar:hover {
+    color: var(--secondary-color, #d4af37);
+    border-color: var(--secondary-color, #d4af37);
+    background: rgba(212, 175, 55, 0.08);
 }
 
 .finalizar-main {
     max-width: 560px;
     margin: 0 auto;
-    padding: 2rem 1.25rem 4rem;
-    color: #111;
+    padding: 2rem 1.25rem calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    color: #f5f5f5;
+    animation: finalizarIn 0.45s ease;
+}
+
+@keyframes finalizarIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.finalizar-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 0.65rem;
+    color: var(--secondary-color, #d4af37);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .finalizar-main h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.75rem;
-    margin: 0 0 0.35rem;
-    color: #111;
+    font-size: clamp(1.65rem, 5vw, 2.05rem);
+    margin: 0 0 0.45rem;
+    color: #fff;
+    line-height: 1.2;
 }
 
 .finalizar-sub {
-    color: #666;
-    margin-bottom: 1.5rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 1.65rem;
     font-size: 0.95rem;
+    max-width: 36em;
 }
 
 .finalizar-resumo {
+    position: relative;
     background: #fff;
-    border: 1px solid #e8e8e8;
+    color: #1a1a1a;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-top: 4px solid var(--secondary-color, #d4af37);
     border-radius: 12px;
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.5rem;
+    padding: 1.15rem 1.25rem 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.finalizar-resumo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0 0 0.85rem;
+    background: var(--primary-color, #1a1a1a);
+    color: var(--secondary-color, #d4af37);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 0.35rem 0.65rem;
+    border-radius: 4px;
 }
 
 .finalizar-resumo-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.55rem 0;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.7rem 0;
     border-bottom: 1px solid #f0f0f0;
     font-size: 0.95rem;
 }
 
-.finalizar-resumo-row:last-child {
+.finalizar-resumo-row span {
+    color: #666;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.finalizar-resumo-row span i {
+    color: var(--secondary-color, #d4af37);
+    width: 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.finalizar-resumo-row strong {
+    color: #1a1a1a;
+    text-align: right;
+    font-weight: 600;
+}
+
+.finalizar-resumo-row.finalizar-resumo-total {
     border-bottom: none;
     font-weight: 700;
-    font-size: 1.05rem;
-    padding-top: 0.75rem;
+    font-size: 1.08rem;
+    padding-top: 0.95rem;
+    margin-top: 0.15rem;
+    border-top: 1px dashed rgba(212, 175, 55, 0.45);
+}
+
+.finalizar-resumo-total span {
+    color: #1a1a1a;
+    font-weight: 700;
+}
+
+.finalizar-resumo-total strong {
+    color: var(--secondary-color, #d4af37);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
 }
 
 .btn-finalizar-compra {
     width: 100%;
     padding: 1rem 1.5rem;
-    background: #111;
-    color: #fff;
+    background: var(--secondary-color, #d4af37);
+    color: var(--primary-color, #1a1a1a);
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-size: 1.05rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s, transform 0.15s;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.28);
 }
 
 .btn-finalizar-compra:hover {
-    background: #222;
+    background: var(--secondary-hover, #b8962e);
 }
 
 .btn-finalizar-compra:active {
@@ -105,11 +229,13 @@
 }
 
 .pagamento-trust-box {
-    margin-top: 1rem;
-    background: #ebebeb;
+    margin-top: 1.15rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(212, 175, 55, 0.22);
     border-radius: 12px;
-    padding: 1rem 1.25rem 0.85rem;
+    padding: 1rem 1.25rem 0.9rem;
     text-align: center;
+    backdrop-filter: blur(6px);
 }
 
 .pagamento-logos {
@@ -133,6 +259,7 @@
     height: 22px;
     width: auto;
     object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
 }
 
 .pay-logo-img--mbway {
@@ -385,11 +512,15 @@
 .pagamento-seguro-inline {
     margin: 0;
     font-size: 0.85rem;
-    color: #777;
+    color: rgba(255, 255, 255, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
+}
+
+.pagamento-seguro-inline i {
+    color: var(--secondary-color, #d4af37);
 }
 
 /* ===== MODAL ===== */
@@ -436,6 +567,7 @@
     border-bottom: 1px solid #f0f0f0;
     flex-shrink: 0;
     background: #fff;
+    border-top: 3px solid var(--secondary-color, #d4af37);
 }
 
 .pagamento-sheet-toolbar {
@@ -537,7 +669,7 @@
     font-family: 'Playfair Display', serif;
     font-size: 1.05rem;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--secondary-color, #d4af37);
     letter-spacing: 0.02em;
 }
 
@@ -604,7 +736,7 @@
 }
 
 .pagamento-metodo-card.selected {
-    border-color: #111;
+    border-color: var(--secondary-color, #d4af37);
 }
 
 .pagamento-metodo-head {
@@ -733,17 +865,22 @@
 .btn-pagamento-principal {
     width: 100%;
     padding: 1rem;
-    background: #111;
-    color: #fff;
+    background: var(--secondary-color, #d4af37);
+    color: var(--primary-color, #1a1a1a);
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    transition: background 0.2s;
+}
+
+.btn-pagamento-principal:hover:not(:disabled) {
+    background: var(--secondary-hover, #b8962e);
 }
 
 .btn-pagamento-principal:disabled {
