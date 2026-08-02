@@ -92,6 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.addEventListener('sense:servidor-online', async () => {
         await carregarDados();
+        if (typeof carregarGaleria === 'function') carregarGaleria();
     });
 });
 

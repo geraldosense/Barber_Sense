@@ -1,19 +1,27 @@
-// ===== GALERIA PÚBLICA DE CORTES (dados da base de dados) =====
+// ===== GALERIA PÚBLICA DE CORTES (mesma API no telemóvel e no PC) =====
 
 async function carregarGaleria() {
     const grid = document.getElementById('galeriaGrid');
     if (!grid) return;
 
+    const fetchFn = typeof window.senseFetch === 'function' ? window.senseFetch : fetch;
+    const api = window.API_URL;
+
+    if (!api) {
+        grid.innerHTML = '<p class="galeria-empty">Galeria indisponível.</p>';
+        return;
+    }
+
     try {
-        const res = await fetch(`${window.API_URL}/galeria`);
-        if (res.ok) {
-            const cortes = await res.json();
-            renderizarGaleria(cortes);
-        } else {
+        const res = await fetchFn(`${api}/galeria`, { cache: 'no-store' });
+        if (!res.ok) {
             grid.innerHTML = '<p class="galeria-empty">Galeria indisponível no momento.</p>';
+            return;
         }
+        const cortes = await res.json();
+        renderizarGaleria(Array.isArray(cortes) ? cortes : []);
     } catch {
-        grid.innerHTML = '<p class="galeria-empty">Ligue o backend para ver a galeria.</p>';
+        grid.innerHTML = '<p class="galeria-empty">A ligar ao servidor… a galeria aparece em breve.</p>';
     }
 }
 
@@ -27,11 +35,15 @@ function renderizarGaleria(cortes) {
         return;
     }
 
-    grid.innerHTML = cortes.map(c => `
-        <div class="galeria-card">
+    grid.innerHTML = cortes.map(c => {
+        const imgSrc = c.imagem_url
+            ? (typeof resolveMediaUrl === 'function' ? resolveMediaUrl(c.imagem_url) : c.imagem_url)
+            : '';
+        return `
+        <article class="galeria-card">
             <div class="galeria-card-img">
-                ${c.imagem_url
-                    ? `<img src="${escGaleria(typeof resolveMediaUrl === 'function' ? resolveMediaUrl(c.imagem_url) : c.imagem_url)}" alt="${escGaleria(c.titulo)}" onerror="this.parentElement.innerHTML='<span class=\\'galeria-placeholder\\'>✂️</span>'">`
+                ${imgSrc
+                    ? `<img src="${escGaleria(imgSrc)}" alt="${escGaleria(c.titulo)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\\'galeria-placeholder\\'>✂️</span>'">`
                     : '<span class="galeria-placeholder">✂️</span>'}
                 <span class="galeria-tipo">${escGaleria(c.tipo_corte)}</span>
             </div>
@@ -45,8 +57,8 @@ function renderizarGaleria(cortes) {
                     ${c.video_url ? `<a href="${escGaleria(c.video_url)}" target="_blank" rel="noopener"><i class="fas fa-play-circle"></i> Ver vídeo</a>` : ''}
                 </div>
             </div>
-        </div>
-    `).join('');
+        </article>`;
+    }).join('');
 }
 
 function escGaleria(text) {
@@ -58,3 +70,7 @@ function escGaleria(text) {
 
 document.addEventListener('DOMContentLoaded', carregarGaleria);
 document.addEventListener('sense:langchange', carregarGaleria);
+document.addEventListener('sense:sync', carregarGaleria);
+document.addEventListener('sense:servidor-online', carregarGaleria);
+
+window.carregarGaleria = carregarGaleria;

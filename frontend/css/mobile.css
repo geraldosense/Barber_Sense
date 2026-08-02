@@ -469,29 +469,67 @@ body.menu-open {
         padding: 2rem 1rem;
     }
 
-    /* Restantes secções: só padding / grelha, sem “tema mobile” */
-    .barbeiros-section,
-    .galeria-section,
-    .contato-section {
-        padding-left: 1rem;
-        padding-right: 1rem;
+    /* Galeria — sempre visível; 2 colunas no telemóvel (igual lógica dos serviços) */
+    .galeria-section {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        padding: 2.75rem 1rem;
+        background-color: rgba(26, 26, 26, 0.95);
+        color: #fff;
     }
 
-    .barbeiro-showcase {
-        border-radius: 8px;
+    .galeria-section h2 {
+        color: var(--secondary-color, #d4af37);
     }
 
-    .barbeiro-showcase-cta {
-        border-radius: 5px;
+    .galeria-intro {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1.75rem;
     }
 
     .galeria-grid {
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.85rem;
+        max-width: 100%;
     }
 
     .galeria-card {
         border-radius: 8px;
+        background: #fff;
+        color: #333;
+        min-width: 0;
+    }
+
+    .galeria-card:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+        width: calc(50% - 0.425rem);
+        max-width: 240px;
+        justify-self: center;
+    }
+
+    .galeria-card-img {
+        height: 130px;
+    }
+
+    .galeria-card-body {
+        padding: 0.75rem 0.85rem 1rem;
+    }
+
+    .galeria-card-body h3 {
+        font-size: 0.95rem;
+    }
+
+    .galeria-empty {
+        grid-column: 1 / -1;
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    .barbeiros-section,
+    .contato-section {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 
     .info-bar-content {
