@@ -2,6 +2,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET, verificarToken } = require('../middleware/auth');
+const { notificarNovaMarcacao } = require('../utils/notificarMarcacao');
 
 const router = express.Router();
 
@@ -388,6 +389,15 @@ router.post('/', authOpcional, async (req, res) => {
             referencia_pagamento: nomeReferencia || nome,
             valor_pago: valorPago
         };
+
+        try {
+            await req.db.bumpSync('agendamento_criar');
+        } catch (_) { /* sync opcional */ }
+
+        // Aviso à barbearia (não atrasa a resposta se SMTP falhar)
+        notificarNovaMarcacao(agendamento).catch((err) => {
+            console.error('Falha ao notificar nova marcação por email:', err.message);
+        });
 
         res.status(201).json(agendamento);
     } catch (error) {
