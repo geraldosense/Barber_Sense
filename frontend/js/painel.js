@@ -13,6 +13,9 @@ const TITULOS_SECAO = {
 };
 
 let secaoPainelAtual = 'inicio';
+let notifPendentes = 0;
+let notifAgendamentos = 0;
+let notifHoje = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!verificarAcessoPainel()) return;
@@ -107,7 +110,28 @@ function configurarPainelApp() {
     });
 
     document.getElementById('btnPainelMais')?.addEventListener('click', () => {
+        fecharNotificacoesPainel();
         abrirMaisPainel();
+    });
+
+    document.getElementById('btnPainelNotif')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        alternarNotificacoesPainel();
+    });
+    document.getElementById('btnFecharNotif')?.addEventListener('click', fecharNotificacoesPainel);
+    document.addEventListener('click', (e) => {
+        const panel = document.getElementById('painelNotifPanel');
+        const btn = document.getElementById('btnPainelNotif');
+        if (!panel || panel.classList.contains('hidden')) return;
+        if (panel.contains(e.target) || btn?.contains(e.target)) return;
+        fecharNotificacoesPainel();
+    });
+
+    document.getElementById('painelNotifList')?.addEventListener('click', (e) => {
+        const item = e.target.closest('[data-goto]');
+        if (!item) return;
+        fecharNotificacoesPainel();
+        irSecaoPainel(item.dataset.goto);
     });
 
     document.getElementById('painelMaisBackdrop')?.addEventListener('click', fecharMaisPainel);
@@ -226,8 +250,6 @@ function irSecaoPainel(sec) {
     const titulo = TITULOS_SECAO[sec] || 'Painel';
     const titleEl = document.getElementById('painelPageTitle');
     if (titleEl) titleEl.textContent = titulo;
-    const titleMobile = document.getElementById('painelPageTitleMobile');
-    if (titleMobile) titleMobile.textContent = titulo;
     atualizarBottomNav(sec);
 
     if (sec === 'pendentes') carregarPendentes();
@@ -267,6 +289,11 @@ async function carregarStats() {
             <div class="painel-stat"><i class="fas fa-cut"></i><strong>${serv.length}</strong><span>Serviços ativos</span></div>
         `;
 
+        notifPendentes = Number(pend.total) || 0;
+        notifAgendamentos = novos;
+        notifHoje = hojeCount;
+        atualizarSinoNotificacoes();
+
         if (novos > 0) {
             toast(`${novos} nova(s) marcação(ões) de cliente!`, 'info');
         }
@@ -281,6 +308,7 @@ async function atualizarBadgePendentes() {
         const res = await fetch(`${API_URL}/galeria/pendentes/count`, { headers: authHeaders() });
         const data = res.ok ? await res.json() : { total: 0 };
         const total = Number(data.total) || 0;
+        notifPendentes = total;
         ['badgePendentes', 'badgePendentesMobile'].forEach(id => {
             const badge = document.getElementById(id);
             if (!badge) return;
@@ -292,7 +320,88 @@ async function atualizarBadgePendentes() {
             }
         });
         document.getElementById('dotMais')?.classList.toggle('hidden', total <= 0);
+        atualizarSinoNotificacoes();
     } catch { /* silencioso */ }
+}
+
+function atualizarSinoNotificacoes() {
+    const total = notifPendentes + notifAgendamentos;
+    const badge = document.getElementById('badgeNotificacoes');
+    if (badge) {
+        if (total > 0) {
+            badge.textContent = total > 99 ? '99+' : String(total);
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+    renderizarPainelNotificacoes();
+}
+
+function renderizarPainelNotificacoes() {
+    const list = document.getElementById('painelNotifList');
+    if (!list) return;
+
+    const itens = [];
+    if (notifAgendamentos > 0) {
+        itens.push({
+            goto: 'agendamentos',
+            icon: 'fa-calendar-check',
+            titulo: `${notifAgendamentos} nova(s) marcação(ões)`,
+            desc: 'Clientes agendaram — toque para ver'
+        });
+    }
+    if (notifPendentes > 0) {
+        itens.push({
+            goto: 'pendentes',
+            icon: 'fa-camera',
+            titulo: `${notifPendentes} corte(s) a aprovar`,
+            desc: 'Galeria com publicações pendentes'
+        });
+    }
+    if (notifHoje > 0) {
+        itens.push({
+            goto: 'agendamentos',
+            icon: 'fa-calendar-day',
+            titulo: `${notifHoje} marcação(ões) hoje`,
+            desc: 'Agenda do dia'
+        });
+    }
+
+    if (!itens.length) {
+        list.innerHTML = '<p class="painel-notif-empty">Sem notificações novas.</p>';
+        return;
+    }
+
+    list.innerHTML = itens.map(n => `
+        <button type="button" class="painel-notif-item" data-goto="${n.goto}">
+            <i class="fas ${n.icon}"></i>
+            <div>
+                <strong>${n.titulo}</strong>
+                <span>${n.desc}</span>
+            </div>
+        </button>
+    `).join('');
+}
+
+function alternarNotificacoesPainel() {
+    const panel = document.getElementById('painelNotifPanel');
+    const btn = document.getElementById('btnPainelNotif');
+    if (!panel) return;
+    const aberto = !panel.classList.contains('hidden');
+    if (aberto) {
+        fecharNotificacoesPainel();
+        return;
+    }
+    fecharMaisPainel();
+    renderizarPainelNotificacoes();
+    panel.classList.remove('hidden');
+    btn?.setAttribute('aria-expanded', 'true');
+}
+
+function fecharNotificacoesPainel() {
+    document.getElementById('painelNotifPanel')?.classList.add('hidden');
+    document.getElementById('btnPainelNotif')?.setAttribute('aria-expanded', 'false');
 }
 
 async function parseRespostaApi(res) {
@@ -549,6 +658,9 @@ async function atualizarBadgeAgendamentos(agendamentosCache) {
             ag = res.ok ? await res.json() : [];
         }
         const novos = contarAgendamentosNovos(ag);
+        notifAgendamentos = novos;
+        notifHoje = hojeCount;
+        document.getElementById('dotAgendamentos')?.classList.toggle('hidden', novos <= 0);
         const badge = document.getElementById('badgeAgendamentos');
         if (badge) {
             if (novos > 0) {
@@ -558,7 +670,7 @@ async function atualizarBadgeAgendamentos(agendamentosCache) {
                 badge.classList.add('hidden');
             }
         }
-        document.getElementById('dotAgendamentos')?.classList.toggle('hidden', novos <= 0);
+        atualizarSinoNotificacoes();
     } catch { /* silencioso */ }
 }
 
@@ -579,6 +691,8 @@ function marcarAgendamentosVistos() {
     localStorage.setItem('painelUltimaVisitaAgendamentos', String(Date.now()));
     document.getElementById('badgeAgendamentos')?.classList.add('hidden');
     document.getElementById('dotAgendamentos')?.classList.add('hidden');
+    notifAgendamentos = 0;
+    atualizarSinoNotificacoes();
 }
 
 async function carregarAgendamentos() {

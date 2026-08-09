@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#0a0a0a">
     <title>Painel Admin — Sense Barbershop</title>
     <link rel="icon" type="image/png" href="assets/logo.png">
-    <link rel="stylesheet" href="css/normalize.css?v=19">
-    <link rel="stylesheet" href="css/style.css?v=19">
-    <link rel="stylesheet" href="css/painel.css?v=19">
+    <link rel="stylesheet" href="css/normalize.css?v=21">
+    <link rel="stylesheet" href="css/style.css?v=21">
+    <link rel="stylesheet" href="css/painel.css?v=21">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
@@ -41,10 +41,23 @@
 
         <main class="painel-main">
             <header class="painel-mobile-header">
-                <img src="assets/logo.png" alt="" class="painel-mobile-logo">
-                <div class="painel-mobile-header-text">
-                    <strong>Sense Barbershop</strong>
-                    <span id="painelPageTitleMobile">Administração</span>
+                <a href="#" class="painel-mobile-logo-link" onclick="irSecaoPainel('inicio'); return false;" aria-label="Início">
+                    <img src="assets/logo.png" alt="Sense Barbershop" class="painel-mobile-logo">
+                </a>
+                <div class="painel-mobile-header-actions">
+                    <button type="button" class="painel-bell-btn" id="btnPainelNotif" aria-label="Notificações" aria-expanded="false">
+                        <i class="fas fa-bell"></i>
+                        <span class="painel-bell-badge hidden" id="badgeNotificacoes">0</span>
+                    </button>
+                    <div class="painel-notif-panel hidden" id="painelNotifPanel" role="dialog" aria-label="Notificações">
+                        <div class="painel-notif-head">
+                            <strong>Notificações</strong>
+                            <button type="button" class="painel-notif-close" id="btnFecharNotif" aria-label="Fechar"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="painel-notif-list" id="painelNotifList">
+                            <p class="painel-notif-empty">Sem notificações novas.</p>
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -257,8 +270,8 @@
         </div>
     </div>
 
-    <script src="js/config.js?v=19"></script>
-    <script src="js/sync.js?v=19"></script>
-    <script src="js/painel.js?v=19"></script>
+    <script src="js/config.js?v=21"></script>
+    <script src="js/sync.js?v=21"></script>
+    <script src="js/painel.js?v=21"></script>
 </body>
 </html>
