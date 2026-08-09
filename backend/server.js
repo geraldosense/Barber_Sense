@@ -142,6 +142,22 @@ app.get('*', (req, res, next) => {
 // ===== INICIAR SERVIDOR =====
 db.initialize()
     .then(() => {
+        const dbPath = db.dbPath || '';
+        const persistente = dbPath.startsWith('/var/data') || !!(process.env.DATABASE_PATH || '').includes('/var/data');
+        if (process.env.NODE_ENV === 'production' && !persistente) {
+            console.warn(`
+╔══════════════════════════════════════════════════════════╗
+║  ⚠️  AVISO: base de dados NÃO está em disco persistente  ║
+║  Caminho atual: ${dbPath}
+║  No Render: Disks → mount /var/data                       ║
+║  Env: DATABASE_PATH=/var/data/barbearia_sense.db          ║
+║  Sem isto, marcações/galeria podem apagar-se no deploy.   ║
+╚══════════════════════════════════════════════════════════╝
+`);
+        } else {
+            console.log(`✓ BD persistente: ${dbPath}`);
+        }
+
         app.listen(PORT, () => {
             console.log(`
     ╔═══════════════════════════════════════╗
