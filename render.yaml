@@ -12,5 +12,11 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
-      # Disco persistente (Render): monte em /var/data e defina:
-      # DATABASE_PATH=/var/data/barbearia_sense.db
+      - key: NOTIFY_BOOKING_EMAIL
+        value: sensebarber10@gmail.com
+      # Obrigatório para dados não se perderem entre deploys:
+      # 1) Render Dashboard → Disks → criar disco, mount path /var/data
+      # 2) Adicionar env vars:
+      #    DATABASE_PATH=/var/data/barbearia_sense.db
+      #    UPLOADS_PATH=/var/data/uploads
+      # Sem disco, a app usa /var/data automaticamente se a pasta existir.

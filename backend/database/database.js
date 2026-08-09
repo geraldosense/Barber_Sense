@@ -1,30 +1,8 @@
 // ===== DATABASE CLASS =====
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const fs = require('fs');
 const bcrypt = require('bcryptjs');
-
-function resolverCaminhoBaseDados() {
-    const fromEnv = (process.env.DATABASE_PATH || '').trim();
-    if (fromEnv) {
-        const absolute = path.isAbsolute(fromEnv)
-            ? fromEnv
-            : path.resolve(__dirname, '..', fromEnv);
-        const dir = path.dirname(absolute);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        return absolute;
-    }
-
-    // Disco persistente Render (se existir)
-    const renderDisk = '/var/data';
-    if (process.env.NODE_ENV === 'production' && fs.existsSync(renderDisk)) {
-        return path.join(renderDisk, 'barbearia_sense.db');
-    }
-
-    return path.join(__dirname, 'barbearia_sense.db');
-}
+const { resolverCaminhoBaseDados } = require('../utils/paths');
 
 class Database {
     constructor() {
@@ -46,11 +24,14 @@ class Database {
                 }
                 console.log('✓ Banco de dados conectado');
                 try {
+                    await this.configurarPragmas();
                     await this.createTables();
                     await this.migrarColunas();
                     await this.inserirDadosExemplo();
                     await this.bumpSync('init');
+                    const integrity = await this.get('PRAGMA integrity_check');
                     console.log('✓ Tabelas criadas/verificadas');
+                    console.log(`✓ Integridade BD: ${integrity?.integrity_check || integrity}`);
                     resolve();
                 } catch (initErr) {
                     console.error('Erro ao inicializar banco:', initErr);
@@ -58,6 +39,17 @@ class Database {
                 }
             });
         });
+    }
+
+    async configurarPragmas() {
+        await this.run('PRAGMA foreign_keys = ON');
+        await this.run('PRAGMA busy_timeout = 5000');
+        try {
+            await this.run('PRAGMA journal_mode = WAL');
+        } catch (_) {
+            /* alguns FS remotos não suportam WAL */
+        }
+        await this.run('PRAGMA synchronous = NORMAL');
     }
 
     /**
@@ -92,6 +84,8 @@ class Database {
             )
         `,
         // Tabela de Agendamentos
+        // Nota: o UNIQUE antigo (barbeiro_id,data,hora) bloqueava reutilização de slots cancelados.
+        // O índice parcial é criado em migrarColunas().
         `
             CREATE TABLE IF NOT EXISTS agendamentos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -107,8 +101,7 @@ class Database {
                 criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
                 atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (servico_id) REFERENCES servicos(id),
-                FOREIGN KEY (barbeiro_id) REFERENCES barbeiros(id),
-                UNIQUE(barbeiro_id, data, hora)
+                FOREIGN KEY (barbeiro_id) REFERENCES barbeiros(id)
             )
         `,
         // Tabela de Cancelamentos
@@ -279,6 +272,110 @@ class Database {
 
         await this.normalizarBarbeiroPrincipal();
         await this.atualizarEmailOficialSite();
+        await this.migrarAgendamentosUniqueParcial();
+        await this.criarIndices();
+    }
+
+    /**
+     * Remove UNIQUE global em (barbeiro_id,data,hora) e cria índice parcial
+     * só para marcações confirmadas — assim slots cancelados podem ser reutilizados.
+     */
+    async migrarAgendamentosUniqueParcial() {
+        try {
+            const idxs = await this.all('PRAGMA index_list(agendamentos)');
+            const temAutoUnique = (idxs || []).some(
+                i => i.origin === 'u' && Number(i.unique) === 1 && !String(i.name).includes('confirmado')
+            );
+            const temParcial = (idxs || []).some(i => i.name === 'idx_agendamentos_slot_confirmado');
+
+            // Limpar tentativa anterior falhada
+            const tables = await this.all("SELECT name FROM sqlite_master WHERE type='table' AND name='agendamentos_nova'");
+            if (tables.length) {
+                await this.run('DROP TABLE IF EXISTS agendamentos_nova');
+            }
+
+            if (temAutoUnique) {
+                console.log('↻ A migrar tabela agendamentos (unique parcial)…');
+                await this.run('PRAGMA foreign_keys = OFF');
+                await this.run('BEGIN');
+                await this.run(`
+                    CREATE TABLE agendamentos_nova (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        servico_id INTEGER NOT NULL,
+                        barbeiro_id INTEGER NOT NULL,
+                        cliente_nome TEXT NOT NULL,
+                        cliente_telefone TEXT NOT NULL,
+                        cliente_email TEXT NOT NULL,
+                        data DATE NOT NULL,
+                        hora TIME NOT NULL,
+                        status TEXT DEFAULT 'confirmado',
+                        observacoes TEXT,
+                        usuario_id INTEGER,
+                        metodo_pagamento TEXT,
+                        referencia_pagamento TEXT,
+                        valor_pago REAL,
+                        criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                `);
+
+                const cols = await this.all('PRAGMA table_info(agendamentos)');
+                const nomes = new Set((cols || []).map(c => c.name));
+                const selectCols = [
+                    'id', 'servico_id', 'barbeiro_id', 'cliente_nome', 'cliente_telefone', 'cliente_email',
+                    'data', 'hora', 'status', 'observacoes',
+                    nomes.has('usuario_id') ? 'usuario_id' : 'NULL AS usuario_id',
+                    nomes.has('metodo_pagamento') ? 'metodo_pagamento' : 'NULL AS metodo_pagamento',
+                    nomes.has('referencia_pagamento') ? 'referencia_pagamento' : 'NULL AS referencia_pagamento',
+                    nomes.has('valor_pago') ? 'valor_pago' : 'NULL AS valor_pago',
+                    'criado_em', 'atualizado_em'
+                ].join(', ');
+
+                await this.run(`
+                    INSERT INTO agendamentos_nova (
+                        id, servico_id, barbeiro_id, cliente_nome, cliente_telefone, cliente_email,
+                        data, hora, status, observacoes, usuario_id, metodo_pagamento,
+                        referencia_pagamento, valor_pago, criado_em, atualizado_em
+                    )
+                    SELECT ${selectCols} FROM agendamentos
+                `);
+                await this.run('DROP TABLE agendamentos');
+                await this.run('ALTER TABLE agendamentos_nova RENAME TO agendamentos');
+                await this.run('COMMIT');
+                await this.run('PRAGMA foreign_keys = ON');
+                console.log('✓ Tabela agendamentos migrada');
+            }
+
+            if (!temParcial || temAutoUnique) {
+                await this.run(`
+                    CREATE UNIQUE INDEX IF NOT EXISTS idx_agendamentos_slot_confirmado
+                    ON agendamentos(barbeiro_id, data, hora)
+                    WHERE status = 'confirmado'
+                `);
+            }
+        } catch (err) {
+            try { await this.run('ROLLBACK'); } catch (_) { /* ignore */ }
+            try { await this.run('PRAGMA foreign_keys = ON'); } catch (_) { /* ignore */ }
+            console.error('Erro na migração de agendamentos:', err.message);
+        }
+    }
+
+    async criarIndices() {
+        const indices = [
+            `CREATE INDEX IF NOT EXISTS idx_agendamentos_data ON agendamentos(data)`,
+            `CREATE INDEX IF NOT EXISTS idx_agendamentos_email ON agendamentos(cliente_email)`,
+            `CREATE INDEX IF NOT EXISTS idx_agendamentos_status ON agendamentos(status)`,
+            `CREATE INDEX IF NOT EXISTS idx_utilizadores_email ON utilizadores(email)`,
+            `CREATE INDEX IF NOT EXISTS idx_galeria_status ON galeria(status)`,
+            `CREATE INDEX IF NOT EXISTS idx_tokens_usuario ON tokens(usuario_id, tipo, usado)`
+        ];
+        for (const sql of indices) {
+            try {
+                await this.run(sql);
+            } catch (err) {
+                console.warn('Índice:', err.message);
+            }
+        }
     }
 
     async atualizarEmailOficialSite() {

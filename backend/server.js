@@ -40,7 +40,9 @@ app.use((req, res, next) => {
 const publicPath = path.join(__dirname, 'public');
 const devFrontendPath = path.join(__dirname, '..', 'frontend');
 const frontendPath = fs.existsSync(publicPath) ? publicPath : devFrontendPath;
-const uploadsPath = path.join(__dirname, 'uploads');
+const { resolverCaminhoUploads } = require('./utils/paths');
+const uploadsPath = resolverCaminhoUploads();
+console.log(`✓ Uploads: ${uploadsPath}`);
 
 app.use((req, res, next) => {
     if (/\.(html?|css|js)$/i.test(req.path) || req.path === '/') {
@@ -73,17 +75,38 @@ app.use('/api/sync', syncRoutes);
 // ===== ROTA DE SAÚDE =====
 app.get('/api/health', async (req, res) => {
     let sync = null;
+    let dbInfo = null;
     try {
         sync = await db.obterSync();
-    } catch (_) { /* ignore */ }
+        const integrity = await db.get('PRAGMA integrity_check');
+        const fk = await db.get('PRAGMA foreign_keys');
+        const journal = await db.get('PRAGMA journal_mode');
+        dbInfo = {
+            path: db.dbPath,
+            integrity: integrity?.integrity_check || integrity,
+            foreign_keys: fk?.foreign_keys,
+            journal_mode: journal?.journal_mode,
+            tabelas: {
+                utilizadores: (await db.get('SELECT COUNT(*) as n FROM utilizadores'))?.n || 0,
+                servicos: (await db.get('SELECT COUNT(*) as n FROM servicos'))?.n || 0,
+                agendamentos: (await db.get('SELECT COUNT(*) as n FROM agendamentos'))?.n || 0,
+                galeria: (await db.get('SELECT COUNT(*) as n FROM galeria'))?.n || 0,
+                barbeiros: (await db.get('SELECT COUNT(*) as n FROM barbeiros'))?.n || 0
+            }
+        };
+    } catch (err) {
+        dbInfo = { erro: err.message };
+    }
 
     res.json({
-        status: 'ok',
+        status: dbInfo?.integrity === 'ok' ? 'ok' : 'degraded',
         online: true,
         hora: new Date().toISOString(),
         frontend: fs.existsSync(publicPath) ? 'public' : 'dev',
         versao: require('./package.json').version,
-        sync
+        sync,
+        database: dbInfo,
+        uploads: uploadsPath
     });
 });
 

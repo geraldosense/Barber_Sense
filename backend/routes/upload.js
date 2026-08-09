@@ -3,11 +3,13 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { verificarToken, verificarPerfil } = require('../middleware/auth');
+const { resolverCaminhoUploads } = require('../utils/paths');
 
 const router = express.Router();
+const uploadsRoot = resolverCaminhoUploads();
 
 function criarUploader(subdir) {
-    const uploadDir = path.join(__dirname, '..', 'uploads', subdir);
+    const uploadDir = path.join(uploadsRoot, subdir);
     fs.mkdirSync(uploadDir, { recursive: true });
 
     const storage = multer.diskStorage({
