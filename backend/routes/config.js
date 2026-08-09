@@ -170,6 +170,7 @@ router.put('/site', verificarToken, verificarPerfil('administrador'), async (req
         const atual = await obterConfig(req.db, 'site_info', {});
         const novo = { ...atual, ...req.body };
         await guardarConfig(req.db, 'site_info', novo);
+        await req.db.bumpSync('site_info');
         res.json({ mensagem: 'Informações do site atualizadas.', site: novo });
     } catch (error) {
         res.status(500).json({ erro: error.message });

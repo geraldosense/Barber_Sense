@@ -80,9 +80,10 @@ async function carregarDados() {
     barbeiros = [];
 
     try {
-        const [resServicos, resBarbeiros] = await Promise.all([
+        const [resServicos, resBarbeiros, resSite] = await Promise.all([
             fetchFn(`${API_URL}/servicos`, { cache: 'no-store' }),
-            fetchFn(`${API_URL}/barbeiros`, { cache: 'no-store' })
+            fetchFn(`${API_URL}/barbeiros`, { cache: 'no-store' }),
+            fetchFn(`${API_URL}/config/site`, { cache: 'no-store' })
         ]);
 
         if (resServicos.ok) {
@@ -92,6 +93,9 @@ async function carregarDados() {
         }
         if (resBarbeiros.ok) {
             barbeiros = normalizarListaApi(await resBarbeiros.json());
+        }
+        if (resSite.ok) {
+            aplicarInfoSite(await resSite.json());
         }
     } catch (error) {
         console.warn('Backend indisponível ao carregar serviços/barbeiros.', error);
@@ -103,6 +107,46 @@ async function carregarDados() {
 
     renderizarServicos();
     renderizarBarbeiros();
+}
+
+function aplicarInfoSite(site) {
+    if (!site || typeof site !== 'object') return;
+
+    const telefone = (site.telefone || '').trim();
+    const email = (site.email || '').trim();
+    const morada = (site.morada || '').trim();
+    const instagram = (site.instagram || '').trim();
+    const tiktok = (site.tiktok || '').trim();
+    const whatsapp = (site.whatsapp || '').trim();
+
+    const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el && value) el.textContent = value;
+    };
+
+    const setMail = (id, value) => {
+        const el = document.getElementById(id);
+        if (!el || !value) return;
+        el.textContent = value;
+        el.setAttribute('href', `mailto:${value}`);
+    };
+
+    const setHref = (id, value) => {
+        const el = document.getElementById(id);
+        if (el && value) el.setAttribute('href', value);
+    };
+
+    setMail('siteContactEmail', email);
+    setText('siteContactPhone', telefone);
+    setText('siteContactAddress', morada);
+    setText('siteInfoAddress', morada);
+    setText('siteInfoPhone', telefone);
+    setText('siteFooterAddress', morada);
+    setText('siteFooterPhone', telefone);
+    setMail('siteFooterEmail', email);
+    setHref('siteSocialInstagram', instagram);
+    setHref('siteSocialTiktok', tiktok);
+    setHref('siteSocialWhatsapp', whatsapp);
 }
 
 // ===== RENDERIZAÇÃO =====

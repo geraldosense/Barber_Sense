@@ -22,5 +22,7 @@ services:
         value: /var/data/uploads
       - key: NOTIFY_BOOKING_EMAIL
         value: sensebarber10@gmail.com
+      - key: ADMIN_EMAILS
+        value: sensebarber10@gmail.com
       - key: DATA_DIR
         value: /var/data

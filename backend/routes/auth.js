@@ -9,10 +9,11 @@ const router = express.Router();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'sensegeraldo2@gmail.com')
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'sensebarber10@gmail.com')
     .split(',')
     .map(e => e.trim().toLowerCase())
     .filter(Boolean);
+const ADMIN_EMAIL_PRINCIPAL = ADMIN_EMAILS[0] || 'sensebarber10@gmail.com';
 
 const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 const MSG_LOGIN_INVALIDO = 'Email ou palavra-passe inválidos.';
@@ -542,50 +543,48 @@ router.post('/login', async (req, res) => {
 });
 
 /**
- * POST /api/auth/admin-login — painel administrativo (apenas administrador principal)
+ * POST /api/auth/admin-login — painel administrativo (apenas email oficial)
  */
 router.post('/admin-login', async (req, res) => {
     try {
         const { utilizador, password } = req.body;
 
         if (!utilizador || !password) {
-            return res.status(400).json({ erro: 'Utilizador e palavra-passe são obrigatórios.' });
+            return res.status(400).json({ erro: 'Email e palavra-passe são obrigatórios.' });
         }
 
         const mapaUtilizadores = {
-            admin: 'admin@sensebarbearia.pt',
-            geraldo: 'sensegeraldo2@gmail.com',
-            geraldo_sense: 'sensegeraldo2@gmail.com',
-            'geraldo sense': 'sensegeraldo2@gmail.com'
+            admin: ADMIN_EMAIL_PRINCIPAL,
+            sense: ADMIN_EMAIL_PRINCIPAL,
+            sensebarber: ADMIN_EMAIL_PRINCIPAL,
+            'sense barber': ADMIN_EMAIL_PRINCIPAL,
+            sensebarbershop: ADMIN_EMAIL_PRINCIPAL
         };
 
         const chave = utilizador.toLowerCase().trim();
         let email = chave.includes('@') ? chave : (mapaUtilizadores[chave] || null);
 
-        let row = null;
-        if (email) {
-            row = await req.db.get(
-                `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
-                 FROM utilizadores WHERE email = ?`,
-                [email.toLowerCase().trim()]
-            );
+        // Apenas o email oficial (ou alias que mapeia para ele)
+        if (!email || !ADMIN_EMAILS.includes(email)) {
+            return res.status(403).json({
+                erro: 'Acesso reservado ao administrador oficial (sensebarber10@gmail.com).'
+            });
         }
 
-        if (!row) {
-            row = await req.db.get(
-                `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
-                 FROM utilizadores WHERE LOWER(TRIM(nome)) = ?`,
-                [utilizador.toLowerCase().trim()]
-            );
-        }
+        let row = await req.db.get(
+            `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+             FROM utilizadores WHERE email = ?`,
+            [email]
+        );
 
         if (!row) {
             return res.status(401).json({ erro: 'Credenciais incorretas. Tente novamente.' });
         }
 
-        const perfilAdmin = row.perfil === 'administrador' || ADMIN_EMAILS.includes(row.email.toLowerCase());
-        if (!perfilAdmin) {
-            return res.status(403).json({ erro: 'Acesso reservado ao administrador principal.' });
+        if (!ADMIN_EMAILS.includes(String(row.email || '').toLowerCase())) {
+            return res.status(403).json({
+                erro: 'Acesso reservado ao administrador oficial (sensebarber10@gmail.com).'
+            });
         }
 
         const passwordValida = await bcrypt.compare(password, row.password_hash);

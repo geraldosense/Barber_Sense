@@ -38,6 +38,7 @@ document.addEventListener('sense:sync', () => {
     if (secaoPainelAtual === 'servicos') carregarServicos();
     if (secaoPainelAtual === 'agendamentos') carregarAgendamentos();
     if (secaoPainelAtual === 'barbeiros') carregarBarbeiros();
+    if (secaoPainelAtual === 'site') carregarSiteInfo();
 });
 
 function verificarAcessoPainel() {
@@ -535,7 +536,11 @@ async function aprovarCorte(id) {
 async function rejeitarCorte(id) {
     if (!confirm('Rejeitar este corte?')) return;
     const res = await fetch(`${API_URL}/galeria/${id}/rejeitar`, { method: 'POST', headers: authHeaders() });
-    if (res.ok) { toast('Corte rejeitado.'); carregarPendentes(); }
+    if (res.ok) {
+        toast('Corte rejeitado.');
+        carregarPendentes();
+        window.SenseSync?.notificarPublicacao();
+    }
 }
 
 async function carregarServicos() {
@@ -771,9 +776,10 @@ async function submeterNovoBarbeiro(e) {
         })
     });
     if (res.ok) {
-        toast('Barbeiro adicionado!');
+        toast('Barbeiro adicionado! Já aparece no site.');
         e.target.reset();
         carregarBarbeiros();
+        window.SenseSync?.notificarPublicacao();
     } else {
         const d = await res.json();
         toast(d.erro || 'Erro.', 'error');
@@ -795,6 +801,7 @@ async function eliminarBarbeiro(id, nome) {
         if (res.ok) {
             toast(data.mensagem || 'Barbeiro eliminado.');
             carregarBarbeiros();
+            window.SenseSync?.notificarPublicacao();
         } else {
             toast(data.erro || 'Erro ao eliminar barbeiro.', 'error');
         }
@@ -835,6 +842,10 @@ async function guardarSiteInfo(e) {
         headers: authHeaders(),
         body: JSON.stringify(payload)
     });
-    if (res.ok) toast('Informações do site guardadas!');
-    else toast('Erro ao guardar.', 'error');
+    if (res.ok) {
+        toast('Contactos atualizados no site (PC e telemóvel)!');
+        window.SenseSync?.notificarPublicacao();
+    } else {
+        toast('Erro ao guardar.', 'error');
+    }
 }

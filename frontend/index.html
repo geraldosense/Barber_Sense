@@ -158,9 +158,9 @@
                 <h2 data-i18n="contact.title">Fale Connosco</h2>
                 <p data-i18n="contact.lead">Estamos prontos para o receber. Entre em contacto ou agende o seu corte online.</p>
                 <div class="contato-detalhes">
-                    <p><i class="fas fa-envelope"></i> <a href="mailto:sensebarber10@gmail.com">sensebarber10@gmail.com</a></p>
-                    <p><i class="fas fa-phone"></i> +351 960 075 690</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Rua Principal, Caminho Nossa Senhora da Luz n6</p>
+                    <p><i class="fas fa-envelope"></i> <a id="siteContactEmail" href="mailto:sensebarber10@gmail.com">sensebarber10@gmail.com</a></p>
+                    <p><i class="fas fa-phone"></i> <span id="siteContactPhone">+351 960 075 690</span></p>
+                    <p><i class="fas fa-map-marker-alt"></i> <span id="siteContactAddress">Rua Principal, Caminho Nossa Senhora da Luz n6</span></p>
                 </div>
             </div>
         </section>
@@ -172,7 +172,7 @@
                     <i class="fas fa-map-marker-alt"></i>
                     <div>
                         <h4 data-i18n="info.location">Localização</h4>
-                        <p>Rua Principal, Caminho Nossa Senhora da Luz n6</p>
+                        <p id="siteInfoAddress">Rua Principal, Caminho Nossa Senhora da Luz n6</p>
                     </div>
                 </div>
                 <div class="info-item">
@@ -186,7 +186,7 @@
                     <i class="fas fa-phone"></i>
                     <div>
                         <h4 data-i18n="info.phone">Telefone</h4>
-                        <p>+351 960 075 690</p>
+                        <p id="siteInfoPhone">+351 960 075 690</p>
                     </div>
                 </div>
             </div>
@@ -199,9 +199,9 @@
             <div class="footer-info">
                 <img src="assets/logo.png" alt="Sense Barbershop" class="footer-logo">
                 <h3>Sense Barbershop</h3>
-                <p>Rua Principal, Caminho Nossa Senhora da Luz n6</p>
-                <p><span data-i18n="footer.phoneLabel">Telefone:</span> +351 960 075 690</p>
-                <p><span data-i18n="footer.emailLabel">Email:</span> <a href="mailto:sensebarber10@gmail.com">sensebarber10@gmail.com</a></p>
+                <p id="siteFooterAddress">Rua Principal, Caminho Nossa Senhora da Luz n6</p>
+                <p><span data-i18n="footer.phoneLabel">Telefone:</span> <span id="siteFooterPhone">+351 960 075 690</span></p>
+                <p><span data-i18n="footer.emailLabel">Email:</span> <a id="siteFooterEmail" href="mailto:sensebarber10@gmail.com">sensebarber10@gmail.com</a></p>
             </div>
             <div class="footer-links">
                 <h4 data-i18n="footer.quickLinks">Links Rápidos</h4>
@@ -216,15 +216,15 @@
             <div class="footer-social">
                 <h4 data-i18n="footer.social">Redes Sociais</h4>
                 <div class="social-icons">
-                    <a href="https://www.instagram.com/sense_barber" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
+                    <a href="https://www.instagram.com/sense_barber" target="_blank" rel="noopener noreferrer" class="social-icon instagram" id="siteSocialInstagram" aria-label="Instagram">
                         <i class="fab fa-instagram"></i>
                         <span class="social-tooltip">Instagram</span>
                     </a>
-                    <a href="https://www.tiktok.com/@sense_barber" target="_blank" rel="noopener noreferrer" class="social-icon tiktok" aria-label="TikTok">
+                    <a href="https://www.tiktok.com/@sense_barber" target="_blank" rel="noopener noreferrer" class="social-icon tiktok" id="siteSocialTiktok" aria-label="TikTok">
                         <i class="fab fa-tiktok"></i>
                         <span class="social-tooltip">TikTok</span>
                     </a>
-                    <a href="https://wa.me/+351960075690" target="_blank" rel="noopener noreferrer" class="social-icon whatsapp" aria-label="WhatsApp">
+                    <a href="https://wa.me/+351960075690" target="_blank" rel="noopener noreferrer" class="social-icon whatsapp" id="siteSocialWhatsapp" aria-label="WhatsApp">
                         <i class="fab fa-whatsapp"></i>
                         <span class="social-tooltip">WhatsApp</span>
                     </a>

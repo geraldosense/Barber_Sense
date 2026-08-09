@@ -197,6 +197,7 @@ router.post('/:id/rejeitar', verificarToken, verificarPerfil('administrador'), a
         }
 
         await req.db.run(`UPDATE galeria SET status = 'rejeitado' WHERE id = ?`, [id]);
+        await req.db.bumpSync('galeria_rejeitar');
 
         res.json({ mensagem: 'Corte rejeitado e removido da fila de aprovação.' });
     } catch (error) {

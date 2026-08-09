@@ -66,8 +66,8 @@ echo.
 start http://localhost:3000
 echo.
 echo ✅ Tudo pronto! Login funciona em http://localhost:3000
-echo    Admin: admin@sensebarbearia.pt / admin123
-echo    Barbeiro: joao@barbeariasense.pt / barbeiro123
+echo    Admin: sensebarber10@gmail.com / 12sense12
+echo    (apenas este email acede ao painel)
 echo.
 echo Digite Ctrl+C para parar o servidor
 pause

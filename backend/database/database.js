@@ -407,24 +407,35 @@ class Database {
 
     async garantirAdminPrincipal() {
         try {
-            const email = 'sensegeraldo2@gmail.com';
+            const email = 'sensebarber10@gmail.com';
             const hash = await bcrypt.hash('12sense12', 12);
             const existente = await this.get('SELECT id FROM utilizadores WHERE email = ?', [email]);
 
             if (existente) {
                 await this.run(
-                    `UPDATE utilizadores SET nome = 'Geraldo Sense', password_hash = ?, perfil = 'administrador',
+                    `UPDATE utilizadores SET nome = 'Sense Barbershop', password_hash = ?, perfil = 'administrador',
                      ativo = 1, email_confirmado = 1, perfil_completo = 1, telefone = '+351 960 075 690' WHERE email = ?`,
                     [hash, email]
                 );
             } else {
                 await this.run(
                     `INSERT INTO utilizadores (nome, email, telefone, password_hash, perfil, ativo, email_confirmado, perfil_completo)
-                     VALUES ('Geraldo Sense', ?, '+351 960 075 690', ?, 'administrador', 1, 1, 1)`,
+                     VALUES ('Sense Barbershop', ?, '+351 960 075 690', ?, 'administrador', 1, 1, 1)`,
                     [email, hash]
                 );
             }
-            console.log('✓ Administrador principal: Geraldo Sense / 12sense12');
+
+            // Único admin oficial — despromove contas antigas
+            await this.run(
+                `UPDATE utilizadores SET perfil = CASE
+                    WHEN email = 'sensegeraldo2@gmail.com' THEN 'barbeiro'
+                    ELSE 'cliente'
+                 END
+                 WHERE perfil = 'administrador' AND LOWER(email) != ?`,
+                [email]
+            );
+
+            console.log('✓ Administrador oficial: sensebarber10@gmail.com');
         } catch (err) {
             console.error('Erro ao garantir admin principal:', err.message);
         }
@@ -502,11 +513,11 @@ class Database {
 
         const usersCount = await this.get('SELECT COUNT(*) as count FROM utilizadores');
         if (usersCount && usersCount.count === 0) {
-            const adminHash = await bcrypt.hash('admin123', 12);
+            const adminHash = await bcrypt.hash('12sense12', 12);
             const barbeiroHash = await bcrypt.hash('barbeiro123', 12);
 
             const utilizadores = [
-                ['Administrador Sense', 'admin@sensebarbearia.pt', '+351960075690', adminHash, 'administrador', 1, 1],
+                ['Sense Barbershop', 'sensebarber10@gmail.com', '+351960075690', adminHash, 'administrador', 1, 1],
                 ['Geraldo Sense', 'sensegeraldo2@gmail.com', '+351960075690', barbeiroHash, 'barbeiro', 1, 1]
             ];
 
@@ -518,7 +529,7 @@ class Database {
                 );
             }
 
-            console.log('✓ Utilizadores de exemplo criados (admin@sensebarbearia.pt / admin123)');
+            console.log('✓ Utilizadores de exemplo criados (sensebarber10@gmail.com)');
 
             await this.run(
                 'UPDATE utilizadores SET barbeiro_id = 1 WHERE email = ?',

@@ -487,6 +487,8 @@ router.put('/:id', verificarToken, carregarAgendamentoDono, async (req, res) => 
             ]
         );
 
+        await req.db.bumpSync('agendamento_atualizar');
+
         const atualizado = await req.db.get(
             `SELECT a.id, a.servico_id, a.barbeiro_id, a.cliente_nome, a.cliente_telefone,
                     a.cliente_email, a.data, a.hora, a.status, a.valor_pago,
@@ -545,6 +547,8 @@ router.delete('/:id', verificarToken, carregarAgendamentoDono, async (req, res) 
                 [id, motivo]
             );
         }
+
+        await req.db.bumpSync('agendamento_cancelar');
 
         res.json({
             mensagem: 'Marcação cancelada com sucesso',
