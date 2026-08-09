@@ -291,13 +291,355 @@
     accent-color: var(--secondary-color);
 }
 
+/* ===== MOBILE ADMIN — bottom nav profissional ===== */
+body.painel-page::before {
+    display: none !important;
+}
+
+body.painel-page {
+    background: #f4f4f5;
+}
+
+.painel-mobile-header {
+    display: none;
+}
+
+.painel-bottom-nav,
+.painel-mais-overlay {
+    display: none;
+}
+
 @media (max-width: 900px) {
-    .painel-app { flex-direction: column; }
-    .painel-sidebar { width: 100%; }
-    .painel-nav-list {
-        flex-direction: row;
-        flex-wrap: wrap;
-        overflow-x: auto;
+    body.painel-page {
+        background: #ececef;
     }
-    .painel-main { padding: 1.25rem; }
+
+    .painel-app {
+        flex-direction: column;
+        min-height: 100dvh;
+    }
+
+    .painel-sidebar {
+        display: none !important;
+    }
+
+    .painel-mobile-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: #0a0a0a;
+        color: #fff;
+        padding: 0.7rem 1rem;
+        padding-top: max(0.7rem, env(safe-area-inset-top, 0px));
+        border-bottom: 1px solid rgba(212, 175, 55, 0.28);
+        position: sticky;
+        top: 0;
+        z-index: 40;
+    }
+
+    .painel-mobile-logo {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    .painel-mobile-header-text {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+    }
+
+    .painel-mobile-header-text strong {
+        font-family: 'Playfair Display', serif;
+        color: var(--secondary-color, #d4af37);
+        font-size: 1rem;
+        line-height: 1.2;
+    }
+
+    .painel-mobile-header-text span {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.55);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .painel-topbar {
+        display: none;
+    }
+
+    .painel-main {
+        padding: 1rem 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
+        width: 100%;
+    }
+
+    .painel-sync-banner {
+        font-size: 0.85rem;
+        padding: 0.85rem 1rem;
+    }
+
+    .painel-bottom-nav {
+        display: block;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 90;
+        padding: 0 0.55rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
+        pointer-events: none;
+    }
+
+    .painel-bottom-nav-inner {
+        pointer-events: auto;
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.15fr 1fr 1fr;
+        align-items: end;
+        max-width: 480px;
+        margin: 0 auto;
+        background: #141414;
+        border-radius: 22px 22px 18px 18px;
+        border: 1px solid rgba(212, 175, 55, 0.35);
+        box-shadow:
+            0 -8px 28px rgba(0, 0, 0, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        padding: 0.45rem 0.35rem 0.55rem;
+        min-height: 64px;
+    }
+
+    .painel-bottom-nav-inner::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: -18px;
+        transform: translateX(-50%);
+        width: 72px;
+        height: 36px;
+        background: #141414;
+        border-radius: 36px 36px 0 0;
+        border: 1px solid rgba(212, 175, 55, 0.35);
+        border-bottom: none;
+        z-index: 0;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .painel-tab {
+        position: relative;
+        z-index: 1;
+        appearance: none;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.72);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+        padding: 0.35rem 0.15rem;
+        min-height: 48px;
+        cursor: pointer;
+        font-family: inherit;
+        -webkit-tap-highlight-color: transparent;
+        transition: color 0.2s;
+    }
+
+    .painel-tab i {
+        font-size: 1.15rem;
+        line-height: 1;
+    }
+
+    .painel-tab > span:not(.painel-tab-plus):not(.painel-tab-dot) {
+        font-size: 0.62rem;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        line-height: 1;
+    }
+
+    .painel-tab.active {
+        color: #fff;
+    }
+
+    .painel-tab.active i {
+        color: var(--secondary-color, #d4af37);
+    }
+
+    .painel-tab-dot {
+        position: absolute;
+        top: 4px;
+        right: calc(50% - 14px);
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #ef4444;
+        border: 1.5px solid #141414;
+    }
+
+    .painel-tab-dot.hidden {
+        display: none;
+    }
+
+    .painel-tab--center {
+        align-self: start;
+        margin-top: -28px;
+        min-height: 0;
+        padding: 0;
+        z-index: 2;
+    }
+
+    .painel-tab-plus {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: #1a1a1a;
+        border: 2.5px solid var(--secondary-color, #d4af37);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow:
+            0 6px 18px rgba(0, 0, 0, 0.45),
+            0 0 0 4px #141414;
+        transition: transform 0.15s, background 0.2s, border-color 0.2s;
+    }
+
+    .painel-tab-plus i {
+        font-size: 1.25rem;
+        color: #fff;
+    }
+
+    .painel-tab--center.active .painel-tab-plus,
+    .painel-tab--center:active .painel-tab-plus {
+        background: var(--secondary-color, #d4af37);
+        transform: scale(0.96);
+    }
+
+    .painel-tab--center.active .painel-tab-plus i {
+        color: #1a1a1a;
+    }
+
+    .painel-mais-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s, visibility 0.25s;
+    }
+
+    .painel-mais-overlay.open {
+        pointer-events: auto;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .painel-mais-overlay.hidden {
+        display: block;
+    }
+
+    .painel-mais-backdrop {
+        position: absolute;
+        inset: 0;
+        border: none;
+        background: rgba(0, 0, 0, 0.55);
+        cursor: pointer;
+    }
+
+    .painel-mais-sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #161616;
+        color: #fff;
+        border-radius: 20px 20px 0 0;
+        border-top: 1px solid rgba(212, 175, 55, 0.3);
+        padding: 0.65rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+        transform: translateY(100%);
+        transition: transform 0.28s ease;
+        max-width: 520px;
+        margin: 0 auto;
+        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .painel-mais-overlay.open .painel-mais-sheet {
+        transform: translateY(0);
+    }
+
+    .painel-mais-handle {
+        width: 40px;
+        height: 4px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 0.25rem auto 1rem;
+    }
+
+    .painel-mais-title {
+        font-family: 'Playfair Display', serif;
+        color: var(--secondary-color, #d4af37);
+        font-size: 1.05rem;
+        margin: 0 0 0.75rem;
+        padding: 0 0.25rem;
+    }
+
+    .painel-mais-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.95rem 0.85rem;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 0.95rem;
+        text-align: left;
+        text-decoration: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.15s;
+    }
+
+    .painel-mais-item i {
+        width: 1.25rem;
+        text-align: center;
+        color: var(--secondary-color, #d4af37);
+    }
+
+    .painel-mais-item:hover,
+    .painel-mais-item:active {
+        background: rgba(212, 175, 55, 0.1);
+    }
+
+    .painel-mais-item .badge {
+        margin-left: auto;
+        background: #ef4444;
+        color: #fff;
+        font-size: 0.7rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 10px;
+        font-weight: 700;
+    }
+
+    .painel-mais-item--danger {
+        color: #f87171;
+        margin-top: 0.35rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0 0 10px 10px;
+    }
+
+    .painel-mais-item--danger i {
+        color: #f87171;
+    }
+
+    .dash-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row-2 {
+        grid-template-columns: 1fr;
+    }
 }

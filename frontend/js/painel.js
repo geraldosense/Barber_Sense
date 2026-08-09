@@ -99,12 +99,34 @@ function configurarPainelApp() {
         btn.addEventListener('click', () => irSecaoPainel(btn.dataset.section));
     });
 
-    document.getElementById('btnPainelLogout')?.addEventListener('click', () => {
+    document.querySelectorAll('.painel-tab[data-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            fecharMaisPainel();
+            irSecaoPainel(btn.dataset.section);
+        });
+    });
+
+    document.getElementById('btnPainelMais')?.addEventListener('click', () => {
+        abrirMaisPainel();
+    });
+
+    document.getElementById('painelMaisBackdrop')?.addEventListener('click', fecharMaisPainel);
+
+    document.querySelectorAll('.painel-mais-item[data-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            fecharMaisPainel();
+            irSecaoPainel(btn.dataset.section);
+        });
+    });
+
+    const logout = () => {
         sessionStorage.removeItem('admPainelOk');
         localStorage.removeItem('authToken');
         localStorage.removeItem('utilizador');
         window.location.href = 'admin-login.html';
-    });
+    };
+    document.getElementById('btnPainelLogout')?.addEventListener('click', logout);
+    document.getElementById('btnPainelLogoutMobile')?.addEventListener('click', logout);
 
     document.getElementById('formNovoCorte')?.addEventListener('submit', submeterNovoCorte);
     document.getElementById('formNovoServico')?.addEventListener('submit', submeterNovoServico);
@@ -128,6 +150,40 @@ function configurarPainelApp() {
     });
 
     configurarAcoesAdminListas();
+}
+
+function abrirMaisPainel() {
+    const overlay = document.getElementById('painelMaisOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('hidden');
+    requestAnimationFrame(() => overlay.classList.add('open'));
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharMaisPainel() {
+    const overlay = document.getElementById('painelMaisOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+        if (!overlay.classList.contains('open')) overlay.classList.add('hidden');
+    }, 280);
+}
+
+function atualizarBottomNav(sec) {
+    const mapa = {
+        inicio: 'inicio',
+        agendamentos: 'agendar',
+        galeria: 'novo',
+        servicos: 'servicos',
+        pendentes: 'mais',
+        barbeiros: 'mais',
+        site: 'mais'
+    };
+    const tabAtiva = mapa[sec] || 'inicio';
+    document.querySelectorAll('.painel-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabAtiva);
+    });
 }
 
 function configurarAcoesAdminListas() {
@@ -167,7 +223,12 @@ function irSecaoPainel(sec) {
     });
     document.querySelectorAll('.painel-section').forEach(s => s.classList.remove('active'));
     document.getElementById(`sec-${sec}`)?.classList.add('active');
-    document.getElementById('painelPageTitle').textContent = TITULOS_SECAO[sec] || 'Painel';
+    const titulo = TITULOS_SECAO[sec] || 'Painel';
+    const titleEl = document.getElementById('painelPageTitle');
+    if (titleEl) titleEl.textContent = titulo;
+    const titleMobile = document.getElementById('painelPageTitleMobile');
+    if (titleMobile) titleMobile.textContent = titulo;
+    atualizarBottomNav(sec);
 
     if (sec === 'pendentes') carregarPendentes();
     if (sec === 'servicos') carregarServicos();
@@ -177,6 +238,8 @@ function irSecaoPainel(sec) {
     }
     if (sec === 'barbeiros') carregarBarbeiros();
     if (sec === 'site') carregarSiteInfo();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function carregarStats() {
@@ -217,15 +280,18 @@ async function atualizarBadgePendentes() {
     try {
         const res = await fetch(`${API_URL}/galeria/pendentes/count`, { headers: authHeaders() });
         const data = res.ok ? await res.json() : { total: 0 };
-        const badge = document.getElementById('badgePendentes');
-        if (badge) {
-            if (data.total > 0) {
-                badge.textContent = data.total;
+        const total = Number(data.total) || 0;
+        ['badgePendentes', 'badgePendentesMobile'].forEach(id => {
+            const badge = document.getElementById(id);
+            if (!badge) return;
+            if (total > 0) {
+                badge.textContent = total;
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
             }
-        }
+        });
+        document.getElementById('dotMais')?.classList.toggle('hidden', total <= 0);
     } catch { /* silencioso */ }
 }
 
@@ -492,6 +558,7 @@ async function atualizarBadgeAgendamentos(agendamentosCache) {
                 badge.classList.add('hidden');
             }
         }
+        document.getElementById('dotAgendamentos')?.classList.toggle('hidden', novos <= 0);
     } catch { /* silencioso */ }
 }
 
@@ -511,6 +578,7 @@ function contarAgendamentosNovos(agendamentos) {
 function marcarAgendamentosVistos() {
     localStorage.setItem('painelUltimaVisitaAgendamentos', String(Date.now()));
     document.getElementById('badgeAgendamentos')?.classList.add('hidden');
+    document.getElementById('dotAgendamentos')?.classList.add('hidden');
 }
 
 async function carregarAgendamentos() {
