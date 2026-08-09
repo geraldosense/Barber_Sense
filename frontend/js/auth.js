@@ -50,20 +50,18 @@ async function verificarSessao() {
 
     try {
         const res = await fetch(`${API_URL}/auth/me`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
+            cache: 'no-store'
         });
 
         if (res.ok) {
             const data = await res.json();
             utilizadorAtual = data.utilizador;
-            const emPaginaAdmin = /admin-login|painel/.test(window.location.pathname);
-            if (utilizadorAtual?.perfil === 'administrador' && sessionStorage.getItem('admPainelOk') !== '1' && !emPaginaAdmin) {
-                limparSessao();
-                return;
-            }
             localStorage.setItem('utilizador', JSON.stringify(utilizadorAtual));
-        } else {
+        } else if (res.status === 401 || res.status === 403) {
+            // Só limpa sessão se o token for inválido/expirado — nunca em erros 5xx
             limparSessao();
+            return;
         }
     } catch {
         /* mantém sessão local se backend offline */
@@ -195,6 +193,11 @@ function atualizarUIAuth() {
     }
 }
 
+function telefoneValido(tel) {
+    const t = String(tel || '').trim();
+    return !!t && t !== '—' && t.replace(/\D/g, '').length >= 6;
+}
+
 function redirecionarAposAuth(utilizador) {
     if (!utilizador) return;
 
@@ -203,7 +206,29 @@ function redirecionarAposAuth(utilizador) {
         return;
     }
 
+    if (!telefoneValido(utilizador.telefone)) {
+        window.location.href = 'conta.html?completar=1';
+        return;
+    }
+
     window.location.href = 'marcacao.html';
+}
+
+function mostrarPainelCompletarTelefone(msg) {
+    document.getElementById('authTabs')?.classList.add('hidden');
+    document.getElementById('googleAuthBlock')?.classList.add('hidden');
+    document.getElementById('authDivider')?.classList.add('hidden');
+    document.getElementById('panel-login')?.classList.remove('active');
+    document.getElementById('panel-registo')?.classList.remove('active');
+    document.getElementById('panel-recuperar')?.classList.remove('active');
+    const perfilPanel = document.getElementById('panelCompletarPerfil');
+    perfilPanel?.classList.remove('hidden');
+    perfilPanel?.classList.add('active');
+    const titulo = document.getElementById('contaTitulo');
+    const sub = document.getElementById('contaSubtitulo');
+    if (titulo) titulo.textContent = typeof t === 'function' ? t('auth.completeProfile') : 'Último passo';
+    if (sub) sub.textContent = typeof t === 'function' ? t('auth.completeProfileSub') : 'Indique o telefone para concluir o registo.';
+    if (msg) mostrarAuthMessage(msg, 'info');
 }
 
 function irParaConta(tab) {
@@ -213,6 +238,10 @@ function irParaConta(tab) {
 
 function irParaMarcacao() {
     if (estaAutenticado() && utilizadorAtual?.perfil === 'cliente') {
+        if (!telefoneValido(utilizadorAtual.telefone)) {
+            window.location.href = 'conta.html?completar=1';
+            return;
+        }
         window.location.href = 'marcacao.html';
     } else {
         window.location.href = 'conta.html';
@@ -558,17 +587,47 @@ async function submeterCompletarPerfil(e) {
     esconderAuthMessage();
 
     const telefone = document.getElementById('googleTelefone').value.trim();
-    if (!telefone) {
-        mostrarAuthMessage('Indique um telefone válido.', 'error');
-        return;
-    }
-    if (!pendingGoogleCredential) {
-        mostrarAuthMessage('Sessão Google expirada. Tente entrar novamente.', 'error');
-        resetarPainelGoogle();
+    if (!telefoneValido(telefone)) {
+        mostrarAuthMessage('Indique um telefone válido (ex: +351 9XX XXX XXX).', 'error');
         return;
     }
 
+    const btn = e.target.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.dataset.label = btn.textContent;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A guardar…';
+    }
+
     try {
+        // Conta já autenticada (email/password) sem telefone
+        if (obterToken() && !pendingGoogleCredential) {
+            const res = await fetch(`${API_URL}/auth/telefone`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${obterToken()}`
+                },
+                body: JSON.stringify({ telefone })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                mostrarAuthMessage(data.erro || 'Erro ao guardar telefone.', 'error');
+                return;
+            }
+            if (data.token) localStorage.setItem('authToken', data.token);
+            guardarSessao(data.token || obterToken(), data.utilizador);
+            mostrarAuthMessage('Perfil concluído! A redirecionar…', 'success');
+            setTimeout(() => redirecionarAposAuth(data.utilizador), 700);
+            return;
+        }
+
+        if (!pendingGoogleCredential) {
+            mostrarAuthMessage('Sessão expirada. Entre novamente para continuar.', 'error');
+            resetarPainelGoogle();
+            return;
+        }
+
         const res = await fetch(`${API_URL}/auth/google`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -583,7 +642,12 @@ async function submeterCompletarPerfil(e) {
 
         await processarRespostaAuth(data);
     } catch {
-        mostrarAuthMessage('Erro de ligação ao servidor.', 'error');
+        mostrarAuthMessage('Erro de ligação ao servidor. Tente novamente.', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = btn.dataset.label || (typeof t === 'function' ? t('auth.completeBtn') : 'Concluir e Reservar');
+        }
     }
 }
 
@@ -672,6 +736,18 @@ async function submeterRegisto(e) {
         return;
     }
 
+    if (!telefoneValido(telefone)) {
+        mostrarAuthMessage('Indique um telefone válido.', 'error');
+        return;
+    }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.dataset.label = btn.textContent;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A criar conta…';
+    }
+
     try {
         const res = await fetch(`${API_URL}/auth/registo`, {
             method: 'POST',
@@ -700,8 +776,8 @@ async function submeterRegisto(e) {
         if (data.token && data.utilizador) {
             guardarSessao(data.token, data.utilizador);
             guardarEmailCliente(email);
-            mostrarAuthMessage(data.mensagem || 'Conta criada e validada! A iniciar sessão...', 'success');
-            setTimeout(() => redirecionarAposAuth(data.utilizador), 900);
+            mostrarAuthMessage(data.mensagem || 'Conta criada! A iniciar sessão…', 'success');
+            setTimeout(() => redirecionarAposAuth(data.utilizador), 700);
             return;
         }
 
@@ -711,6 +787,11 @@ async function submeterRegisto(e) {
         mudarTabAuth('login');
     } catch {
         mostrarAuthMessage('Erro de ligação ao servidor.', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = btn.dataset.label || (typeof t === 'function' ? t('auth.createAccount') : 'Criar Conta');
+        }
     }
 }
 
@@ -720,6 +801,12 @@ async function submeterLogin(e) {
 
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
+    const btn = e.target.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.dataset.label = btn.textContent;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A entrar…';
+    }
 
     try {
         const res = await fetch(`${API_URL}/auth/login`, {
@@ -750,13 +837,18 @@ async function submeterLogin(e) {
         guardarEmailCliente(email);
         guardarSessao(data.token, data.utilizador);
         fecharModalAuth();
-        mostrarAuthMessage('Sessão iniciada com sucesso!', 'success');
-        redirecionarAposAuth(data.utilizador);
+        mostrarAuthMessage('Sessão iniciada com sucesso! A redirecionar…', 'success');
+        setTimeout(() => redirecionarAposAuth(data.utilizador), 450);
     } catch {
         mostrarAuthMessage(
             'O Sense Barbershop está a iniciar. Aguarde — a ligação é feita automaticamente.',
             'error'
         );
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = btn.dataset.label || (typeof t === 'function' ? t('auth.login') : 'Entrar');
+        }
     }
 }
 

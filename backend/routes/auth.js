@@ -622,11 +622,13 @@ router.post('/admin-login', async (req, res) => {
 
 /**
  * GET /api/auth/me
+ * Sessão pública (JWT perfil=cliente) mantém-se como cliente no site,
+ * mesmo que o utilizador seja administrador na BD (painel usa admin-login).
  */
 router.get('/me', verificarToken, async (req, res) => {
     try {
         const utilizador = await req.db.get(
-            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo, auth_provider, foto_url
              FROM utilizadores WHERE id = ?`,
             [req.utilizador.id]
         );
@@ -635,7 +637,47 @@ router.get('/me', verificarToken, async (req, res) => {
             return res.status(401).json({ erro: 'Conta inativa ou não encontrada.' });
         }
 
-        res.json({ utilizador: formatarUtilizador(utilizador) });
+        const sessaoPublica = req.utilizador.perfil === 'cliente';
+        const dados = sessaoPublica ? utilizadorCliente(utilizador) : utilizador;
+        res.json({ utilizador: formatarUtilizador(dados) });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+/**
+ * PATCH /api/auth/telefone — atualizar telefone do cliente autenticado
+ */
+router.patch('/telefone', verificarToken, async (req, res) => {
+    try {
+        const telefone = String(req.body.telefone || '').trim();
+        if (!telefone || telefone === '—' || telefone.length < 6) {
+            return res.status(400).json({ erro: 'Indique um telefone válido.' });
+        }
+
+        await req.db.run(
+            'UPDATE utilizadores SET telefone = ?, perfil_completo = 1 WHERE id = ?',
+            [telefone, req.utilizador.id]
+        );
+
+        const utilizador = await req.db.get(
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo, auth_provider, foto_url
+             FROM utilizadores WHERE id = ?`,
+            [req.utilizador.id]
+        );
+
+        if (!utilizador || !utilizador.ativo) {
+            return res.status(401).json({ erro: 'Conta inativa ou não encontrada.' });
+        }
+
+        const sessaoPublica = req.utilizador.perfil === 'cliente';
+        const dados = sessaoPublica ? utilizadorCliente(utilizador) : utilizador;
+
+        res.json({
+            mensagem: 'Telefone guardado com sucesso.',
+            utilizador: formatarUtilizador(dados),
+            token: gerarToken(dados)
+        });
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }

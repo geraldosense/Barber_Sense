@@ -45,13 +45,14 @@ async function verificarAcessoMarcacao() {
         return;
     }
 
-    if (!['cliente'].includes(utilizadorAtual.perfil)) {
+    // Sessão pública do site trata o utilizador como cliente
+    if (utilizadorAtual.perfil && utilizadorAtual.perfil !== 'cliente') {
         window.location.href = 'conta.html';
         return;
     }
 
-    if (!utilizadorAtual.telefone || utilizadorAtual.telefone === '—') {
-        window.location.href = 'conta.html';
+    if (!telefoneValido(utilizadorAtual.telefone)) {
+        window.location.href = 'conta.html?completar=1';
         return;
     }
 
