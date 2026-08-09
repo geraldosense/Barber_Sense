@@ -278,6 +278,34 @@ class Database {
         }
 
         await this.normalizarBarbeiroPrincipal();
+        await this.atualizarEmailOficialSite();
+    }
+
+    async atualizarEmailOficialSite() {
+        const emailOficial = 'sensebarber10@gmail.com';
+        try {
+            const row = await this.get('SELECT valor FROM configuracoes WHERE chave = ?', ['site_info']);
+            let site = {
+                telefone: '+351 960 075 690',
+                email: emailOficial,
+                morada: 'Rua Principal, Caminho Nossa Senhora da Luz n6',
+                instagram: 'https://www.instagram.com/sense_barber',
+                tiktok: 'https://www.tiktok.com/@sense_barber',
+                whatsapp: 'https://wa.me/+351960075690'
+            };
+            if (row?.valor) {
+                try {
+                    site = { ...site, ...JSON.parse(row.valor), email: emailOficial };
+                } catch { /* usar defaults */ }
+            }
+            await this.run(
+                `INSERT INTO configuracoes (chave, valor, atualizado_em) VALUES (?, ?, CURRENT_TIMESTAMP)
+                 ON CONFLICT(chave) DO UPDATE SET valor = excluded.valor, atualizado_em = CURRENT_TIMESTAMP`,
+                ['site_info', JSON.stringify(site)]
+            );
+        } catch (err) {
+            console.error('Erro ao atualizar email oficial do site:', err.message);
+        }
     }
 
     async garantirAdminPrincipal() {

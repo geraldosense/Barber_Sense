@@ -34,7 +34,7 @@ const METODOS_PADRAO = {
         label: 'PayPal',
         icon: 'fa-paypal',
         tipo: 'gateway',
-        email: 'sensegeraldo2@gmail.com',
+        email: 'sensebarber10@gmail.com',
         instrucao: 'Pagamento seguro via PayPal Business.'
     },
     klarna: {
@@ -150,7 +150,7 @@ router.get('/site', async (req, res) => {
     try {
         const site = await obterConfig(req.db, 'site_info', {
             telefone: '+351 960 075 690',
-            email: 'sensegeraldo2@gmail.com',
+            email: 'sensebarber10@gmail.com',
             morada: 'Rua Principal, Caminho Nossa Senhora da Luz n6',
             instagram: 'https://www.instagram.com/sense_barber',
             tiktok: 'https://www.tiktok.com/@sense_barber',
