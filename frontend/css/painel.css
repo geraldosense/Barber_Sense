@@ -333,10 +333,14 @@ body.painel-page {
         padding: 0.55rem 1rem;
         padding-top: max(0.55rem, env(safe-area-inset-top, 0px));
         border-bottom: 1px solid rgba(212, 175, 55, 0.28);
-        position: sticky;
+        position: fixed;
         top: 0;
-        z-index: 40;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 1000;
         min-height: 56px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
     }
 
     .painel-mobile-logo-link {
@@ -520,7 +524,7 @@ body.painel-page {
     }
 
     .painel-main {
-        padding: 1rem 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
+        padding: calc(56px + env(safe-area-inset-top, 0px) + 0.85rem) 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
         width: 100%;
     }
 
