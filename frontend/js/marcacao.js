@@ -56,8 +56,26 @@ async function verificarAcessoMarcacao() {
         return;
     }
 
-    document.getElementById('marcacaoNome').textContent = utilizadorAtual.nome.split(' ')[0];
-    document.getElementById('marcacaoEmail').textContent = utilizadorAtual.email;
+    document.getElementById('marcacaoNome').textContent = obterNomePerfilCliente(utilizadorAtual);
+    document.getElementById('marcacaoEmail').textContent = utilizadorAtual.email || '—';
+    const avatar = document.getElementById('marcacaoAvatar');
+    if (avatar) avatar.textContent = obterInicialPerfilCliente(utilizadorAtual);
+}
+
+function obterNomePerfilCliente(u) {
+    const nome = String(u?.nome || '').trim();
+    if (nome && nome !== '—') return nome.split(' ')[0];
+    const email = String(u?.email || '').trim();
+    if (email.includes('@')) return email.split('@')[0];
+    return 'Cliente';
+}
+
+function obterInicialPerfilCliente(u) {
+    const email = String(u?.email || '').trim();
+    if (email) return email.charAt(0).toUpperCase();
+    const nome = String(u?.nome || '').trim();
+    if (nome) return nome.charAt(0).toUpperCase();
+    return 'C';
 }
 
 function configurarMarcacaoPage() {

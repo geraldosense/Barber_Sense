@@ -213,6 +213,13 @@
     margin-left: auto;
 }
 
+@media (max-width: 900px) {
+    .marcacao-header .lang-switcher,
+    .marcacao-header-lang {
+        display: none !important;
+    }
+}
+
 .marcacao-header-inner .lang-switcher,
 .finalizar-header-inner .lang-switcher {
     margin-left: auto;
