@@ -709,22 +709,26 @@ async function carregarAgendamentos() {
         }
 
         list.innerHTML = `
-            <table class="painel-table">
-                <thead><tr><th>Cliente</th><th>Serviço</th><th>Data</th><th>Hora</th><th>Pagamento</th><th>Valor</th><th>Estado</th></tr></thead>
-                <tbody>
-                    ${items.map(a => `
-                        <tr>
-                            <td><strong>${esc(a.nome)}</strong><br><small>${esc(a.email)}</small></td>
-                            <td>${esc(a.servico?.nome || '—')}<br><small>${a.servico?.preco ? Number(a.servico.preco).toFixed(2) + '€' : ''}</small></td>
-                            <td>${esc(a.data)}</td>
-                            <td>${esc(a.hora)}</td>
-                            <td>${esc(a.metodo_pagamento || '—')}<br><small>${esc(a.referencia_pagamento || '')}</small></td>
-                            <td>${a.valor_pago ? Number(a.valor_pago).toFixed(2) + '€' : '—'}</td>
-                            <td><span class="status">${esc(a.status)}</span></td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>`;
+            <div class="agendamentos-admin-cards">
+                ${items.map(a => `
+                    <article class="agendamento-admin-card">
+                        <div class="agendamento-admin-card-top">
+                            <div>
+                                <strong>${esc(a.nome)}</strong>
+                                <span class="agendamento-admin-email">${esc(a.email || '')}</span>
+                            </div>
+                            <span class="status">${esc(a.status)}</span>
+                        </div>
+                        <div class="agendamento-admin-card-grid">
+                            <div><small>Serviço</small><p>${esc(a.servico?.nome || '—')}</p></div>
+                            <div><small>Data</small><p>${esc(a.data)}</p></div>
+                            <div><small>Hora</small><p>${esc(a.hora)}</p></div>
+                            <div><small>Pagamento</small><p>${esc(a.metodo_pagamento || '—')}${a.valor_pago ? ` · ${Number(a.valor_pago).toFixed(2)}€` : ''}</p></div>
+                        </div>
+                        ${a.referencia_pagamento ? `<p class="agendamento-admin-ref">${esc(a.referencia_pagamento)}</p>` : ''}
+                    </article>
+                `).join('')}
+            </div>`;
     } catch {
         list.innerHTML = '<p class="painel-empty">Erro ao carregar.</p>';
     }

@@ -58,8 +58,11 @@ async function verificarAcessoMarcacao() {
 
     document.getElementById('marcacaoNome').textContent = obterNomePerfilCliente(utilizadorAtual);
     document.getElementById('marcacaoEmail').textContent = utilizadorAtual.email || '—';
+    const inicial = obterInicialPerfilCliente(utilizadorAtual);
     const avatar = document.getElementById('marcacaoAvatar');
-    if (avatar) avatar.textContent = obterInicialPerfilCliente(utilizadorAtual);
+    const avatarMenu = document.getElementById('marcacaoAvatarMenu');
+    if (avatar) avatar.textContent = inicial;
+    if (avatarMenu) avatarMenu.textContent = inicial;
 }
 
 function obterNomePerfilCliente(u) {
@@ -78,10 +81,43 @@ function obterInicialPerfilCliente(u) {
     return 'C';
 }
 
+function abrirPerfilMarcacao() {
+    const menu = document.getElementById('marcacaoPerfilMenu');
+    const btn = document.getElementById('btnMarcacaoPerfil');
+    if (!menu) return;
+    menu.classList.remove('hidden');
+    btn?.setAttribute('aria-expanded', 'true');
+}
+
+function fecharPerfilMarcacao() {
+    document.getElementById('marcacaoPerfilMenu')?.classList.add('hidden');
+    document.getElementById('btnMarcacaoPerfil')?.setAttribute('aria-expanded', 'false');
+}
+
+function alternarPerfilMarcacao() {
+    const menu = document.getElementById('marcacaoPerfilMenu');
+    if (!menu) return;
+    if (menu.classList.contains('hidden')) abrirPerfilMarcacao();
+    else fecharPerfilMarcacao();
+}
+
 function configurarMarcacaoPage() {
     document.getElementById('btnLogoutMarcacao')?.addEventListener('click', () => {
         limparSessao();
         window.location.href = 'conta.html';
+    });
+
+    document.getElementById('btnMarcacaoPerfil')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        alternarPerfilMarcacao();
+    });
+
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('marcacaoPerfilMenu');
+        const btn = document.getElementById('btnMarcacaoPerfil');
+        if (!menu || menu.classList.contains('hidden')) return;
+        if (menu.contains(e.target) || btn?.contains(e.target)) return;
+        fecharPerfilMarcacao();
     });
 
     document.getElementById('bkNext1')?.addEventListener('click', () => irPasso(2));
