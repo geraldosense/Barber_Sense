@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#0a0a0a">
     <title>Painel Admin — Sense Barbershop</title>
     <link rel="icon" type="image/png" href="assets/logo.png">
-    <link rel="stylesheet" href="css/normalize.css?v=25">
-    <link rel="stylesheet" href="css/style.css?v=25">
-    <link rel="stylesheet" href="css/painel.css?v=25">
+    <link rel="stylesheet" href="css/normalize.css?v=26">
+    <link rel="stylesheet" href="css/style.css?v=26">
+    <link rel="stylesheet" href="css/painel.css?v=26">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
@@ -63,6 +63,14 @@
 
             <div class="painel-topbar">
                 <h2 id="painelPageTitle">Painel de Administração</h2>
+            </div>
+
+            <div class="painel-persist-warn hidden" id="painelPersistWarn" role="alert">
+                <i class="fas fa-database"></i>
+                <div>
+                    <strong>Dados sem disco persistente</strong>
+                    <p>No Render: Disks → Add Disk → Mount path <code>/var/data</code>. Sem isto as marcações e alterações apagam-se em cada restart.</p>
+                </div>
             </div>
 
             <section class="painel-section active" id="sec-inicio">
@@ -281,8 +289,8 @@
         </div>
     </div>
 
-    <script src="js/config.js?v=25"></script>
-    <script src="js/sync.js?v=25"></script>
-    <script src="js/painel.js?v=25"></script>
+    <script src="js/config.js?v=26"></script>
+    <script src="js/sync.js?v=26"></script>
+    <script src="js/painel.js?v=26"></script>
 </body>
 </html>

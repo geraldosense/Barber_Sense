@@ -148,6 +148,46 @@
     color: #1a1a1a;
 }
 
+.painel-persist-warn {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin: 0 0 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    color: #9a3412;
+}
+
+.painel-persist-warn.hidden {
+    display: none !important;
+}
+
+.painel-persist-warn i {
+    margin-top: 0.15rem;
+    color: #ea580c;
+}
+
+.painel-persist-warn strong {
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.painel-persist-warn p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #9a3412;
+}
+
+.painel-persist-warn code {
+    font-size: 0.8em;
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0.05rem 0.3rem;
+    border-radius: 4px;
+}
+
 .painel-home-hello {
     margin: 0 0 1.1rem;
 }

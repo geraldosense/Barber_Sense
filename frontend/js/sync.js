@@ -1,8 +1,8 @@
 // ===== SINCRONIZAÇÃO ÚNICA — telemóvel ↔ computador =====
 // Um só site / uma só API. Todos os dispositivos seguem a mesma versão de dados.
 (function () {
-    const INTERVALO_RAPIDO_MS = 4000;
-    const INTERVALO_FUNDO_MS = 12000;
+    const INTERVALO_RAPIDO_MS = 2500;
+    const INTERVALO_FUNDO_MS = 8000;
     let ultimaVersao = null;
     let aVerificar = false;
     let timer = null;

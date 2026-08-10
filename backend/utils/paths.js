@@ -165,10 +165,14 @@ function resolverCaminhoBaseDados() {
         }
     }
 
-    // Em produção no Render, nunca ficar no filesystem do projeto (efémero)
-    if (emProducao() && absolute.includes('/opt/render/project/')) {
-        console.warn(`⚠️  DATABASE_PATH efémero detetado (${absolute}) — a forçar disco persistente`);
-        absolute = path.join(raizDados(), 'barbearia_sense.db');
+    // Em produção no Render, preferir disco /var/data; se a BD estiver no projeto sem mount, migrar
+    if (emProducao() && absolute.includes('/opt/render/project/') && !discoMontado(path.dirname(absolute))) {
+        if (garantirDir(RENDER_DISK) && podeEscrever(RENDER_DISK)) {
+            console.warn(`⚠️  DATABASE_PATH efémero detetado (${absolute}) — a migrar para ${RENDER_DISK}`);
+            const novo = path.join(RENDER_DISK, 'barbearia_sense.db');
+            copiarFicheiroSeNecessario(absolute, novo);
+            absolute = novo;
+        }
     }
 
     // Se /var/data foi pedido mas não é escrevível, usar fallback
@@ -222,15 +226,20 @@ function resolverCaminhoUploads() {
 }
 
 function diagnosticoPersistencia(dbPath, uploadsPath) {
-    const root = path.dirname(dbPath);
-    const noDiscoRender = dbPath.startsWith(RENDER_DISK) || root === RENDER_DISK;
-    const montado = discoMontado(RENDER_DISK);
-    const escreve = podeEscrever(path.dirname(dbPath));
-    const efemeroProjeto = String(dbPath).includes('/opt/render/project/');
+    const dataRoot = path.dirname(dbPath);
+    const candidatosMount = [
+        RENDER_DISK,
+        path.join(__dirname, '..', 'data'),
+        dataRoot,
+        '/opt/render/project/src/backend/data'
+    ];
+    const montado = candidatosMount.some((dir) => discoMontado(dir));
+    const escreve = podeEscrever(dataRoot);
+    const sobProjeto = String(dbPath).includes('/opt/render/project/');
 
     let sentinelOk = false;
     try {
-        const sentinelPath = path.join(noDiscoRender ? RENDER_DISK : path.dirname(dbPath), SENTINEL);
+        const sentinelPath = path.join(dataRoot, SENTINEL);
         if (!fs.existsSync(sentinelPath)) {
             fs.writeFileSync(sentinelPath, JSON.stringify({
                 criado_em: new Date().toISOString(),
@@ -242,22 +251,17 @@ function diagnosticoPersistencia(dbPath, uploadsPath) {
         sentinelOk = false;
     }
 
-    const persistente = emProducao()
-        ? (noDiscoRender && escreve && !efemeroProjeto && (montado || !emRender()))
-        : true;
-
-    // Em Render, sem mount explícito, /var/data criado com mkdir ainda é efémero
-    const persistenteRender = emRender()
-        ? (montado && noDiscoRender && escreve && !efemeroProjeto)
-        : persistente;
+    // Em Render só é persistente se o diretório da BD estiver num disco montado
+    const persistenteRender = emRender() ? (montado && escreve) : true;
+    const persistente = emProducao() ? (emRender() ? persistenteRender : escreve) : true;
 
     const avisos = [];
     if (emRender() && !montado) {
         avisos.push(
-            'Disco persistente NÃO montado em /var/data. No Render: Service → Disks → Add Disk → Mount path /var/data. Sem isto os dados apagam-se em cada restart/deploy.'
+            'Disco persistente NÃO montado. No Render: Service → Disks → Add Disk → Mount path /var/data (ou /opt/render/project/src/backend/data). Sem isto os dados apagam-se em cada restart/deploy.'
         );
     }
-    if (efemeroProjeto) {
+    if (sobProjeto && !montado) {
         avisos.push('A base de dados está no filesystem efémero do projeto.');
     }
     if (emProducao() && !escreve) {
@@ -265,7 +269,7 @@ function diagnosticoPersistencia(dbPath, uploadsPath) {
     }
 
     return {
-        persistente: persistenteRender,
+        persistente,
         render: emRender(),
         disco_montado: montado,
         caminho_bd: dbPath,

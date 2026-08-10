@@ -848,6 +848,10 @@ async function confirmarReserva(mbwayJaConfirmado = false) {
             referencia_pagamento: referencia
         }));
 
+        try {
+            window.SenseSync?.notificarPublicacao?.();
+        } catch (_) { /* sync opcional */ }
+
         window.location.href = 'marcacao.html?confirmado=1';
     } catch {
         mostrarMsg('Erro de ligação ao servidor.', 'error');

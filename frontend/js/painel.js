@@ -16,6 +16,11 @@ let secaoPainelAtual = 'inicio';
 let notifPendentes = 0;
 let notifAgendamentos = 0;
 let notifHoje = 0;
+let ultimoToastNovos = 0;
+let cacheAgendamentos = [];
+let pollPainelTimer = null;
+
+const SEEN_BOOKINGS_KEY = 'painelAgendamentosVistosIds';
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!verificarAcessoPainel()) return;
@@ -23,10 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
     carregarStats();
     atualizarBadgePendentes();
     atualizarBadgeAgendamentos();
+    iniciarPollPainel();
+    verificarPersistenciaPainel();
 });
 
 document.addEventListener('sense:sync', () => {
-    carregarStats();
+    carregarStats({ silencioso: true });
     atualizarBadgePendentes();
     atualizarBadgeAgendamentos();
     if (secaoPainelAtual === 'pendentes') carregarPendentes();
@@ -35,6 +42,82 @@ document.addEventListener('sense:sync', () => {
     if (secaoPainelAtual === 'barbeiros') carregarBarbeiros();
     if (secaoPainelAtual === 'site') carregarSiteInfo();
 });
+
+function dataLocalISO(d = new Date()) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function obterIdsMarcacoesVistos() {
+    try {
+        const raw = JSON.parse(localStorage.getItem(SEEN_BOOKINGS_KEY) || '[]');
+        return new Set((Array.isArray(raw) ? raw : []).map(String));
+    } catch {
+        return new Set();
+    }
+}
+
+function guardarIdsMarcacoesVistos(ids) {
+    const lista = [...ids].map(String).slice(-800);
+    localStorage.setItem(SEEN_BOOKINGS_KEY, JSON.stringify(lista));
+}
+
+function idsMarcacoesAtivas(agendamentos) {
+    return (agendamentos || []).filter(a =>
+        String(a.status || '').toLowerCase() !== 'cancelado' && a.id != null
+    );
+}
+
+function contarAgendamentosNovos(agendamentos) {
+    const ativos = idsMarcacoesAtivas(agendamentos);
+    if (!localStorage.getItem(SEEN_BOOKINGS_KEY)) {
+        // Primeira visita: marca o existente como visto — só notificam marcações futuras
+        guardarIdsMarcacoesVistos(ativos.map(a => a.id));
+        return 0;
+    }
+    const vistos = obterIdsMarcacoesVistos();
+    return ativos.filter(a => !vistos.has(String(a.id))).length;
+}
+
+function marcarAgendamentosVistos(lista) {
+    const fonte = lista || cacheAgendamentos;
+    const vistos = obterIdsMarcacoesVistos();
+    idsMarcacoesAtivas(fonte).forEach(a => vistos.add(String(a.id)));
+    guardarIdsMarcacoesVistos(vistos);
+    notifAgendamentos = 0;
+    ultimoToastNovos = 0;
+    document.getElementById('badgeAgendamentos')?.classList.add('hidden');
+    document.getElementById('dotAgendamentos')?.classList.add('hidden');
+    atualizarSinoNotificacoes();
+    carregarStats({ silencioso: true });
+}
+
+function iniciarPollPainel() {
+    clearInterval(pollPainelTimer);
+    const tick = () => {
+        if (document.hidden) return;
+        window.SenseSync?.verificar?.('painel');
+        carregarStats({ silencioso: true });
+    };
+    pollPainelTimer = setInterval(tick, 3000);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) tick();
+    });
+}
+
+async function verificarPersistenciaPainel() {
+    try {
+        const res = await fetch(`${API_URL}/health`, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const ok = data?.persistencia?.persistente === true || data?.database?.persistente === true;
+        const box = document.getElementById('painelPersistWarn');
+        if (!box) return;
+        box.classList.toggle('hidden', ok);
+    } catch { /* silencioso */ }
+}
 
 function verificarAcessoPainel() {
     if (sessionStorage.getItem('admPainelOk') !== '1') {
@@ -260,9 +343,10 @@ function irSecaoPainel(sec) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-async function carregarStats() {
+async function carregarStats(opts = {}) {
     const el = document.getElementById('painelStats');
     if (!el) return;
+    const silencioso = !!opts.silencioso;
 
     const hello = document.getElementById('painelHomeHello');
     if (hello) {
@@ -274,59 +358,72 @@ async function carregarStats() {
 
     try {
         const [rAg, rPend, rServ] = await Promise.all([
-            fetch(`${API_URL}/agendamentos`, { headers: authHeaders() }),
-            fetch(`${API_URL}/galeria/pendentes/count`, { headers: authHeaders() }),
-            fetch(`${API_URL}/servicos`)
+            fetch(`${API_URL}/agendamentos`, { headers: authHeaders(), cache: 'no-store' }),
+            fetch(`${API_URL}/galeria/pendentes/count`, { headers: authHeaders(), cache: 'no-store' }),
+            fetch(`${API_URL}/servicos`, { cache: 'no-store' })
         ]);
 
         const ag = rAg.ok ? await rAg.json() : [];
         const pend = rPend.ok ? await rPend.json() : { total: 0 };
         const serv = rServ.ok ? await rServ.json() : [];
-        const hoje = new Date().toISOString().split('T')[0];
-        const hojeLista = ag
-            .filter(a => a.data === hoje && String(a.status || '').toLowerCase() !== 'cancelado')
+        cacheAgendamentos = Array.isArray(ag) ? ag : [];
+
+        const hoje = dataLocalISO();
+        const ativos = idsMarcacoesAtivas(cacheAgendamentos);
+        const hojeLista = ativos
+            .filter(a => a.data === hoje)
             .sort((a, b) => String(a.hora || '').localeCompare(String(b.hora || '')));
+        const proximasLista = ativos
+            .filter(a => String(a.data || '') >= hoje)
+            .sort((a, b) =>
+                String(a.data || '').localeCompare(String(b.data || '')) ||
+                String(a.hora || '').localeCompare(String(b.hora || ''))
+            );
         const hojeCount = hojeLista.length;
-        const novos = contarAgendamentosNovos(ag);
+        const novos = contarAgendamentosNovos(cacheAgendamentos);
+        const servicosAtivos = Array.isArray(serv) ? serv.length : 0;
 
         el.innerHTML = `
             <div class="painel-stat"><i class="fas fa-calendar-day"></i><strong>${hojeCount}</strong><span>Marcações</span></div>
             <div class="painel-stat"><i class="fas fa-bell"></i><strong>${novos}</strong><span>Novas marcações</span></div>
             <div class="painel-stat"><i class="fas fa-clock"></i><strong>${pend.total || 0}</strong><span>Cortes pendentes</span></div>
-            <div class="painel-stat"><i class="fas fa-cut"></i><strong>${serv.length}</strong><span>Serviços ativos</span></div>
+            <div class="painel-stat"><i class="fas fa-cut"></i><strong>${servicosAtivos}</strong><span>Serviços ativos</span></div>
         `;
 
-        renderizarProximasMarcacoes(hojeLista);
+        renderizarProximasMarcacoes(hojeLista.length ? hojeLista : proximasLista.slice(0, 4), hojeLista.length > 0);
 
         notifPendentes = Number(pend.total) || 0;
         notifAgendamentos = novos;
         notifHoje = hojeCount;
         atualizarSinoNotificacoes();
 
-        if (novos > 0) {
+        if (!silencioso && novos > ultimoToastNovos) {
             toast(`${novos} nova(s) marcação(ões) de cliente!`, 'info');
         }
-        atualizarBadgeAgendamentos(ag);
+        ultimoToastNovos = novos;
+        atualizarBadgeAgendamentos(cacheAgendamentos);
     } catch {
-        el.innerHTML = '<p class="painel-empty">Erro ao carregar estatísticas.</p>';
+        if (!silencioso) {
+            el.innerHTML = '<p class="painel-empty">Erro ao carregar estatísticas.</p>';
+        }
     }
 }
 
-function renderizarProximasMarcacoes(listaHoje) {
+function renderizarProximasMarcacoes(lista, soHoje = true) {
     const box = document.getElementById('painelProximasList');
     if (!box) return;
 
-    if (!listaHoje.length) {
+    if (!lista.length) {
         box.innerHTML = '<p class="painel-proximas-empty"><i class="far fa-calendar"></i> Nenhuma marcação agendada para hoje.</p>';
         return;
     }
 
-    box.innerHTML = listaHoje.slice(0, 4).map(a => `
+    box.innerHTML = lista.slice(0, 4).map(a => `
         <article class="painel-proxima-item">
             <div class="painel-proxima-hora">${esc(a.hora || '—')}</div>
             <div class="painel-proxima-info">
                 <strong>${esc(a.nome || a.cliente_nome || 'Cliente')}</strong>
-                <span>${esc(a.servico?.nome || a.servico_nome || 'Serviço')}</span>
+                <span>${esc(a.servico?.nome || a.servico_nome || 'Serviço')}${!soHoje && a.data ? ` · ${esc(a.data)}` : ''}</span>
             </div>
             <span class="painel-proxima-status">${esc(String(a.status || 'confirmado').toUpperCase())}</span>
         </article>
@@ -355,7 +452,8 @@ async function atualizarBadgePendentes() {
 }
 
 function atualizarSinoNotificacoes() {
-    const total = notifPendentes + notifAgendamentos;
+    // O sino prioriza marcações novas; inclui também cortes pendentes
+    const total = notifAgendamentos + notifPendentes;
     const badge = document.getElementById('badgeNotificacoes');
     if (badge) {
         if (total > 0) {
@@ -708,26 +806,6 @@ async function atualizarBadgeAgendamentos(agendamentosCache) {
     } catch { /* silencioso */ }
 }
 
-function contarAgendamentosNovos(agendamentos) {
-    if (!localStorage.getItem('painelUltimaVisitaAgendamentos')) {
-        localStorage.setItem('painelUltimaVisitaAgendamentos', String(Date.now()));
-        return 0;
-    }
-    const ultimaVisita = Number(localStorage.getItem('painelUltimaVisitaAgendamentos') || 0);
-    return agendamentos.filter(a => {
-        if (!a.criado_em) return false;
-        const ts = new Date(a.criado_em).getTime();
-        return ts > ultimaVisita;
-    }).length;
-}
-
-function marcarAgendamentosVistos() {
-    localStorage.setItem('painelUltimaVisitaAgendamentos', String(Date.now()));
-    document.getElementById('badgeAgendamentos')?.classList.add('hidden');
-    document.getElementById('dotAgendamentos')?.classList.add('hidden');
-    notifAgendamentos = 0;
-    atualizarSinoNotificacoes();
-}
 
 async function carregarAgendamentos() {
     const list = document.getElementById('agendamentos-admin-list');
