@@ -41,6 +41,7 @@ const publicPath = path.join(__dirname, 'public');
 const devFrontendPath = path.join(__dirname, '..', 'frontend');
 const frontendPath = fs.existsSync(publicPath) ? publicPath : devFrontendPath;
 const { resolverCaminhoUploads, diagnosticoPersistencia } = require('./utils/paths');
+const { temBaseRemota } = require('./utils/libsql');
 const uploadsPath = resolverCaminhoUploads();
 console.log(`✓ Uploads: ${uploadsPath}`);
 
@@ -76,7 +77,9 @@ app.use('/api/sync', syncRoutes);
 app.get('/api/health', async (req, res) => {
     let sync = null;
     let dbInfo = null;
-    const persistencia = diagnosticoPersistencia(db.dbPath, uploadsPath);
+    const persistencia = diagnosticoPersistencia(db.dbPath, uploadsPath, {
+        remota: !!(db.remote || db.persistente || temBaseRemota())
+    });
     try {
         sync = await db.obterSync();
         const integrity = await db.get('PRAGMA integrity_check');
@@ -115,14 +118,13 @@ app.get('/api/health', async (req, res) => {
         uploads: uploadsPath,
         persistencia,
         acao_necessaria: persistencia.persistente ? null : {
-            titulo: 'Ativar disco persistente no Render',
+            titulo: 'Ativar persistência dos dados',
             passos: [
-                'Abra o serviço sense-barbershop no Render Dashboard',
-                'Vá a Disks → Add Disk',
-                'Mount path: /var/data | Size: 1 GB',
-                'Environment → confirme DATABASE_PATH=/var/data/barbearia_sense.db',
-                'Environment → confirme UPLOADS_PATH=/var/data/uploads e DATA_DIR=/var/data',
-                'Guarde e aguarde o redeploy — depois /api/health deve mostrar persistente: true'
+                'Opção A (plano Free): criar base em https://turso.tech',
+                'Environment → TURSO_DATABASE_URL = libsql://...turso.io',
+                'Environment → TURSO_AUTH_TOKEN = o token da base',
+                'Opção B (Starter+): Disks → Add Disk → Mount /var/data',
+                'Depois do redeploy, /api/health deve mostrar persistente: true'
             ]
         }
     });
@@ -160,7 +162,9 @@ app.get('*', (req, res, next) => {
 // ===== INICIAR SERVIDOR =====
 db.initialize()
     .then(() => {
-        const persistencia = diagnosticoPersistencia(db.dbPath, uploadsPath);
+        const persistencia = diagnosticoPersistencia(db.dbPath, uploadsPath, {
+            remota: !!(db.remote || db.persistente || temBaseRemota())
+        });
         if (!persistencia.persistente) {
             console.warn(`
 ╔══════════════════════════════════════════════════════════╗
@@ -168,14 +172,13 @@ db.initialize()
 ║  BD: ${db.dbPath}
 ║  ${(persistencia.avisos || []).join('\n║  ')}
 ║                                                          ║
-║  Render → Disks → Add Disk → Mount path: /var/data       ║
-║  Env: DATABASE_PATH=/var/data/barbearia_sense.db         ║
-║       UPLOADS_PATH=/var/data/uploads                     ║
-║       DATA_DIR=/var/data                                 ║
+║  Solução A (recomendada no Free): Turso (SQLite cloud)   ║
+║    Env: TURSO_DATABASE_URL + TURSO_AUTH_TOKEN            ║
+║  Solução B (plano Starter+): Disk mount /var/data        ║
 ╚══════════════════════════════════════════════════════════╝
 `);
         } else {
-            console.log(`✓ BD persistente: ${db.dbPath}`);
+            console.log(`✓ BD persistente: ${persistencia.modo || db.dbPath}`);
         }
 
         app.listen(PORT, () => {

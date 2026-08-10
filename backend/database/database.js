@@ -3,18 +3,36 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const { resolverCaminhoBaseDados } = require('../utils/paths');
+const { criarClienteLibsql, temBaseRemota } = require('../utils/libsql');
 
 class Database {
     constructor() {
-        this.dbPath = resolverCaminhoBaseDados();
+        this.remote = temBaseRemota();
+        this.client = null;
         this.db = null;
-        console.log(`✓ Caminho da base de dados: ${this.dbPath}`);
+        this.dbPath = this.remote
+            ? (process.env.TURSO_DATABASE_URL || process.env.LIBSQL_URL || 'libsql-remote')
+            : resolverCaminhoBaseDados();
+        this.persistente = this.remote;
+        console.log(this.remote
+            ? '✓ Base de dados remota (Turso/libSQL) — persistente'
+            : `✓ Caminho da base de dados: ${this.dbPath}`);
     }
 
     /**
      * Inicializar conexão com banco de dados
      */
-    initialize() {
+    async initialize() {
+        if (this.remote) {
+            this.client = criarClienteLibsql();
+            if (!this.client) {
+                throw new Error('TURSO_DATABASE_URL inválido. Defina a URL libSQL no Render.');
+            }
+            console.log('✓ Banco de dados remoto conectado');
+            await this._depoisDeConectar();
+            return;
+        }
+
         return new Promise((resolve, reject) => {
             this.db = new sqlite3.Database(this.dbPath, async (err) => {
                 if (err) {
@@ -24,19 +42,7 @@ class Database {
                 }
                 console.log('✓ Banco de dados conectado');
                 try {
-                    await this.configurarPragmas();
-                    await this.createTables();
-                    await this.migrarColunas();
-                    await this.inserirDadosExemplo();
-                    const syncRow = await this.get(
-                        `SELECT valor FROM configuracoes WHERE chave = 'sync_version'`
-                    );
-                    if (!syncRow?.valor) {
-                        await this.bumpSync('init');
-                    }
-                    const integrity = await this.get('PRAGMA integrity_check');
-                    console.log('✓ Tabelas criadas/verificadas');
-                    console.log(`✓ Integridade BD: ${integrity?.integrity_check || integrity}`);
+                    await this._depoisDeConectar();
                     resolve();
                 } catch (initErr) {
                     console.error('Erro ao inicializar banco:', initErr);
@@ -46,8 +52,32 @@ class Database {
         });
     }
 
+    async _depoisDeConectar() {
+        await this.configurarPragmas();
+        await this.createTables();
+        await this.migrarColunas();
+        await this.inserirDadosExemplo();
+        const syncRow = await this.get(
+            `SELECT valor FROM configuracoes WHERE chave = 'sync_version'`
+        );
+        if (!syncRow?.valor) {
+            await this.bumpSync('init');
+        }
+        try {
+            const integrity = await this.get('PRAGMA integrity_check');
+            console.log('✓ Tabelas criadas/verificadas');
+            console.log(`✓ Integridade BD: ${integrity?.integrity_check || integrity}`);
+        } catch (err) {
+            console.log('✓ Tabelas criadas/verificadas');
+            console.warn('Integridade BD:', err.message);
+        }
+    }
+
     async configurarPragmas() {
-        await this.run('PRAGMA foreign_keys = ON');
+        try {
+            await this.run('PRAGMA foreign_keys = ON');
+        } catch (_) { /* remoto pode ignorar */ }
+        if (this.remote) return;
         await this.run('PRAGMA busy_timeout = 5000');
         try {
             await this.run('PRAGMA journal_mode = WAL');
@@ -594,6 +624,12 @@ class Database {
      * Executar query simples
      */
     run(sql, params = []) {
+        if (this.remote) {
+            return this.client.execute({ sql, args: params || [] }).then((result) => ({
+                id: Number(result.lastInsertRowid || 0),
+                changes: Number(result.rowsAffected || 0)
+            }));
+        }
         return new Promise((resolve, reject) => {
             this.db.run(sql, params, function(err) {
                 if (err) reject(err);
@@ -623,7 +659,7 @@ class Database {
             versao: row?.valor || '0',
             atualizado_em: row?.atualizado_em || null,
             servicos_ativos: servicos?.total || 0,
-            db: path.basename(this.dbPath)
+            db: this.remote ? 'turso-libsql' : path.basename(this.dbPath)
         };
     }
 
@@ -631,6 +667,12 @@ class Database {
      * Obter um único resultado
      */
     get(sql, params = []) {
+        if (this.remote) {
+            return this.client.execute({ sql, args: params || [] }).then((result) => {
+                const row = result.rows?.[0];
+                return row || null;
+            });
+        }
         return new Promise((resolve, reject) => {
             this.db.get(sql, params, (err, row) => {
                 if (err) reject(err);
@@ -643,6 +685,9 @@ class Database {
      * Obter todos os resultados
      */
     all(sql, params = []) {
+        if (this.remote) {
+            return this.client.execute({ sql, args: params || [] }).then((result) => result.rows || []);
+        }
         return new Promise((resolve, reject) => {
             this.db.all(sql, params, (err, rows) => {
                 if (err) reject(err);
@@ -655,6 +700,10 @@ class Database {
      * Fechar conexão
      */
     close() {
+        if (this.remote) {
+            try { this.client?.close?.(); } catch (_) { /* ignore */ }
+            return Promise.resolve();
+        }
         return new Promise((resolve, reject) => {
             this.db.close((err) => {
                 if (err) reject(err);

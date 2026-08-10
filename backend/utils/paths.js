@@ -225,8 +225,26 @@ function resolverCaminhoUploads() {
     return absolute;
 }
 
-function diagnosticoPersistencia(dbPath, uploadsPath) {
-    const dataRoot = path.dirname(dbPath);
+function diagnosticoPersistencia(dbPath, uploadsPath, opts = {}) {
+    const remota = !!(opts && opts.remota) || !!(
+        process.env.TURSO_DATABASE_URL ||
+        process.env.LIBSQL_URL ||
+        process.env.LIBSQL_DATABASE_URL
+    );
+    if (remota) {
+        return {
+            persistente: true,
+            render: emRender(),
+            disco_montado: false,
+            modo: 'turso-libsql',
+            caminho_bd: dbPath,
+            uploads: uploadsPath,
+            sentinel: true,
+            avisos: []
+        };
+    }
+
+    const dataRoot = path.dirname(String(dbPath || '.'));
     const candidatosMount = [
         RENDER_DISK,
         path.join(__dirname, '..', 'data'),
@@ -251,14 +269,13 @@ function diagnosticoPersistencia(dbPath, uploadsPath) {
         sentinelOk = false;
     }
 
-    // Em Render só é persistente se o diretório da BD estiver num disco montado
     const persistenteRender = emRender() ? (montado && escreve) : true;
     const persistente = emProducao() ? (emRender() ? persistenteRender : escreve) : true;
 
     const avisos = [];
     if (emRender() && !montado) {
         avisos.push(
-            'Disco persistente NÃO montado. No Render: Service → Disks → Add Disk → Mount path /var/data (ou /opt/render/project/src/backend/data). Sem isto os dados apagam-se em cada restart/deploy.'
+            'Sem disco local. No plano Free use Turso (TURSO_DATABASE_URL + TURSO_AUTH_TOKEN em Environment). No Starter+: Disks → Mount /var/data.'
         );
     }
     if (sobProjeto && !montado) {
@@ -272,6 +289,7 @@ function diagnosticoPersistencia(dbPath, uploadsPath) {
         persistente,
         render: emRender(),
         disco_montado: montado,
+        modo: montado ? 'disco' : 'efemero',
         caminho_bd: dbPath,
         uploads: uploadsPath,
         sentinel: sentinelOk,
