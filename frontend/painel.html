@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#0a0a0a">
     <title>Painel Admin — Sense Barbershop</title>
     <link rel="icon" type="image/png" href="assets/logo.png">
-    <link rel="stylesheet" href="css/normalize.css?v=24">
-    <link rel="stylesheet" href="css/style.css?v=24">
-    <link rel="stylesheet" href="css/painel.css?v=24">
+    <link rel="stylesheet" href="css/normalize.css?v=25">
+    <link rel="stylesheet" href="css/style.css?v=25">
+    <link rel="stylesheet" href="css/painel.css?v=25">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
@@ -65,22 +65,33 @@
                 <h2 id="painelPageTitle">Painel de Administração</h2>
             </div>
 
-            <div class="painel-sync-banner" id="painelSyncBanner">
-                <i class="fas fa-sync-alt"></i>
-                <div>
-                    <strong>Um só site para todos os dispositivos</strong>
-                    <p>Publique sempre em <a id="painelSyncLink" href="/">este mesmo endereço</a> no telemóvel e no computador. Assim os serviços aparecem iguais em todo o lado.</p>
-                </div>
-            </div>
-
             <section class="painel-section active" id="sec-inicio">
-                <div class="painel-stats" id="painelStats"></div>
-                <div class="painel-card">
+                <div class="painel-home-hello" id="painelHomeHello">
+                    <h2>Olá, Barbeiro 👋</h2>
+                    <p>Aqui está o resumo do seu negócio hoje.</p>
+                </div>
+
+                <div class="painel-resumo-card">
+                    <h3 class="painel-resumo-title">Resumo hoje</h3>
+                    <div class="painel-stats" id="painelStats"></div>
+                </div>
+
+                <div class="painel-card painel-card--acoes">
                     <h3><i class="fas fa-bolt"></i> Ações rápidas</h3>
                     <div class="dash-cards">
                         <div class="dash-card" onclick="irSecaoPainel('galeria')"><i class="fas fa-upload"></i><h3>Publicar Corte</h3><p>Adicionar foto à galeria</p></div>
                         <div class="dash-card" onclick="irSecaoPainel('servicos')"><i class="fas fa-tags"></i><h3>Atualizar Preços</h3><p>Alterar valores dos cortes</p></div>
                         <div class="dash-card" onclick="irSecaoPainel('agendamentos')"><i class="fas fa-calendar"></i><h3>Ver Marcações</h3><p>Agenda completa</p></div>
+                    </div>
+                </div>
+
+                <div class="painel-card painel-proximas" id="painelProximas">
+                    <div class="painel-proximas-head">
+                        <h3>Próximas marcações</h3>
+                        <button type="button" class="painel-link-ver" onclick="irSecaoPainel('agendamentos')">Ver todas</button>
+                    </div>
+                    <div id="painelProximasList" class="painel-proximas-list">
+                        <p class="painel-proximas-empty"><i class="far fa-calendar"></i> Nenhuma marcação agendada para hoje.</p>
                     </div>
                 </div>
             </section>
@@ -270,8 +281,8 @@
         </div>
     </div>
 
-    <script src="js/config.js?v=24"></script>
-    <script src="js/sync.js?v=24"></script>
-    <script src="js/painel.js?v=24"></script>
+    <script src="js/config.js?v=25"></script>
+    <script src="js/sync.js?v=25"></script>
+    <script src="js/painel.js?v=25"></script>
 </body>
 </html>

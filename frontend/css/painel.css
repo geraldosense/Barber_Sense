@@ -148,54 +148,45 @@
     color: #1a1a1a;
 }
 
-.painel-sync-banner {
-    display: flex;
-    gap: 0.85rem;
-    align-items: flex-start;
-    margin: 0 0 1.25rem;
-    padding: 0.9rem 1rem;
-    border-radius: 12px;
-    background: rgba(212, 175, 55, 0.12);
-    border: 1px solid rgba(212, 175, 55, 0.35);
-    color: #1a1a1a;
+.painel-home-hello {
+    margin: 0 0 1.1rem;
 }
 
-.painel-sync-banner i {
-    color: var(--secondary-color, #d4af37);
-    margin-top: 0.2rem;
+.painel-home-hello h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -0.02em;
 }
 
-.painel-sync-banner strong {
-    display: block;
-    margin-bottom: 0.2rem;
-}
-
-.painel-sync-banner p {
+.painel-home-hello p {
     margin: 0;
-    font-size: 0.88rem;
-    color: #555;
-    line-height: 1.4;
+    color: #666;
+    font-size: 0.92rem;
 }
 
-.painel-sync-banner a {
-    color: #8a6d1d;
-    font-weight: 600;
+.painel-resumo-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1rem 0.75rem 1.1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid #eee;
+    margin-bottom: 1.25rem;
 }
 
-.painel-section {
-    display: none;
-}
-
-.painel-section.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
+.painel-resumo-title {
+    margin: 0 0 0.85rem 0.35rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a1a;
 }
 
 .painel-stats {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0;
 }
 
 .painel-stat {
@@ -204,6 +195,15 @@
     padding: 1.25rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     border: 1px solid #eee;
+}
+
+.painel-resumo-card .painel-stat {
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    padding: 0.35rem 0.5rem;
+    background: transparent;
+    text-align: center;
 }
 
 .painel-stat i {
@@ -221,6 +221,106 @@
 .painel-stat span {
     font-size: 0.8rem;
     color: #666;
+}
+
+.painel-proximas-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+}
+
+.painel-proximas-head h3 {
+    margin: 0;
+}
+
+.painel-link-ver {
+    appearance: none;
+    border: none;
+    background: none;
+    color: var(--secondary-color, #d4af37);
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+}
+
+.painel-proximas-empty {
+    margin: 0;
+    text-align: center;
+    color: #888;
+    font-size: 0.92rem;
+    padding: 1.5rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.painel-proximas-empty i {
+    font-size: 1.6rem;
+    color: #c4c4c4;
+}
+
+.painel-proxima-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.painel-proxima-item:last-child {
+    border-bottom: none;
+}
+
+.painel-proxima-hora {
+    font-weight: 700;
+    color: #1a1a1a;
+    font-size: 0.95rem;
+    min-width: 3.2rem;
+}
+
+.painel-proxima-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.painel-proxima-info strong {
+    font-size: 0.92rem;
+    color: #1a1a1a;
+}
+
+.painel-proxima-info span {
+    font-size: 0.78rem;
+    color: #777;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.painel-proxima-status {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #8a6d1d;
+    background: rgba(212, 175, 55, 0.15);
+    padding: 0.25rem 0.45rem;
+    border-radius: 999px;
+}
+
+.painel-section {
+    display: none;
+}
+
+.painel-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
 }
 
 .painel-card {
@@ -606,8 +706,91 @@ body.painel-page {
         width: 100%;
     }
 
-    .painel-sync-banner {
+    .painel-home-hello h2 {
+        font-size: 1.55rem;
+    }
+
+    .painel-resumo-card {
+        padding: 1rem 0.4rem 1.05rem;
+        border-radius: 18px;
+    }
+
+    .painel-resumo-title {
+        margin: 0 0 0.75rem 0.65rem;
+        font-size: 1rem;
+    }
+
+    .painel-resumo-card .painel-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        align-items: start;
+    }
+
+    .painel-resumo-card .painel-stat {
+        position: relative;
+        padding: 0.2rem 0.25rem;
+    }
+
+    .painel-resumo-card .painel-stat:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 12%;
+        right: 0;
+        width: 1px;
+        height: 76%;
+        background: #ececec;
+    }
+
+    .painel-resumo-card .painel-stat i {
+        font-size: 1.05rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .painel-resumo-card .painel-stat strong {
+        font-size: 1.45rem;
+        line-height: 1.1;
+        margin-bottom: 0.2rem;
+    }
+
+    .painel-resumo-card .painel-stat span {
+        font-size: 0.62rem;
+        line-height: 1.2;
+        display: block;
+    }
+
+    .painel-card--acoes {
+        padding: 1.15rem 1rem 1.25rem;
+        border-radius: 16px;
+    }
+
+    .painel-card--acoes .dash-cards {
+        display: flex;
+        gap: 0.75rem;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.15rem;
+        margin: 0 -0.15rem;
+        scrollbar-width: none;
+    }
+
+    .painel-card--acoes .dash-cards::-webkit-scrollbar {
         display: none;
+    }
+
+    .painel-card--acoes .dash-card {
+        flex: 0 0 72%;
+        max-width: 220px;
+        scroll-snap-align: start;
+        border-radius: 14px;
+        padding: 1.1rem 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .painel-proximas {
+        border-radius: 16px;
+        padding: 1.15rem 1rem 1.25rem;
     }
 
     .painel-bottom-nav {

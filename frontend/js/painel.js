@@ -19,11 +19,6 @@ let notifHoje = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!verificarAcessoPainel()) return;
-    const syncLink = document.getElementById('painelSyncLink');
-    if (syncLink) {
-        syncLink.href = window.SITE_URL || window.location.origin;
-        syncLink.textContent = window.location.host || 'este endereço';
-    }
     configurarPainelApp();
     carregarStats();
     atualizarBadgePendentes();
@@ -269,6 +264,14 @@ async function carregarStats() {
     const el = document.getElementById('painelStats');
     if (!el) return;
 
+    const hello = document.getElementById('painelHomeHello');
+    if (hello) {
+        hello.innerHTML = `
+            <h2>Olá, Barbeiro 👋</h2>
+            <p>Aqui está o resumo do seu negócio hoje.</p>
+        `;
+    }
+
     try {
         const [rAg, rPend, rServ] = await Promise.all([
             fetch(`${API_URL}/agendamentos`, { headers: authHeaders() }),
@@ -280,15 +283,20 @@ async function carregarStats() {
         const pend = rPend.ok ? await rPend.json() : { total: 0 };
         const serv = rServ.ok ? await rServ.json() : [];
         const hoje = new Date().toISOString().split('T')[0];
-        const hojeCount = ag.filter(a => a.data === hoje).length;
+        const hojeLista = ag
+            .filter(a => a.data === hoje && String(a.status || '').toLowerCase() !== 'cancelado')
+            .sort((a, b) => String(a.hora || '').localeCompare(String(b.hora || '')));
+        const hojeCount = hojeLista.length;
         const novos = contarAgendamentosNovos(ag);
 
         el.innerHTML = `
-            <div class="painel-stat"><i class="fas fa-calendar-day"></i><strong>${hojeCount}</strong><span>Marcações hoje</span></div>
+            <div class="painel-stat"><i class="fas fa-calendar-day"></i><strong>${hojeCount}</strong><span>Marcações</span></div>
             <div class="painel-stat"><i class="fas fa-bell"></i><strong>${novos}</strong><span>Novas marcações</span></div>
             <div class="painel-stat"><i class="fas fa-clock"></i><strong>${pend.total || 0}</strong><span>Cortes pendentes</span></div>
             <div class="painel-stat"><i class="fas fa-cut"></i><strong>${serv.length}</strong><span>Serviços ativos</span></div>
         `;
+
+        renderizarProximasMarcacoes(hojeLista);
 
         notifPendentes = Number(pend.total) || 0;
         notifAgendamentos = novos;
@@ -302,6 +310,27 @@ async function carregarStats() {
     } catch {
         el.innerHTML = '<p class="painel-empty">Erro ao carregar estatísticas.</p>';
     }
+}
+
+function renderizarProximasMarcacoes(listaHoje) {
+    const box = document.getElementById('painelProximasList');
+    if (!box) return;
+
+    if (!listaHoje.length) {
+        box.innerHTML = '<p class="painel-proximas-empty"><i class="far fa-calendar"></i> Nenhuma marcação agendada para hoje.</p>';
+        return;
+    }
+
+    box.innerHTML = listaHoje.slice(0, 4).map(a => `
+        <article class="painel-proxima-item">
+            <div class="painel-proxima-hora">${esc(a.hora || '—')}</div>
+            <div class="painel-proxima-info">
+                <strong>${esc(a.nome || a.cliente_nome || 'Cliente')}</strong>
+                <span>${esc(a.servico?.nome || a.servico_nome || 'Serviço')}</span>
+            </div>
+            <span class="painel-proxima-status">${esc(String(a.status || 'confirmado').toUpperCase())}</span>
+        </article>
+    `).join('');
 }
 
 async function atualizarBadgePendentes() {
