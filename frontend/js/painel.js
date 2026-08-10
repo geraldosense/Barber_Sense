@@ -112,10 +112,25 @@ async function verificarPersistenciaPainel() {
         const res = await fetch(`${API_URL}/health`, { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
-        const ok = data?.persistencia?.persistente === true || data?.database?.persistente === true;
+        const dbOk = data?.persistencia?.persistente === true || data?.database?.persistente === true;
+        const uploadsOk = data?.uploads_persistentes === true;
         const box = document.getElementById('painelPersistWarn');
         if (!box) return;
-        box.classList.toggle('hidden', ok);
+        if (dbOk && uploadsOk) {
+            box.classList.add('hidden');
+            return;
+        }
+        box.classList.remove('hidden');
+        const msg = box.querySelector('div');
+        if (msg) {
+            const faltas = [];
+            if (!dbOk) faltas.push('base de dados (Turso)');
+            if (!uploadsOk) faltas.push('fotos (Cloudinary)');
+            msg.innerHTML = `
+                <strong>Persistência incompleta</strong>
+                <p>Falta configurar: <strong>${faltas.join(' e ')}</strong>. Sem isto, dados ou imagens podem desaparecer no Render Free.</p>
+            `;
+        }
     } catch { /* silencioso */ }
 }
 

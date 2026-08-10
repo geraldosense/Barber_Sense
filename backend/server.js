@@ -42,8 +42,9 @@ const devFrontendPath = path.join(__dirname, '..', 'frontend');
 const frontendPath = fs.existsSync(publicPath) ? publicPath : devFrontendPath;
 const { resolverCaminhoUploads, diagnosticoPersistencia } = require('./utils/paths');
 const { temBaseRemota } = require('./utils/libsql');
+const { uploadsPersistentes } = require('./utils/cloudinary');
 const uploadsPath = resolverCaminhoUploads();
-console.log(`✓ Uploads: ${uploadsPath}`);
+console.log(`✓ Uploads: ${uploadsPath}${uploadsPersistentes() ? ' (cloud)' : ' (local)'}`);
 
 app.use((req, res, next) => {
     if (/\.(html?|css|js)$/i.test(req.path) || req.path === '/') {
@@ -116,15 +117,19 @@ app.get('/api/health', async (req, res) => {
         sync,
         database: dbInfo,
         uploads: uploadsPath,
+        uploads_persistentes: uploadsPersistentes(),
         persistencia,
-        acao_necessaria: persistencia.persistente ? null : {
-            titulo: 'Ativar persistência dos dados',
+        acao_necessaria: persistencia.persistente && uploadsPersistentes() ? null : {
+            titulo: 'Completar persistência',
             passos: [
-                'Opção A (plano Free): criar base em https://turso.tech',
-                'Environment → TURSO_DATABASE_URL = libsql://...turso.io',
-                'Environment → TURSO_AUTH_TOKEN = o token da base',
-                'Opção B (Starter+): Disks → Add Disk → Mount /var/data',
-                'Depois do redeploy, /api/health deve mostrar persistente: true'
+                ...(persistencia.persistente ? [] : [
+                    'Base de dados: TURSO_DATABASE_URL + TURSO_AUTH_TOKEN'
+                ]),
+                ...(uploadsPersistentes() ? [] : [
+                    'Fotos: criar conta em https://cloudinary.com',
+                    'Environment → CLOUDINARY_URL = cloudinary://API_KEY:API_SECRET@CLOUD_NAME',
+                    'Save, rebuild and deploy'
+                ])
             ]
         }
     });
