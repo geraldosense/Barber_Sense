@@ -607,8 +607,7 @@ body.painel-page {
     }
 
     .painel-sync-banner {
-        font-size: 0.85rem;
-        padding: 0.85rem 1rem;
+        display: none;
     }
 
     .painel-bottom-nav {
@@ -682,10 +681,12 @@ body.painel-page {
     }
 
     .painel-tab > span:not(.painel-tab-plus):not(.painel-tab-dot) {
-        font-size: 0.62rem;
+        font-size: 0.58rem;
         font-weight: 500;
-        letter-spacing: 0.01em;
-        line-height: 1;
+        letter-spacing: -0.01em;
+        line-height: 1.1;
+        text-align: center;
+        max-width: 100%;
     }
 
     .painel-tab.active {
