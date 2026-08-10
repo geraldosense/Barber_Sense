@@ -28,7 +28,12 @@ class Database {
                     await this.createTables();
                     await this.migrarColunas();
                     await this.inserirDadosExemplo();
-                    await this.bumpSync('init');
+                    const syncRow = await this.get(
+                        `SELECT valor FROM configuracoes WHERE chave = 'sync_version'`
+                    );
+                    if (!syncRow?.valor) {
+                        await this.bumpSync('init');
+                    }
                     const integrity = await this.get('PRAGMA integrity_check');
                     console.log('✓ Tabelas criadas/verificadas');
                     console.log(`✓ Integridade BD: ${integrity?.integrity_check || integrity}`);
@@ -382,7 +387,24 @@ class Database {
         const emailOficial = 'sensebarber10@gmail.com';
         try {
             const row = await this.get('SELECT valor FROM configuracoes WHERE chave = ?', ['site_info']);
-            let site = {
+            if (row?.valor) {
+                let site;
+                try {
+                    site = JSON.parse(row.valor);
+                } catch {
+                    site = {};
+                }
+                // Só garante o email oficial — não reescreve contactos alterados no admin
+                if (site.email === emailOficial) return;
+                site.email = emailOficial;
+                await this.run(
+                    `UPDATE configuracoes SET valor = ?, atualizado_em = CURRENT_TIMESTAMP WHERE chave = ?`,
+                    [JSON.stringify(site), 'site_info']
+                );
+                return;
+            }
+
+            const site = {
                 telefone: '+351 960 075 690',
                 email: emailOficial,
                 morada: 'Rua Principal, Caminho Nossa Senhora da Luz n6',
@@ -390,14 +412,8 @@ class Database {
                 tiktok: 'https://www.tiktok.com/@sense_barber',
                 whatsapp: 'https://wa.me/+351960075690'
             };
-            if (row?.valor) {
-                try {
-                    site = { ...site, ...JSON.parse(row.valor), email: emailOficial };
-                } catch { /* usar defaults */ }
-            }
             await this.run(
-                `INSERT INTO configuracoes (chave, valor, atualizado_em) VALUES (?, ?, CURRENT_TIMESTAMP)
-                 ON CONFLICT(chave) DO UPDATE SET valor = excluded.valor, atualizado_em = CURRENT_TIMESTAMP`,
+                `INSERT INTO configuracoes (chave, valor, atualizado_em) VALUES (?, ?, CURRENT_TIMESTAMP)`,
                 ['site_info', JSON.stringify(site)]
             );
         } catch (err) {
@@ -408,22 +424,46 @@ class Database {
     async garantirAdminPrincipal() {
         try {
             const email = 'sensebarber10@gmail.com';
-            const hash = await bcrypt.hash('12sense12', 12);
-            const existente = await this.get('SELECT id FROM utilizadores WHERE email = ?', [email]);
+            const existente = await this.get(
+                'SELECT id, perfil, ativo, email_confirmado FROM utilizadores WHERE email = ?',
+                [email]
+            );
+
+            const pwdFlag = await this.get(
+                `SELECT valor FROM configuracoes WHERE chave = 'admin_pwd_sensebarber10_v1'`
+            );
+            const deveDefinirPassword = !existente || pwdFlag?.valor !== '1' || process.env.ADMIN_ENSURE_PASSWORD === '1';
 
             if (existente) {
-                await this.run(
-                    `UPDATE utilizadores SET nome = 'Sense Barbershop', password_hash = ?, perfil = 'administrador',
-                     ativo = 1, email_confirmado = 1, perfil_completo = 1, telefone = '+351 960 075 690' WHERE email = ?`,
-                    [hash, email]
-                );
+                if (deveDefinirPassword) {
+                    const hash = await bcrypt.hash('12sense12', 12);
+                    await this.run(
+                        `UPDATE utilizadores SET password_hash = ?, perfil = 'administrador',
+                         ativo = 1, email_confirmado = 1, perfil_completo = 1
+                         WHERE email = ?`,
+                        [hash, email]
+                    );
+                } else {
+                    await this.run(
+                        `UPDATE utilizadores SET perfil = 'administrador',
+                         ativo = 1, email_confirmado = 1, perfil_completo = 1
+                         WHERE email = ?`,
+                        [email]
+                    );
+                }
             } else {
+                const hash = await bcrypt.hash('12sense12', 12);
                 await this.run(
                     `INSERT INTO utilizadores (nome, email, telefone, password_hash, perfil, ativo, email_confirmado, perfil_completo)
                      VALUES ('Sense Barbershop', ?, '+351 960 075 690', ?, 'administrador', 1, 1, 1)`,
                     [email, hash]
                 );
             }
+
+            await this.run(
+                `INSERT INTO configuracoes (chave, valor, atualizado_em) VALUES ('admin_pwd_sensebarber10_v1', '1', CURRENT_TIMESTAMP)
+                 ON CONFLICT(chave) DO UPDATE SET valor = '1', atualizado_em = CURRENT_TIMESTAMP`
+            );
 
             // Único admin oficial — despromove contas antigas
             await this.run(
@@ -442,6 +482,15 @@ class Database {
     }
 
     async normalizarBarbeiroPrincipal() {
+        // Só migra nomes antigos de exemplo UMA vez — nunca sobrescreve edições do admin
+        const flag = await this.get(
+            `SELECT valor FROM configuracoes WHERE chave = 'barbeiro_normalizado_v2'`
+        );
+        if (flag?.valor === '1') {
+            await this.garantirAdminPrincipal();
+            return;
+        }
+
         const dadosGeraldo = [
             'Geraldo Sense',
             '4 anos de profissionalismo na área da barbearia',
@@ -451,26 +500,29 @@ class Database {
             'sensegeraldo2@gmail.com'
         ];
 
-        const row = await this.get(
-            `SELECT id FROM barbeiros WHERE nome IN ('João Silva', 'Joao Silva', 'Geraldo Sense') ORDER BY id LIMIT 1`
+        const rowExemplo = await this.get(
+            `SELECT id FROM barbeiros WHERE nome IN ('João Silva', 'Joao Silva') ORDER BY id LIMIT 1`
         );
 
-        if (!row) {
-            await this.garantirAdminPrincipal();
-            return;
+        if (rowExemplo) {
+            await this.run(
+                `UPDATE barbeiros SET nome = ?, experiencia = ?, especialidades = ?, foto = ?, telefone = ?, email = ?, principal = 1, ativo = 1 WHERE id = ?`,
+                [...dadosGeraldo, rowExemplo.id]
+            );
+            await this.run(
+                'UPDATE barbeiros SET ativo = 0 WHERE id != ? AND nome IN (?, ?, ?)',
+                [rowExemplo.id, 'Carlos Santos', 'Miguel Costa', 'João Silva']
+            );
+            await this.run(
+                `UPDATE utilizadores SET nome = 'Geraldo Sense' WHERE email = 'joao@barbeariasense.pt'`
+            );
         }
 
         await this.run(
-            `UPDATE barbeiros SET nome = ?, experiencia = ?, especialidades = ?, foto = ?, telefone = ?, email = ?, principal = 1, ativo = 1 WHERE id = ?`,
-            [...dadosGeraldo, row.id]
+            `INSERT INTO configuracoes (chave, valor, atualizado_em) VALUES ('barbeiro_normalizado_v2', '1', CURRENT_TIMESTAMP)
+             ON CONFLICT(chave) DO UPDATE SET valor = '1', atualizado_em = CURRENT_TIMESTAMP`
         );
-        await this.run(
-            'UPDATE barbeiros SET ativo = 0 WHERE id != ? AND nome IN (?, ?, ?)',
-            [row.id, 'Carlos Santos', 'Miguel Costa', 'João Silva']
-        );
-        await this.run(
-            `UPDATE utilizadores SET nome = 'Geraldo Sense' WHERE email = 'joao@barbeariasense.pt'`
-        );
+
         await this.garantirAdminPrincipal();
     }
 

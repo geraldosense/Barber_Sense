@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 const publicPath = path.join(__dirname, 'public');
 const devFrontendPath = path.join(__dirname, '..', 'frontend');
 const frontendPath = fs.existsSync(publicPath) ? publicPath : devFrontendPath;
-const { resolverCaminhoUploads } = require('./utils/paths');
+const { resolverCaminhoUploads, diagnosticoPersistencia } = require('./utils/paths');
 const uploadsPath = resolverCaminhoUploads();
 console.log(`✓ Uploads: ${uploadsPath}`);
 
@@ -76,6 +76,7 @@ app.use('/api/sync', syncRoutes);
 app.get('/api/health', async (req, res) => {
     let sync = null;
     let dbInfo = null;
+    const persistencia = diagnosticoPersistencia(db.dbPath, uploadsPath);
     try {
         sync = await db.obterSync();
         const integrity = await db.get('PRAGMA integrity_check');
@@ -83,6 +84,7 @@ app.get('/api/health', async (req, res) => {
         const journal = await db.get('PRAGMA journal_mode');
         dbInfo = {
             path: db.dbPath,
+            persistente: persistencia.persistente,
             integrity: integrity?.integrity_check || integrity,
             foreign_keys: fk?.foreign_keys,
             journal_mode: journal?.journal_mode,
@@ -95,18 +97,34 @@ app.get('/api/health', async (req, res) => {
             }
         };
     } catch (err) {
-        dbInfo = { erro: err.message };
+        dbInfo = { erro: err.message, path: db.dbPath, persistente: persistencia.persistente };
     }
 
+    const status = !persistencia.persistente && persistencia.render
+        ? 'critical'
+        : (dbInfo?.integrity === 'ok' ? 'ok' : 'degraded');
+
     res.json({
-        status: dbInfo?.integrity === 'ok' ? 'ok' : 'degraded',
+        status,
         online: true,
         hora: new Date().toISOString(),
         frontend: fs.existsSync(publicPath) ? 'public' : 'dev',
         versao: require('./package.json').version,
         sync,
         database: dbInfo,
-        uploads: uploadsPath
+        uploads: uploadsPath,
+        persistencia,
+        acao_necessaria: persistencia.persistente ? null : {
+            titulo: 'Ativar disco persistente no Render',
+            passos: [
+                'Abra o serviço sense-barbershop no Render Dashboard',
+                'Vá a Disks → Add Disk',
+                'Mount path: /var/data | Size: 1 GB',
+                'Environment → confirme DATABASE_PATH=/var/data/barbearia_sense.db',
+                'Environment → confirme UPLOADS_PATH=/var/data/uploads e DATA_DIR=/var/data',
+                'Guarde e aguarde o redeploy — depois /api/health deve mostrar persistente: true'
+            ]
+        }
     });
 });
 
@@ -142,20 +160,22 @@ app.get('*', (req, res, next) => {
 // ===== INICIAR SERVIDOR =====
 db.initialize()
     .then(() => {
-        const dbPath = db.dbPath || '';
-        const persistente = dbPath.startsWith('/var/data') || !!(process.env.DATABASE_PATH || '').includes('/var/data');
-        if (process.env.NODE_ENV === 'production' && !persistente) {
+        const persistencia = diagnosticoPersistencia(db.dbPath, uploadsPath);
+        if (!persistencia.persistente) {
             console.warn(`
 ╔══════════════════════════════════════════════════════════╗
-║  ⚠️  AVISO: base de dados NÃO está em disco persistente  ║
-║  Caminho atual: ${dbPath}
-║  No Render: Disks → mount /var/data                       ║
-║  Env: DATABASE_PATH=/var/data/barbearia_sense.db          ║
-║  Sem isto, marcações/galeria podem apagar-se no deploy.   ║
+║  ⚠️  DADOS NÃO PERSISTENTES — vão apagar-se no restart   ║
+║  BD: ${db.dbPath}
+║  ${(persistencia.avisos || []).join('\n║  ')}
+║                                                          ║
+║  Render → Disks → Add Disk → Mount path: /var/data       ║
+║  Env: DATABASE_PATH=/var/data/barbearia_sense.db         ║
+║       UPLOADS_PATH=/var/data/uploads                     ║
+║       DATA_DIR=/var/data                                 ║
 ╚══════════════════════════════════════════════════════════╝
 `);
         } else {
-            console.log(`✓ BD persistente: ${dbPath}`);
+            console.log(`✓ BD persistente: ${db.dbPath}`);
         }
 
         app.listen(PORT, () => {
