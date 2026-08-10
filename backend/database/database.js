@@ -275,17 +275,22 @@ class Database {
         }
 
         const colsB = await this.all('PRAGMA table_info(barbeiros)');
-        if (!colsB || colsB.length === 0) return;
-
         const colsServ = await this.all('PRAGMA table_info(servicos)');
-        if (colsServ) {
-            if (!colsServ.some(c => c.name === 'ativo')) {
+        const nomesCols = (rows) => (rows || []).map((c) => c.name || c.Name || c[1]).filter(Boolean);
+
+        if (colsServ && colsServ.length) {
+            const nomesServ = nomesCols(colsServ);
+            if (!nomesServ.includes('ativo')) {
                 await this.run('ALTER TABLE servicos ADD COLUMN ativo INTEGER DEFAULT 1');
             }
-            if (!colsServ.some(c => c.name === 'imagem')) {
+            if (!nomesServ.includes('imagem')) {
                 await this.run('ALTER TABLE servicos ADD COLUMN imagem TEXT');
             }
+            // Garantir que serviços existentes ficam ativos
+            await this.run('UPDATE servicos SET ativo = 1 WHERE ativo IS NULL');
         }
+
+        if (!colsB || colsB.length === 0) return;
 
         if (!colsB.some(c => c.name === 'principal')) {
             try {
@@ -621,17 +626,26 @@ class Database {
     }
 
     /**
+     * Normaliza argumentos para sqlite/libSQL (undefined → null).
+     */
+    normalizarArgs(params) {
+        if (!params) return [];
+        return (Array.isArray(params) ? params : []).map((v) => (v === undefined ? null : v));
+    }
+
+    /**
      * Executar query simples
      */
     run(sql, params = []) {
+        const args = this.normalizarArgs(params);
         if (this.remote) {
-            return this.client.execute({ sql, args: params || [] }).then((result) => ({
+            return this.client.execute({ sql, args }).then((result) => ({
                 id: Number(result.lastInsertRowid || 0),
                 changes: Number(result.rowsAffected || 0)
             }));
         }
         return new Promise((resolve, reject) => {
-            this.db.run(sql, params, function(err) {
+            this.db.run(sql, args, function(err) {
                 if (err) reject(err);
                 else resolve({ id: this.lastID, changes: this.changes });
             });
@@ -641,16 +655,17 @@ class Database {
     async bumpSync(motivo = 'update') {
         const versao = String(Date.now());
         await this.run(
-            `INSERT INTO configuracoes (chave, valor, atualizado_em) VALUES ('sync_version', ?, CURRENT_TIMESTAMP)
+            `INSERT INTO configuracoes (chave, valor, atualizado_em) VALUES (?, ?, CURRENT_TIMESTAMP)
              ON CONFLICT(chave) DO UPDATE SET valor = excluded.valor, atualizado_em = CURRENT_TIMESTAMP`,
-            [versao]
+            ['sync_version', versao]
         );
         return { versao, motivo };
     }
 
     async obterSync() {
         const row = await this.get(
-            `SELECT valor, atualizado_em FROM configuracoes WHERE chave = 'sync_version'`
+            `SELECT valor, atualizado_em FROM configuracoes WHERE chave = ?`,
+            ['sync_version']
         );
         const servicos = await this.get(
             `SELECT COUNT(*) as total FROM servicos WHERE COALESCE(ativo, 1) = 1`
@@ -667,14 +682,15 @@ class Database {
      * Obter um único resultado
      */
     get(sql, params = []) {
+        const args = this.normalizarArgs(params);
         if (this.remote) {
-            return this.client.execute({ sql, args: params || [] }).then((result) => {
+            return this.client.execute({ sql, args }).then((result) => {
                 const row = result.rows?.[0];
-                return row || null;
+                return row ? { ...row } : null;
             });
         }
         return new Promise((resolve, reject) => {
-            this.db.get(sql, params, (err, row) => {
+            this.db.get(sql, args, (err, row) => {
                 if (err) reject(err);
                 else resolve(row);
             });
@@ -685,11 +701,14 @@ class Database {
      * Obter todos os resultados
      */
     all(sql, params = []) {
+        const args = this.normalizarArgs(params);
         if (this.remote) {
-            return this.client.execute({ sql, args: params || [] }).then((result) => result.rows || []);
+            return this.client.execute({ sql, args }).then((result) =>
+                (result.rows || []).map((row) => ({ ...row }))
+            );
         }
         return new Promise((resolve, reject) => {
-            this.db.all(sql, params, (err, rows) => {
+            this.db.all(sql, args, (err, rows) => {
                 if (err) reject(err);
                 else resolve(rows || []);
             });

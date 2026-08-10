@@ -712,14 +712,27 @@ async function carregarServicos() {
 
 async function guardarPreco(id) {
     const preco = parseFloat(document.getElementById(`preco-serv-${id}`).value);
-    const res = await fetch(`${API_URL}/servicos/${id}`, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify({ preco })
-    });
-    if (res.ok) toast('Preço atualizado!');
-    else toast('Erro ao guardar.', 'error');
-    if (res.ok) window.SenseSync?.notificarPublicacao();
+    if (!Number.isFinite(preco) || preco < 0) {
+        toast('Indique um preço válido.', 'error');
+        return;
+    }
+    try {
+        const res = await fetch(`${API_URL}/servicos/${id}`, {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ preco })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (tratarErroAuthPainel(res)) return;
+        if (res.ok) {
+            toast('Preço atualizado!');
+            window.SenseSync?.notificarPublicacao();
+        } else {
+            toast(data.erro || 'Erro ao guardar.', 'error');
+        }
+    } catch {
+        toast('Erro de ligação ao servidor.', 'error');
+    }
 }
 
 async function eliminarServico(id, nome) {
