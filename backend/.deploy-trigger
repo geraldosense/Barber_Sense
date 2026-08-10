@@ -34,3 +34,5 @@
 # turso remote sqlite persistence 2026-08-10T12:20:00Z
 
 # cloudinary persistent uploads 2026-08-10T13:35:00Z
+
+# cloudinary url sanitize no crash 2026-08-10T13:42:00Z
