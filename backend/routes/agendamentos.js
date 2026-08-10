@@ -161,7 +161,7 @@ router.get('/verificar', async (req, res) => {
         }
 
         const ocupado = await req.db.get(
-            'SELECT * FROM agendamentos WHERE barbeiro_id = ? AND data = ? AND hora = ? AND status = "confirmado"',
+            'SELECT * FROM agendamentos WHERE barbeiro_id = ? AND data = ? AND hora = ? AND status = \'confirmado\'',
             [barbeiro_id, data, hora]
         );
 
@@ -190,7 +190,7 @@ router.get('/ocupados', async (req, res) => {
             });
         }
 
-        let sql = 'SELECT hora FROM agendamentos WHERE barbeiro_id = ? AND data = ? AND status = "confirmado"';
+        let sql = 'SELECT hora FROM agendamentos WHERE barbeiro_id = ? AND data = ? AND status = \'confirmado\'';
         const params = [barbeiro_id, data];
 
         if (excluir_id) {
@@ -314,7 +314,7 @@ router.post('/', authOpcional, async (req, res) => {
 
         // Verificar se horário já está ocupado
         const horarioOcupado = await req.db.get(
-            'SELECT * FROM agendamentos WHERE barbeiro_id = ? AND data = ? AND hora = ? AND status = "confirmado"',
+            'SELECT * FROM agendamentos WHERE barbeiro_id = ? AND data = ? AND hora = ? AND status = \'confirmado\'',
             [barbeiro_id, data, hora]
         );
 
@@ -436,7 +436,7 @@ router.put('/:id', verificarToken, carregarAgendamentoDono, async (req, res) => 
         }
 
         const horarioOcupado = await req.db.get(
-            'SELECT * FROM agendamentos WHERE barbeiro_id = ? AND data = ? AND hora = ? AND id != ? AND status = "confirmado"',
+            'SELECT * FROM agendamentos WHERE barbeiro_id = ? AND data = ? AND hora = ? AND id != ? AND status = \'confirmado\'',
             [novoBarbeiroId, novaData, novaHora, id]
         );
 
@@ -537,7 +537,7 @@ router.delete('/:id', verificarToken, carregarAgendamentoDono, async (req, res) 
         const { motivo } = req.body || {};
 
         await req.db.run(
-            'UPDATE agendamentos SET status = "cancelado", atualizado_em = CURRENT_TIMESTAMP WHERE id = ?',
+            'UPDATE agendamentos SET status = \'cancelado\', atualizado_em = CURRENT_TIMESTAMP WHERE id = ?',
             [id]
         );
 
