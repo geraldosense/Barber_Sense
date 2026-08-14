@@ -10,7 +10,7 @@ function sanitizarEnvCloudinary() {
     // Remover aspas acidentais do painel Render
     let url = raw.replace(/^["']|["']$/g, '').trim();
 
-    // Se colaram só "CLOUDINARY_URL=cloudinary://..." 
+    // Se colaram só "CLOUDINARY_URL=cloudinary://..."
     if (url.toUpperCase().startsWith('CLOUDINARY_URL=')) {
         url = url.slice('CLOUDINARY_URL='.length).trim();
     }
@@ -62,28 +62,31 @@ function configurarCloudinary() {
 
 const cloudinaryAtivo = configurarCloudinary();
 
+if (cloudinaryAtivo) {
+    cloudinary.api.ping()
+        .then(() => console.log('✓ Cloudinary: ligação OK'))
+        .catch((err) => console.warn('⚠️  Cloudinary ping falhou:', err.message || err));
+}
+
 function uploadsPersistentes() {
     return cloudinaryAtivo;
 }
 
-/**
- * Envia buffer de imagem para a Cloudinary e devolve URL HTTPS permanente.
- */
-function uploadBuffer(buffer, { folder, filename }) {
+const UPLOAD_TIMEOUT_MS = 90000;
+
+function uploadViaStream(buffer, folder) {
     return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            reject(new Error('Timeout ao enviar imagem para a cloud.'));
+        }, UPLOAD_TIMEOUT_MS);
+
         const stream = cloudinary.uploader.upload_stream(
             {
-                folder: folder || 'sense-barbershop',
-                public_id: filename ? filename.replace(/\.[^.]+$/, '') : undefined,
-                resource_type: 'image',
-                overwrite: false,
-                unique_filename: true,
-                transformation: [
-                    { width: 1600, height: 1600, crop: 'limit' },
-                    { quality: 'auto', fetch_format: 'auto' }
-                ]
+                folder,
+                resource_type: 'image'
             },
             (err, result) => {
+                clearTimeout(timeout);
                 if (err) reject(err);
                 else resolve(result);
             }
@@ -92,9 +95,70 @@ function uploadBuffer(buffer, { folder, filename }) {
     });
 }
 
+function uploadViaDataUri(buffer, folder, mimetype) {
+    const mime = (mimetype && mimetype.startsWith('image/')) ? mimetype : 'image/jpeg';
+    const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
+    return cloudinary.uploader.upload(dataUri, {
+        folder,
+        resource_type: 'image'
+    });
+}
+
+/**
+ * Envia buffer de imagem para a Cloudinary e devolve URL HTTPS permanente.
+ */
+async function uploadBuffer(buffer, { folder, mimetype } = {}) {
+    const uploadFolder = folder || 'sense-barbershop';
+
+    try {
+        return await uploadViaStream(buffer, uploadFolder);
+    } catch (streamErr) {
+        console.warn('Cloudinary stream falhou, a tentar data URI:', streamErr.message);
+        try {
+            return await uploadViaDataUri(buffer, uploadFolder, mimetype);
+        } catch (uriErr) {
+            uriErr.cause = streamErr;
+            throw uriErr;
+        }
+    }
+}
+
+/**
+ * Mensagem legível para o admin (sem expor segredos).
+ */
+function mensagemErroUpload(err) {
+    const msg = String(err?.message || err || '').toLowerCase();
+    const code = err?.http_code || err?.error?.http_code;
+
+    if (msg.includes('too large') || code === 413) {
+        return 'A imagem é demasiado grande (máx. 8 MB).';
+    }
+    if (msg.includes('timeout')) {
+        return 'O envio demorou demasiado. Tente uma imagem mais pequena.';
+    }
+    if (
+        msg.includes('invalid image') ||
+        msg.includes('unsupported') ||
+        msg.includes('format') ||
+        msg.includes('heic') ||
+        msg.includes('heif')
+    ) {
+        return 'Formato não suportado. Use JPG ou PNG (fotos iPhone: defina "Mais compatível" nas definições da câmara).';
+    }
+    if (code === 401 || msg.includes('api key') || msg.includes('invalid credentials')) {
+        return 'Configuração da cloud inválida. Verifique CLOUDINARY_URL no Render.';
+    }
+    if (code === 420 || msg.includes('rate limit')) {
+        return 'Limite de uploads atingido. Tente novamente dentro de alguns minutos.';
+    }
+
+    return 'Falha ao guardar a imagem na cloud. Use JPG ou PNG até 8 MB.';
+}
+
 module.exports = {
     cloudinary,
     cloudinaryAtivo,
     uploadsPersistentes,
-    uploadBuffer
+    uploadBuffer,
+    mensagemErroUpload
 };

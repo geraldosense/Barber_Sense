@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const { verificarToken, verificarPerfil } = require('../middleware/auth');
 const { resolverCaminhoUploads } = require('../utils/paths');
-const { cloudinaryAtivo, uploadBuffer } = require('../utils/cloudinary');
+const { cloudinaryAtivo, uploadBuffer, mensagemErroUpload } = require('../utils/cloudinary');
 
 const router = express.Router();
 const uploadsRoot = resolverCaminhoUploads();
@@ -60,11 +60,9 @@ function tratarUploadCloud(subdir) {
             }
 
             try {
-                const ext = path.extname(req.file.originalname).toLowerCase() || '.jpg';
-                const base = path.basename(req.file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '') || 'imagem';
                 const result = await uploadBuffer(req.file.buffer, {
                     folder: `sense-barbershop/${subdir}`,
-                    filename: `${Date.now()}-${base}`
+                    mimetype: req.file.mimetype
                 });
 
                 res.status(201).json({
@@ -74,8 +72,12 @@ function tratarUploadCloud(subdir) {
                     provider: 'cloudinary'
                 });
             } catch (uploadErr) {
-                console.error('Cloudinary upload:', uploadErr.message);
-                res.status(500).json({ erro: 'Falha ao guardar a imagem na cloud.' });
+                console.error('Cloudinary upload:', {
+                    message: uploadErr.message,
+                    http_code: uploadErr.http_code,
+                    name: uploadErr.name
+                });
+                res.status(500).json({ erro: mensagemErroUpload(uploadErr) });
             }
         });
     };
