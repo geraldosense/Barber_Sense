@@ -119,11 +119,17 @@ async function verificarCloudinaryAuth(force = false) {
         console.log('✓ Cloudinary: autenticação OK');
         return resultado;
     } catch (err) {
+        const erroMsg =
+            err?.message ||
+            err?.error?.message ||
+            (typeof err?.error === 'string' ? err.error : null) ||
+            (err?.error ? JSON.stringify(err.error) : null) ||
+            String(err);
         const resultado = {
             ...base,
             auth_ok: false,
-            erro: err.message || String(err),
-            http_code: err.http_code
+            erro: erroMsg,
+            http_code: err?.http_code || err?.error?.http_code
         };
         ultimaVerificacaoAuth = { em: agora, resultado };
         console.warn('⚠️  Cloudinary auth falhou:', resultado.erro);
