@@ -126,9 +126,17 @@ async function verificarPersistenciaPainel() {
             const faltas = [];
             if (!dbOk) faltas.push('base de dados (Turso)');
             if (!uploadsOk) faltas.push('fotos (Cloudinary)');
+            const cloud = data?.cloudinary;
+            let detalhe = '';
+            if (!uploadsOk && cloud?.configurado && cloud?.auth_ok === false) {
+                detalhe = `<p style="margin-top:0.5rem;font-size:0.9em">Cloud name <strong>${cloud.cloud_name || '?'}</strong> detectado, mas o <strong>API Secret</strong> no Render está errado. Apague <code>CLOUDINARY_URL</code> e use as 3 variáveis: <code>CLOUDINARY_CLOUD_NAME</code>, <code>CLOUDINARY_API_KEY</code>, <code>CLOUDINARY_API_SECRET</code>.</p>`;
+            } else if (data?.acao_necessaria?.passos?.length) {
+                detalhe = `<ul style="margin:0.5rem 0 0 1rem;font-size:0.9em">${data.acao_necessaria.passos.map(p => `<li>${p}</li>`).join('')}</ul>`;
+            }
             msg.innerHTML = `
                 <strong>Persistência incompleta</strong>
                 <p>Falta configurar: <strong>${faltas.join(' e ')}</strong>. Sem isto, dados ou imagens podem desaparecer no Render Free.</p>
+                ${detalhe}
             `;
         }
     } catch { /* silencioso */ }
