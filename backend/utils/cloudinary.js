@@ -1,23 +1,21 @@
 /**
  * Cloudinary — uploads permanentes (CDN).
- * Se CLOUDINARY_URL estiver mal formatada, ignora e o servidor continua (uploads locais).
+ * Preferir CLOUDINARY_CLOUD_NAME + API_KEY + API_SECRET no Render (evita erros de URL).
  */
 
 function sanitizarEnvCloudinary() {
     const raw = (process.env.CLOUDINARY_URL || '').trim();
     if (!raw) return;
 
-    // Remover aspas acidentais do painel Render
     let url = raw.replace(/^["']|["']$/g, '').trim();
 
-    // Se colaram só "CLOUDINARY_URL=cloudinary://..."
     if (url.toUpperCase().startsWith('CLOUDINARY_URL=')) {
         url = url.slice('CLOUDINARY_URL='.length).trim();
     }
 
     if (!url.startsWith('cloudinary://')) {
         console.warn(
-            '⚠️  CLOUDINARY_URL inválida (deve começar por cloudinary://). Uploads locais até corrigir.'
+            '⚠️  CLOUDINARY_URL inválida (deve começar por cloudinary://). Use CLOUDINARY_CLOUD_NAME + API_KEY + API_SECRET.'
         );
         delete process.env.CLOUDINARY_URL;
         return;
@@ -30,46 +28,119 @@ sanitizarEnvCloudinary();
 
 const { v2: cloudinary } = require('cloudinary');
 
-function configurarCloudinary() {
-    const url = (process.env.CLOUDINARY_URL || '').trim();
-    if (url && url.startsWith('cloudinary://')) {
-        try {
-            cloudinary.config();
-            return true;
-        } catch (err) {
-            console.warn('⚠️  Cloudinary config:', err.message);
-            delete process.env.CLOUDINARY_URL;
-            return false;
-        }
+/** cloudinary://KEY:SECRET@cloud_name — o secret pode conter ":" mas não "@" sem encode */
+function parseCloudinaryUrl(url) {
+    const body = url.replace(/^cloudinary:\/\//, '');
+    const at = body.lastIndexOf('@');
+    if (at <= 0) return null;
+
+    const cloud_name = body.slice(at + 1).trim();
+    const creds = body.slice(0, at);
+    const colon = creds.indexOf(':');
+    if (colon <= 0 || !cloud_name) return null;
+
+    let api_secret = creds.slice(colon + 1).trim();
+    try {
+        api_secret = decodeURIComponent(api_secret);
+    } catch (_) {
+        /* manter valor original */
     }
 
+    return {
+        api_key: creds.slice(0, colon).trim(),
+        api_secret,
+        cloud_name
+    };
+}
+
+function obterCredenciaisCloudinary() {
     const cloud_name = (process.env.CLOUDINARY_CLOUD_NAME || '').trim();
     const api_key = (process.env.CLOUDINARY_API_KEY || '').trim();
     const api_secret = (process.env.CLOUDINARY_API_SECRET || '').trim();
 
     if (cloud_name && api_key && api_secret) {
-        try {
-            cloudinary.config({ cloud_name, api_key, api_secret, secure: true });
-            return true;
-        } catch (err) {
-            console.warn('⚠️  Cloudinary config:', err.message);
-            return false;
-        }
+        return { cloud_name, api_key, api_secret, origem: 'env_separado' };
     }
 
-    return false;
+    const url = (process.env.CLOUDINARY_URL || '').trim();
+    if (url && url.startsWith('cloudinary://')) {
+        const parsed = parseCloudinaryUrl(url);
+        if (parsed) {
+            return { ...parsed, origem: 'url' };
+        }
+        console.warn('⚠️  CLOUDINARY_URL mal formatada. Use 3 variáveis separadas no Render.');
+    }
+
+    return null;
+}
+
+function configurarCloudinary() {
+    const creds = obterCredenciaisCloudinary();
+    if (!creds) return false;
+
+    try {
+        cloudinary.config({
+            cloud_name: creds.cloud_name,
+            api_key: creds.api_key,
+            api_secret: creds.api_secret,
+            secure: true
+        });
+        // Evitar que o SDK releia CLOUDINARY_URL mal parseada
+        delete process.env.CLOUDINARY_URL;
+        console.log(`✓ Cloudinary configurado (${creds.origem}, cloud: ${creds.cloud_name})`);
+        return true;
+    } catch (err) {
+        console.warn('⚠️  Cloudinary config:', err.message);
+        return false;
+    }
 }
 
 const cloudinaryAtivo = configurarCloudinary();
 
+let ultimaVerificacaoAuth = null;
+
+async function verificarCloudinaryAuth(force = false) {
+    if (!cloudinaryAtivo) {
+        return { configurado: false, auth_ok: false };
+    }
+
+    const agora = Date.now();
+    if (!force && ultimaVerificacaoAuth && agora - ultimaVerificacaoAuth.em < 60000) {
+        return ultimaVerificacaoAuth.resultado;
+    }
+
+    const cfg = cloudinary.config();
+    const base = { configurado: true, cloud_name: cfg.cloud_name || null };
+
+    try {
+        await cloudinary.api.ping();
+        const resultado = { ...base, auth_ok: true };
+        ultimaVerificacaoAuth = { em: agora, resultado };
+        console.log('✓ Cloudinary: autenticação OK');
+        return resultado;
+    } catch (err) {
+        const resultado = {
+            ...base,
+            auth_ok: false,
+            erro: err.message || String(err),
+            http_code: err.http_code
+        };
+        ultimaVerificacaoAuth = { em: agora, resultado };
+        console.warn('⚠️  Cloudinary auth falhou:', resultado.erro);
+        return resultado;
+    }
+}
+
 if (cloudinaryAtivo) {
-    cloudinary.api.ping()
-        .then(() => console.log('✓ Cloudinary: ligação OK'))
-        .catch((err) => console.warn('⚠️  Cloudinary ping falhou:', err.message || err));
+    verificarCloudinaryAuth(true).catch(() => {});
 }
 
 function uploadsPersistentes() {
-    return cloudinaryAtivo;
+    if (!cloudinaryAtivo) return false;
+    if (ultimaVerificacaoAuth?.resultado) {
+        return ultimaVerificacaoAuth.resultado.auth_ok === true;
+    }
+    return true;
 }
 
 const UPLOAD_TIMEOUT_MS = 90000;
@@ -81,10 +152,7 @@ function uploadViaStream(buffer, folder) {
         }, UPLOAD_TIMEOUT_MS);
 
         const stream = cloudinary.uploader.upload_stream(
-            {
-                folder,
-                resource_type: 'image'
-            },
+            { folder, resource_type: 'image' },
             (err, result) => {
                 clearTimeout(timeout);
                 if (err) reject(err);
@@ -104,11 +172,15 @@ function uploadViaDataUri(buffer, folder, mimetype) {
     });
 }
 
-/**
- * Envia buffer de imagem para a Cloudinary e devolve URL HTTPS permanente.
- */
 async function uploadBuffer(buffer, { folder, mimetype } = {}) {
     const uploadFolder = folder || 'sense-barbershop';
+
+    const auth = await verificarCloudinaryAuth(true);
+    if (!auth.auth_ok) {
+        const err = new Error(auth.erro || 'Cloudinary authentication failed');
+        err.http_code = auth.http_code || 401;
+        throw err;
+    }
 
     try {
         return await uploadViaStream(buffer, uploadFolder);
@@ -123,9 +195,6 @@ async function uploadBuffer(buffer, { folder, mimetype } = {}) {
     }
 }
 
-/**
- * Mensagem legível para o admin (sem expor segredos).
- */
 function mensagemErroUpload(err) {
     const msg = String(err?.message || err || '').toLowerCase();
     const code = err?.http_code || err?.error?.http_code;
@@ -145,8 +214,8 @@ function mensagemErroUpload(err) {
     ) {
         return 'Formato não suportado. Use JPG ou PNG (fotos iPhone: defina "Mais compatível" nas definições da câmara).';
     }
-    if (code === 401 || msg.includes('api key') || msg.includes('invalid credentials')) {
-        return 'Configuração da cloud inválida. Verifique CLOUDINARY_URL no Render.';
+    if (code === 401 || msg.includes('api key') || msg.includes('invalid credentials') || msg.includes('authentication')) {
+        return 'Credenciais Cloudinary inválidas no Render. Apague CLOUDINARY_URL e use CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET (copie do Dashboard Cloudinary → View API Keys).';
     }
     if (code === 420 || msg.includes('rate limit')) {
         return 'Limite de uploads atingido. Tente novamente dentro de alguns minutos.';
@@ -160,5 +229,6 @@ module.exports = {
     cloudinaryAtivo,
     uploadsPersistentes,
     uploadBuffer,
-    mensagemErroUpload
+    mensagemErroUpload,
+    verificarCloudinaryAuth
 };

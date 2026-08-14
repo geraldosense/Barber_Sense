@@ -42,7 +42,7 @@ const devFrontendPath = path.join(__dirname, '..', 'frontend');
 const frontendPath = fs.existsSync(publicPath) ? publicPath : devFrontendPath;
 const { resolverCaminhoUploads, diagnosticoPersistencia } = require('./utils/paths');
 const { temBaseRemota } = require('./utils/libsql');
-const { uploadsPersistentes } = require('./utils/cloudinary');
+const { uploadsPersistentes, verificarCloudinaryAuth } = require('./utils/cloudinary');
 const uploadsPath = resolverCaminhoUploads();
 console.log(`✓ Uploads: ${uploadsPath}${uploadsPersistentes() ? ' (cloud)' : ' (local)'}`);
 
@@ -104,9 +104,12 @@ app.get('/api/health', async (req, res) => {
         dbInfo = { erro: err.message, path: db.dbPath, persistente: persistencia.persistente };
     }
 
-    const status = !persistencia.persistente && persistencia.render
-        ? 'critical'
-        : (dbInfo?.integrity === 'ok' ? 'ok' : 'degraded');
+    const cloudinary = await verificarCloudinaryAuth();
+    const uploadsOk = cloudinary.auth_ok === true;
+
+    let status = dbInfo?.integrity === 'ok' ? 'ok' : 'degraded';
+    if (!persistencia.persistente && persistencia.render) status = 'critical';
+    if (persistencia.persistente && cloudinary.configurado && !cloudinary.auth_ok) status = 'degraded';
 
     res.json({
         status,
@@ -117,17 +120,21 @@ app.get('/api/health', async (req, res) => {
         sync,
         database: dbInfo,
         uploads: uploadsPath,
-        uploads_persistentes: uploadsPersistentes(),
+        uploads_persistentes: uploadsOk,
+        cloudinary,
         persistencia,
-        acao_necessaria: persistencia.persistente && uploadsPersistentes() ? null : {
+        acao_necessaria: persistencia.persistente && uploadsOk ? null : {
             titulo: 'Completar persistência',
             passos: [
                 ...(persistencia.persistente ? [] : [
                     'Base de dados: TURSO_DATABASE_URL + TURSO_AUTH_TOKEN'
                 ]),
-                ...(uploadsPersistentes() ? [] : [
-                    'Fotos: criar conta em https://cloudinary.com',
-                    'Environment → CLOUDINARY_URL = cloudinary://API_KEY:API_SECRET@CLOUD_NAME',
+                ...(uploadsOk ? [] : [
+                    'Fotos: https://cloudinary.com → Dashboard → View API Keys',
+                    'No Render, apague CLOUDINARY_URL se existir e adicione:',
+                    'CLOUDINARY_CLOUD_NAME = (ex: gqndpf4p)',
+                    'CLOUDINARY_API_KEY = (número longo)',
+                    'CLOUDINARY_API_SECRET = (texto secreto)',
                     'Save, rebuild and deploy'
                 ])
             ]

@@ -37,6 +37,7 @@
 
 # cloudinary url sanitize no crash 2026-08-10T13:42:00Z
 # cloudinary upload fix transformation 2026-08-14T08:45:00Z
+# cloudinary auth parse + env separado 2026-08-14T09:15:00Z
 
 # turso sql single quotes confirmado 2026-08-10T13:55:00Z
 
