@@ -24,6 +24,21 @@
     animation: none;
 }
 
+/* No cabeçalho cinzento do site */
+.header .lang-switcher-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(212, 175, 55, 0.35);
+    color: #f2f2f2;
+}
+
+.header .lang-switcher-btn:hover,
+.header .lang-switcher-btn:focus-visible,
+.header .lang-switcher-btn.is-open {
+    background: rgba(212, 175, 55, 0.18);
+    border-color: rgba(212, 175, 55, 0.65);
+    color: #fff;
+}
+
 .lang-switcher-glow,
 .lang-switcher-ring,
 .lang-switcher-flag,
