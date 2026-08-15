@@ -1076,6 +1076,22 @@ button {
     padding: 0 1rem;
 }
 
+.footer-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.footer-info .footer-logo {
+    display: block;
+    margin: 0 auto 1rem;
+    width: 120px;
+    height: auto;
+    max-width: 140px;
+    object-fit: contain;
+}
+
 .footer-info h3,
 .footer-links h4,
 .footer-social h4 {
