@@ -658,7 +658,9 @@ body.menu-open {
     }
 
     .course-item-image {
-        height: 150px;
+        aspect-ratio: 4 / 3;
+        height: auto;
+        min-height: 0;
     }
 
     .course-item:last-child:nth-child(odd) {
@@ -683,6 +685,8 @@ body.menu-open {
     }
 
     .course-item-image {
-        height: 100px;
+        aspect-ratio: 1 / 1;
+        height: auto;
+        min-height: 0;
     }
 }
