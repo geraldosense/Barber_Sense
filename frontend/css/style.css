@@ -553,28 +553,41 @@ button {
 
 .course-item-image {
     width: 100%;
-    height: 180px;
+    aspect-ratio: 4 / 3;
+    height: auto;
+    min-height: 220px;
     overflow: hidden;
     background: #1a1a1a;
+    position: relative;
+}
+
+.course-item-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 70%, rgba(0, 0, 0, 0.12) 100%);
+    pointer-events: none;
 }
 
 .course-item-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center 30%;
     display: block;
-    transition: transform 0.35s ease;
+    transition: transform 0.45s ease;
 }
 
 .course-item:hover .course-item-image img {
-    transform: scale(1.04);
+    transform: scale(1.06);
 }
 
 .course-item-body {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    border-top: 4px solid var(--secondary-color);
+    border-top: 3px solid var(--secondary-color);
+    padding-bottom: 0.25rem;
 }
 
 .course-item:hover {
@@ -583,7 +596,7 @@ button {
 }
 
 .course-item-header {
-    padding: 1.15rem 1.5rem 0.5rem;
+    padding: 0.95rem 1.25rem 0.2rem;
     text-align: left;
     background: transparent;
     color: var(--primary-color);
@@ -595,35 +608,41 @@ button {
 }
 
 .course-item h3 {
-    font-size: 1.35rem;
-    margin-bottom: 0.25rem;
+    font-size: 1.2rem;
+    margin-bottom: 0.15rem;
     color: var(--primary-color);
+    line-height: 1.25;
 }
 
 .course-item-price {
-    font-size: 1.45rem;
+    font-size: 1.25rem;
     color: var(--secondary-color);
     font-weight: 700;
 }
 
 .course-item p {
-    margin: 0.5rem 1.5rem 0;
-    color: #555;
-    flex-grow: 1;
-    line-height: 1.6;
+    margin: 0.35rem 1.25rem 0;
+    color: #777;
+    flex-grow: 0;
+    line-height: 1.35;
+    font-size: 0.82rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .course-item-tempo {
-    margin: 0 1.5rem 1rem;
+    margin: 0.55rem 1.25rem 0.65rem;
     color: var(--secondary-color);
     font-weight: 500;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
 }
 
 .course-item .learn-more {
     display: inline-block;
-    margin: 0 1.5rem 1.5rem;
-    padding: 0.7rem 1.5rem;
+    margin: 0 1.25rem 1.15rem;
+    padding: 0.65rem 1.35rem;
     background-color: var(--secondary-color);
     color: var(--white);
     text-decoration: none;
