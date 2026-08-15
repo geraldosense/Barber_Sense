@@ -404,6 +404,31 @@ body.menu-open {
         max-width: 100%;
     }
 
+    .course-grid--truncated:not(.is-expanded) .course-item:nth-child(n+5) {
+        display: none;
+    }
+
+    /* No preview (4 cards), o último ímpar visível não deve “flutuar” ao centro */
+    .course-grid--truncated:not(.is-expanded) .course-item:last-child:nth-child(odd) {
+        grid-column: auto;
+        width: auto;
+        max-width: none;
+        justify-self: stretch;
+    }
+
+    .servicos-mais-wrap {
+        margin-top: 1.5rem;
+        padding: 0 0.25rem;
+    }
+
+    .servicos-mais-btn {
+        width: 100%;
+        max-width: 320px;
+        justify-content: center;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
     .course-item {
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

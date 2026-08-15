@@ -476,6 +476,62 @@ button {
     gap: 2rem;
 }
 
+/* Com muitos serviços: mostra só a 1.ª “vitrine” até expandir */
+.course-grid--truncated:not(.is-expanded) .course-item:nth-child(n+5) {
+    display: none;
+}
+
+.servicos-mais-wrap {
+    margin-top: 2.25rem;
+    display: flex;
+    justify-content: center;
+}
+
+.servicos-mais-wrap.hidden {
+    display: none;
+}
+
+.servicos-mais-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.85rem 1.75rem;
+    border: 1.5px solid var(--secondary-color);
+    background: transparent;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+
+.servicos-mais-btn i {
+    color: var(--secondary-color);
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+
+.servicos-mais-btn:hover {
+    background: var(--secondary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+.servicos-mais-btn:hover i {
+    color: var(--white);
+}
+
+.servicos-mais-btn[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+.servicos-mais-btn:focus-visible {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 3px;
+}
+
 .course-grid-empty {
     grid-column: 1 / -1;
     text-align: center;

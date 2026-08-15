@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     configurarHeroSlider();
     document.addEventListener('sense:langchange', () => {
         renderizarBarbeiros();
+        atualizarBotaoServicosMais();
     });
     document.addEventListener('sense:sync', async () => {
         await carregarDados();
@@ -150,6 +151,49 @@ function aplicarInfoSite(site) {
 }
 
 // ===== RENDERIZAÇÃO =====
+const SERVICOS_PREVIEW = 4;
+
+function atualizarBotaoServicosMais() {
+    const grid = document.getElementById('servicosGrid');
+    const wrap = document.getElementById('servicosMaisWrap');
+    const btn = document.getElementById('servicosMaisBtn');
+    if (!grid || !wrap || !btn) return;
+
+    const total = servicos.length;
+    const precisaAtalho = total > SERVICOS_PREVIEW;
+
+    if (!precisaAtalho) {
+        wrap.classList.add('hidden');
+        grid.classList.remove('is-expanded');
+        btn.setAttribute('aria-expanded', 'false');
+        return;
+    }
+
+    wrap.classList.remove('hidden');
+    const expandido = grid.classList.contains('is-expanded');
+    const label = expandido
+        ? (typeof t === 'function' ? t('services.seeLess') : 'Ver menos')
+        : (typeof t === 'function' ? t('services.seeMore') : 'Ver mais serviços');
+    const span = btn.querySelector('span');
+    if (span) {
+        span.textContent = label;
+        span.setAttribute('data-i18n', expandido ? 'services.seeLess' : 'services.seeMore');
+    } else {
+        btn.childNodes[0].textContent = label;
+    }
+    btn.setAttribute('aria-expanded', expandido ? 'true' : 'false');
+}
+
+function alternarServicosMais() {
+    const grid = document.getElementById('servicosGrid');
+    if (!grid) return;
+    grid.classList.toggle('is-expanded');
+    atualizarBotaoServicosMais();
+    if (!grid.classList.contains('is-expanded')) {
+        document.getElementById('servicos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
 function renderizarServicos() {
     const grid = document.getElementById('servicosGrid');
     if (!grid) return;
@@ -160,6 +204,8 @@ function renderizarServicos() {
                 <p>Nenhum serviço publicado ainda.</p>
             </div>
         `;
+        grid.classList.remove('is-expanded');
+        document.getElementById('servicosMaisWrap')?.classList.add('hidden');
         return;
     }
 
@@ -179,6 +225,10 @@ function renderizarServicos() {
             </div>
         </div>
     `).join('');
+
+    // Novos dados: volta ao preview compacto
+    grid.classList.remove('is-expanded');
+    atualizarBotaoServicosMais();
 }
 
 function renderizarBarbeiros() {
@@ -524,6 +574,11 @@ function configurarEventos() {
     const modal = document.getElementById('modalAgendamento');
     const form = document.getElementById('formAgendamento');
     const dataInput = document.getElementById('data');
+    const btnServicosMais = document.getElementById('servicosMaisBtn');
+
+    if (btnServicosMais) {
+        btnServicosMais.addEventListener('click', alternarServicosMais);
+    }
 
     if (btnAgendar) {
         btnAgendar.addEventListener('click', (e) => {
