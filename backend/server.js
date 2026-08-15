@@ -130,11 +130,9 @@ app.get('/api/health', async (req, res) => {
                     'Base de dados: TURSO_DATABASE_URL + TURSO_AUTH_TOKEN'
                 ]),
                 ...(uploadsOk ? [] : [
-                    'Fotos: https://cloudinary.com → Dashboard → View API Keys',
-                    'No Render, apague CLOUDINARY_URL se existir e adicione:',
-                    'CLOUDINARY_CLOUD_NAME = (ex: gqndpf4p)',
-                    'CLOUDINARY_API_KEY = (número longo)',
-                    'CLOUDINARY_API_SECRET = (texto secreto)',
+                    'Fotos: Cloudinary → View API Keys → olho → copiar API environment variable',
+                    'No Render: apague CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET',
+                    'Adicione só CLOUDINARY_URL = cloudinary://API_KEY:API_SECRET@CLOUD_NAME',
                     'Save, rebuild and deploy'
                 ])
             ]

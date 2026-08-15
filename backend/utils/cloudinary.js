@@ -1,21 +1,28 @@
 /**
  * Cloudinary — uploads permanentes (CDN).
- * Preferir CLOUDINARY_CLOUD_NAME + API_KEY + API_SECRET no Render (evita erros de URL).
+ * Preferir CLOUDINARY_URL (linha oficial do Dashboard) — evita secret errado nas 3 variáveis.
  */
 
+function limparValor(v) {
+    return String(v || '')
+        .replace(/^["']|["']$/g, '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .replace(/\s+/g, '')
+        .trim();
+}
+
 function sanitizarEnvCloudinary() {
-    const raw = (process.env.CLOUDINARY_URL || '').trim();
+    const raw = limparValor(process.env.CLOUDINARY_URL);
     if (!raw) return;
 
-    let url = raw.replace(/^["']|["']$/g, '').trim();
-
+    let url = raw;
     if (url.toUpperCase().startsWith('CLOUDINARY_URL=')) {
-        url = url.slice('CLOUDINARY_URL='.length).trim();
+        url = url.slice('CLOUDINARY_URL='.length);
     }
 
     if (!url.startsWith('cloudinary://')) {
         console.warn(
-            '⚠️  CLOUDINARY_URL inválida (deve começar por cloudinary://). Use CLOUDINARY_CLOUD_NAME + API_KEY + API_SECRET.'
+            '⚠️  CLOUDINARY_URL inválida (deve começar por cloudinary://).'
         );
         delete process.env.CLOUDINARY_URL;
         return;
@@ -28,18 +35,18 @@ sanitizarEnvCloudinary();
 
 const { v2: cloudinary } = require('cloudinary');
 
-/** cloudinary://KEY:SECRET@cloud_name — o secret pode conter ":" mas não "@" sem encode */
+/** cloudinary://KEY:SECRET@cloud_name */
 function parseCloudinaryUrl(url) {
     const body = url.replace(/^cloudinary:\/\//, '');
     const at = body.lastIndexOf('@');
     if (at <= 0) return null;
 
-    const cloud_name = body.slice(at + 1).trim();
+    const cloud_name = limparValor(body.slice(at + 1));
     const creds = body.slice(0, at);
     const colon = creds.indexOf(':');
     if (colon <= 0 || !cloud_name) return null;
 
-    let api_secret = creds.slice(colon + 1).trim();
+    let api_secret = limparValor(creds.slice(colon + 1));
     try {
         api_secret = decodeURIComponent(api_secret);
     } catch (_) {
@@ -47,28 +54,29 @@ function parseCloudinaryUrl(url) {
     }
 
     return {
-        api_key: creds.slice(0, colon).trim(),
+        api_key: limparValor(creds.slice(0, colon)),
         api_secret,
         cloud_name
     };
 }
 
 function obterCredenciaisCloudinary() {
-    const cloud_name = (process.env.CLOUDINARY_CLOUD_NAME || '').trim();
-    const api_key = (process.env.CLOUDINARY_API_KEY || '').trim();
-    const api_secret = (process.env.CLOUDINARY_API_SECRET || '').trim();
-
-    if (cloud_name && api_key && api_secret) {
-        return { cloud_name, api_key, api_secret, origem: 'env_separado' };
-    }
-
+    // Preferir a linha oficial do Dashboard (menos erros de colagem)
     const url = (process.env.CLOUDINARY_URL || '').trim();
     if (url && url.startsWith('cloudinary://')) {
         const parsed = parseCloudinaryUrl(url);
-        if (parsed) {
+        if (parsed?.api_key && parsed?.api_secret && parsed?.cloud_name) {
             return { ...parsed, origem: 'url' };
         }
-        console.warn('⚠️  CLOUDINARY_URL mal formatada. Use 3 variáveis separadas no Render.');
+        console.warn('⚠️  CLOUDINARY_URL mal formatada.');
+    }
+
+    const cloud_name = limparValor(process.env.CLOUDINARY_CLOUD_NAME);
+    const api_key = limparValor(process.env.CLOUDINARY_API_KEY);
+    const api_secret = limparValor(process.env.CLOUDINARY_API_SECRET);
+
+    if (cloud_name && api_key && api_secret) {
+        return { cloud_name, api_key, api_secret, origem: 'env_separado' };
     }
 
     return null;
@@ -85,9 +93,10 @@ function configurarCloudinary() {
             api_secret: creds.api_secret,
             secure: true
         });
-        // Evitar que o SDK releia CLOUDINARY_URL mal parseada
         delete process.env.CLOUDINARY_URL;
-        console.log(`✓ Cloudinary configurado (${creds.origem}, cloud: ${creds.cloud_name})`);
+        console.log(
+            `✓ Cloudinary configurado (${creds.origem}, cloud: ${creds.cloud_name}, secret_len: ${creds.api_secret.length})`
+        );
         return true;
     } catch (err) {
         console.warn('⚠️  Cloudinary config:', err.message);
