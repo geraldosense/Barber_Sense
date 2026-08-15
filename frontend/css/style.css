@@ -97,8 +97,9 @@ button {
 }
 
 .logo img {
-    height: 90px;
+    height: 108px;
     width: auto;
+    max-width: 200px;
     object-fit: contain;
     background: transparent;
     border: none;
@@ -1584,8 +1585,8 @@ select:focus {
     display: block;
     width: auto;
     height: auto;
-    max-height: 90px;
-    max-width: 160px;
+    max-height: 120px;
+    max-width: 200px;
     object-fit: contain;
     margin: 0 auto 0.75rem;
 }
@@ -1947,7 +1948,10 @@ body.auth-page::before {
 }
 
 .auth-page-logo {
-    height: 100px;
+    height: 130px;
+    width: auto;
+    max-width: 220px;
+    object-fit: contain;
     margin-bottom: 1.5rem;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
 }

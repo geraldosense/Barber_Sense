@@ -29,7 +29,7 @@ function normalizarServico(s) {
 
 function obterFotoBarbeiro(barbeiro) {
     const foto = barbeiro?.foto;
-    if (!foto || foto === 'assets/logo-sense.png') return FOTO_BARBEIRO_PADRAO;
+    if (!foto || foto === 'assets/logo-emblem.png') return FOTO_BARBEIRO_PADRAO;
     return foto;
 }
 

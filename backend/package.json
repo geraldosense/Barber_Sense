@@ -1,6 +1,6 @@
 {
   "name": "barbearia-sense-backend",
-  "version": "1.4.9",
+  "version": "1.5.0",
   "description": "Backend para sistema de agendamentos de barbearia",
   "main": "server.js",
   "scripts": {
