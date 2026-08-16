@@ -599,10 +599,6 @@ body.menu-open {
         text-align: left;
     }
 
-    .site-end-links {
-        gap: 0.5rem 1rem;
-    }
-
     .site-end .footer-bottom {
         margin-top: 1.5rem;
         padding: 1.1rem 0 calc(1.1rem + env(safe-area-inset-bottom, 0px));
