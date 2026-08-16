@@ -1925,19 +1925,6 @@ select:focus {
     border: 1px solid #ffeeba;
 }
 
-.perfil-badge {
-    display: inline-block;
-    padding: 0.3rem 0.7rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    margin: 0.2rem;
-}
-
-.perfil-badge.cliente { background: #e3f2fd; color: #1565c0; }
-.perfil-badge.barbeiro { background: #fff3e0; color: #e65100; }
-.perfil-badge.admin { background: #f3e5f5; color: #6a1b9a; }
-
 /* ===== PÁGINAS AUTH STANDALONE ===== */
 body.auth-page {
     background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
@@ -2226,30 +2213,6 @@ body.auth-page::before {
     color: var(--secondary-color);
 }
 
-.painel-nav-btn.active {
-    background: rgba(212, 175, 55, 0.15);
-    color: var(--primary-color);
-}
-
-.painel-view {
-    display: none;
-}
-
-.painel-view.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-.painel-view textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-family: inherit;
-    font-size: 0.95rem;
-    resize: vertical;
-}
-
 .painel-empty,
 .painel-loading {
     font-size: 0.85rem;
@@ -2297,18 +2260,6 @@ body.auth-page::before {
     display: block;
     margin-bottom: 0.3rem;
     color: var(--primary-color);
-}
-
-.pending-meta {
-    color: #888;
-    font-size: 0.75rem;
-    margin-top: 0.2rem;
-}
-
-.pending-desc {
-    color: #666;
-    font-size: 0.8rem;
-    margin-top: 0.4rem;
 }
 
 .pending-preview {
