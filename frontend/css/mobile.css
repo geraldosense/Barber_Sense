@@ -572,23 +572,40 @@ body.menu-open {
         color: rgba(255, 255, 255, 0.75);
     }
 
-    .barbeiros-section,
-    .contato-section {
+    .barbeiros-section {
         padding-left: 1rem;
         padding-right: 1rem;
     }
 
-    .info-bar-content {
-        grid-template-columns: 1fr;
-        gap: 1rem;
+    .site-end {
+        padding: 2.75rem 1rem 0;
     }
 
-    .info-item {
-        background: transparent;
-        box-shadow: none;
-        border: none;
-        border-radius: 0;
-        padding: 0.5rem 0;
+    .site-end-brand h2 {
+        font-size: 1.4rem;
+    }
+
+    .site-end-lead {
+        font-size: 0.92rem;
+    }
+
+    .site-end-details {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.1rem 1rem;
+        text-align: left;
+    }
+
+    .site-end-detail {
+        text-align: left;
+    }
+
+    .site-end-links {
+        gap: 0.5rem 1rem;
+    }
+
+    .site-end .footer-bottom {
+        margin-top: 1.5rem;
+        padding: 1.1rem 0 calc(1.1rem + env(safe-area-inset-bottom, 0px));
     }
 
     .footer-content {

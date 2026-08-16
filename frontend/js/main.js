@@ -140,6 +140,7 @@ function aplicarInfoSite(site) {
     setMail('siteContactEmail', email);
     setText('siteContactPhone', telefone);
     setText('siteContactAddress', morada);
+    // Compatibilidade com IDs antigos (se existirem noutros templates)
     setText('siteInfoAddress', morada);
     setText('siteInfoPhone', telefone);
     setText('siteFooterAddress', morada);

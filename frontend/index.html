@@ -18,11 +18,11 @@
 
     <link rel="icon" type="image/png" href="assets/logo-clear.png?v=31">
 
-    <link rel="stylesheet" href="css/normalize.css?v=34">
-    <link rel="stylesheet" href="css/style.css?v=34">
-    <link rel="stylesheet" href="css/responsive.css?v=34">
-    <link rel="stylesheet" href="css/mobile.css?v=34">
-    <link rel="stylesheet" href="css/i18n.css?v=34">
+    <link rel="stylesheet" href="css/normalize.css?v=36">
+    <link rel="stylesheet" href="css/style.css?v=36">
+    <link rel="stylesheet" href="css/responsive.css?v=36">
+    <link rel="stylesheet" href="css/mobile.css?v=36">
+    <link rel="stylesheet" href="css/i18n.css?v=36">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
@@ -157,90 +157,71 @@
                 <p class="galeria-empty"><i class="fas fa-spinner fa-spin"></i> <span data-i18n="gallery.loading">A carregar galeria...</span></p>
             </div>
         </section>
-
-        <!-- Contacto -->
-        <section class="contato-section" id="contato">
-            <div class="contato-content">
-                <h2 data-i18n="contact.title">Fale Connosco</h2>
-                <p data-i18n="contact.lead">Estamos prontos para o receber. Entre em contacto ou agende o seu corte online.</p>
-                <div class="contato-detalhes">
-                    <p><i class="fas fa-envelope"></i> <a id="siteContactEmail" href="mailto:sensebarber10@gmail.com">sensebarber10@gmail.com</a></p>
-                    <p><i class="fas fa-phone"></i> <span id="siteContactPhone">+351 960 075 690</span></p>
-                    <p><i class="fas fa-map-marker-alt"></i> <span id="siteContactAddress">Rua Principal, Caminho Nossa Senhora da Luz n6</span></p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Info rápida -->
-        <section class="info-bar">
-            <div class="info-bar-content">
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <div>
-                        <h4 data-i18n="info.location">Localização</h4>
-                        <p id="siteInfoAddress">Rua Principal, Caminho Nossa Senhora da Luz n6</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-clock"></i>
-                    <div>
-                        <h4 data-i18n="info.hours">Horário</h4>
-                        <p data-i18n="info.hoursValue">Seg-Sex: 9h-20h | Sáb: 9h-18h</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-phone"></i>
-                    <div>
-                        <h4 data-i18n="info.phone">Telefone</h4>
-                        <p id="siteInfoPhone">+351 960 075 690</p>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-info">
-                <img src="assets/logo-clear.png?v=31" alt="Sense Barbershop" class="footer-logo">
-                <h3>Sense Barbershop</h3>
-                <p id="siteFooterAddress">Rua Principal, Caminho Nossa Senhora da Luz n6</p>
-                <p><span data-i18n="footer.phoneLabel">Telefone:</span> <span id="siteFooterPhone">+351 960 075 690</span></p>
-                <p><span data-i18n="footer.emailLabel">Email:</span> <a id="siteFooterEmail" href="mailto:sensebarber10@gmail.com">sensebarber10@gmail.com</a></p>
-            </div>
-            <div class="footer-links">
-                <h4 data-i18n="footer.quickLinks">Links Rápidos</h4>
-                <ul>
-                    <li><a href="#home" data-i18n="nav.home">Início</a></li>
-                    <li><a href="#servicos" data-i18n="nav.services">Serviços</a></li>
-                    <li><a href="#barbeiro" data-i18n="nav.barber">Barbeiro</a></li>
-                    <li><a href="#galeria" data-i18n="nav.gallery">Galeria</a></li>
-                    <li><a href="#contato" data-i18n="nav.contact">Contactos</a></li>
-                </ul>
-            </div>
-            <div class="footer-social">
-                <h4 data-i18n="footer.social">Redes Sociais</h4>
-                <div class="social-icons">
-                    <a href="https://www.instagram.com/sense_barber" target="_blank" rel="noopener noreferrer" class="social-icon instagram" id="siteSocialInstagram" aria-label="Instagram">
-                        <i class="fab fa-instagram"></i>
-                        <span class="social-tooltip">Instagram</span>
-                    </a>
-                    <a href="https://www.tiktok.com/@sense_barber" target="_blank" rel="noopener noreferrer" class="social-icon tiktok" id="siteSocialTiktok" aria-label="TikTok">
-                        <i class="fab fa-tiktok"></i>
-                        <span class="social-tooltip">TikTok</span>
-                    </a>
-                    <a href="https://wa.me/+351960075690" target="_blank" rel="noopener noreferrer" class="social-icon whatsapp" id="siteSocialWhatsapp" aria-label="WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                        <span class="social-tooltip">WhatsApp</span>
+        <!-- Contacto + rodapé (um só bloco, sem repetir informação) -->
+        <footer class="site-end" id="contato">
+            <div class="site-end-inner">
+                <div class="site-end-brand">
+                    <img src="assets/logo-clear.png?v=31" alt="Sense Barbershop" class="footer-logo">
+                    <h2>Sense Barbershop</h2>
+                    <p class="site-end-lead" data-i18n="contact.lead">Estamos prontos para o receber. Entre em contacto ou agende o seu corte online.</p>
+                    <a href="marcacao.html" class="site-end-cta" id="btnAgendarFooter">
+                        <i class="fas fa-calendar-check"></i>
+                        <span data-i18n="hero.cta">Reservar Marcação</span>
                     </a>
                 </div>
+
+                <div class="site-end-details">
+                    <div class="site-end-detail">
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                        <div>
+                            <span data-i18n="info.location">Localização</span>
+                            <p id="siteContactAddress">Rua Principal, Caminho Nossa Senhora da Luz n6</p>
+                        </div>
+                    </div>
+                    <div class="site-end-detail">
+                        <i class="fas fa-clock" aria-hidden="true"></i>
+                        <div>
+                            <span data-i18n="info.hours">Horário</span>
+                            <p data-i18n="info.hoursValue">Seg-Sex: 9h-20h | Sáb: 9h-18h</p>
+                        </div>
+                    </div>
+                    <div class="site-end-detail">
+                        <i class="fas fa-phone" aria-hidden="true"></i>
+                        <div>
+                            <span data-i18n="info.phone">Telefone</span>
+                            <p id="siteContactPhone">+351 960 075 690</p>
+                        </div>
+                    </div>
+                    <div class="site-end-detail">
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
+                        <div>
+                            <span>Email</span>
+                            <p><a id="siteContactEmail" href="mailto:sensebarber10@gmail.com">sensebarber10@gmail.com</a></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="site-end-nav">
+                    <h3 class="site-end-social-title" data-i18n="footer.social">Redes Sociais</h3>
+                    <div class="social-icons" aria-label="Redes sociais">
+                        <a href="https://www.instagram.com/sense_barber" target="_blank" rel="noopener noreferrer" class="social-icon instagram" id="siteSocialInstagram" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.tiktok.com/@sense_barber" target="_blank" rel="noopener noreferrer" class="social-icon tiktok" id="siteSocialTiktok" aria-label="TikTok">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="https://wa.me/+351960075690" target="_blank" rel="noopener noreferrer" class="social-icon whatsapp" id="siteSocialWhatsapp" aria-label="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="footer-bottom">
-            <p><span data-i18n="footer.rights">© 2026 Sense Barbershop. Todos os direitos reservados.</span> · <a href="admin-login.html" class="footer-admin-link" data-i18n="footer.admin">Admin</a></p>
-        </div>
-    </footer>
+            <div class="footer-bottom">
+                <p><span data-i18n="footer.rights">© 2026 Sense Barbershop. Todos os direitos reservados.</span> · <a href="admin-login.html" class="footer-admin-link" data-i18n="footer.admin">Admin</a></p>
+            </div>
+        </footer>
 
     <!-- Modal de Autenticação -->
     <div class="modal auth-modal" id="modalAuth">
