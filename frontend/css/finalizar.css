@@ -46,27 +46,12 @@ body.finalizar-page::before {
     min-width: 0;
 }
 
-.finalizar-brand-logo-wrap {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-    flex-shrink: 0;
-    padding: 0.5rem;
-    background: radial-gradient(circle at 50% 42%, #141414 0%, #050505 100%);
-    border: 2px solid rgba(212, 175, 55, 0.55);
-    border-radius: 50%;
-    box-shadow:
-        0 6px 18px rgba(0, 0, 0, 0.35),
-        inset 0 0 12px rgba(0, 0, 0, 0.5);
-}
-
 .finalizar-brand img {
-    width: 100%;
-    height: 100%;
+    height: 56px;
+    width: auto;
     object-fit: contain;
     background: transparent;
+    flex-shrink: 0;
 }
 
 .finalizar-brand-text {
@@ -777,17 +762,10 @@ body.finalizar-page::before {
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 76px;
-    height: 40px;
-    padding: 0.25rem 0.45rem;
-    border: 1px solid #ececec;
-    border-radius: 8px;
-    background: #fafafa;
-    box-sizing: border-box;
+    justify-content: flex-end;
+    min-width: 0;
     font-size: 1rem;
     color: #111;
-    text-align: center;
 }
 
 .pagamento-metodo-logo img,
@@ -1099,10 +1077,9 @@ body.finalizar-page::before {
         display: none;
     }
 
-    .finalizar-brand-logo-wrap {
-        width: 44px;
+    .finalizar-brand img {
         height: 44px;
-        padding: 0.4rem;
+        width: auto;
     }
 
     .finalizar-main {
