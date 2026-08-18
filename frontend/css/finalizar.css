@@ -263,54 +263,38 @@ body.finalizar-page::before {
 }
 
 .pay-logo-img {
-    height: 22px;
+    height: 24px;
+    max-height: 24px;
+    max-width: 68px;
     width: auto;
     object-fit: contain;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+    filter: none;
 }
 
 .pay-logo-img--mbway {
-    height: 40px;
-    width: 40px;
-    border-radius: 8px;
+    height: 28px;
+    width: 28px;
+    max-width: 28px;
+    border-radius: 6px;
     object-fit: cover;
 }
 
-.pay-logo-img--visa {
-    height: 20px;
-}
-
-.pay-logo-img--paypal {
-    height: 22px;
-}
-
-.pay-logo-img--revolut {
-    height: 18px;
-}
-
 .pay-method-logo {
-    height: 26px;
+    display: block;
+    height: 24px;
+    max-height: 24px;
+    max-width: 68px;
     width: auto;
     object-fit: contain;
 }
 
 .pay-method-logo--mbway {
-    height: 40px;
-    width: 40px;
-    border-radius: 8px;
+    height: 28px;
+    max-height: 28px;
+    width: 28px;
+    max-width: 28px;
+    border-radius: 6px;
     object-fit: cover;
-}
-
-.pay-method-logo--visa {
-    height: 22px;
-}
-
-.pay-method-logo--paypal {
-    height: 24px;
-}
-
-.pay-method-logo--revolut {
-    height: 20px;
 }
 
 .pagamento-metodo-hero {
@@ -456,10 +440,6 @@ body.finalizar-page::before {
     max-width: 380px;
     width: 100%;
     text-align: center;
-}
-
-.pay-method-logo--paypal {
-    height: 28px;
 }
 
 .mbway-aguardar-logo {
@@ -656,30 +636,29 @@ body.finalizar-page::before {
 }
 
 .pagamento-brand-logo--pay {
-    height: 36px;
+    height: 24px;
+    max-height: 24px;
+    max-width: 72px;
     width: auto;
+    object-fit: contain;
 }
 
 .pagamento-brand-logo--mbway {
-    height: 48px;
-    width: 48px;
-    border-radius: 10px;
+    height: 28px;
+    width: 28px;
+    max-width: 28px;
+    border-radius: 6px;
     object-fit: cover;
 }
 
-.pagamento-brand-logo--visa {
-    height: 32px;
-    width: auto;
-}
-
-.pagamento-brand-logo--paypal {
-    height: 32px;
-    width: auto;
-}
-
+.pagamento-brand-logo--visa,
+.pagamento-brand-logo--paypal,
 .pagamento-brand-logo--revolut {
-    height: 26px;
+    height: 24px;
+    max-height: 24px;
+    max-width: 72px;
     width: auto;
+    object-fit: contain;
 }
 
 .pagamento-brand-nome {
@@ -796,16 +775,38 @@ body.finalizar-page::before {
 
 .pagamento-metodo-logo {
     flex-shrink: 0;
-    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 76px;
+    height: 40px;
+    padding: 0.25rem 0.45rem;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    background: #fafafa;
+    box-sizing: border-box;
+    font-size: 1rem;
     color: #111;
-    min-width: 48px;
-    text-align: right;
+    text-align: center;
 }
 
 .pagamento-metodo-logo img,
 .pagamento-metodo-logo .logo-mbway {
-    height: 28px;
+    display: block;
+    height: 24px;
+    max-height: 24px;
+    max-width: 68px;
     width: auto;
+    object-fit: contain;
+}
+
+.pagamento-metodo-logo .pay-method-logo--mbway {
+    height: 28px;
+    max-height: 28px;
+    width: 28px;
+    max-width: 28px;
+    object-fit: cover;
+    border-radius: 6px;
 }
 
 .logo-mbway {
@@ -915,11 +916,14 @@ body.finalizar-page::before {
 }
 
 .btn-pagamento-principal .btn-pay-logo {
-    height: 22px;
+    height: 24px;
+    max-height: 24px;
+    max-width: 68px;
     width: auto;
     display: inline-block;
     vertical-align: middle;
     margin-left: 0.35rem;
+    object-fit: contain;
 }
 
 .pagamento-seguro-footer {
