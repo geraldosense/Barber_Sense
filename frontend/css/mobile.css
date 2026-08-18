@@ -635,10 +635,6 @@ body.menu-open {
         height: 100%;
     }
 
-    .marcacao-header {
-        padding-top: calc(0.65rem + env(safe-area-inset-top, 0px));
-    }
-
     .minha-area {
         padding-top: calc(var(--mobile-header-h) + 1.25rem);
     }

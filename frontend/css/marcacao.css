@@ -9,10 +9,13 @@
 }
 
 .marcacao-header {
-    background: var(--primary-color);
+    background: var(--header-bg, #0d0d0d);
     color: #fff;
-    padding: 0.85rem 1.5rem;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    height: 96px;
+    padding: 0 1.5rem;
+    padding-top: env(safe-area-inset-top, 0px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.22);
     position: fixed;
     top: 0;
     left: 0;
@@ -24,6 +27,7 @@
 .marcacao-header-inner {
     max-width: 1200px;
     margin: 0 auto;
+    height: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -33,28 +37,27 @@
 .marcacao-brand {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    height: 100%;
     color: #fff;
     text-decoration: none;
     min-width: 0;
+    line-height: 0;
 }
 
 .marcacao-brand img {
-    height: 56px;
+    height: 76px;
     width: auto;
+    max-width: 150px;
     object-fit: contain;
+    object-position: left center;
     background: transparent;
     border: none;
     border-radius: 0;
     padding: 0;
+    box-shadow: none;
     mix-blend-mode: normal;
     flex-shrink: 0;
-}
-
-.marcacao-brand-text {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.25rem;
-    color: var(--secondary-color);
+    display: block;
 }
 
 .marcacao-user {
@@ -199,7 +202,7 @@
 .marcacao-layout {
     max-width: 1200px;
     margin: 0 auto;
-    padding: calc(88px + 2rem) 1.5rem 2rem;
+    padding: calc(96px + 2rem) 1.5rem 2rem;
     display: grid;
     grid-template-columns: 320px 1fr;
     gap: 2rem;
@@ -213,7 +216,7 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(0, 0, 0, 0.06);
     position: sticky;
-    top: 90px;
+    top: 96px;
 }
 
 .marcacao-sidebar h2 {
@@ -785,24 +788,25 @@
 
 @media (max-width: 900px) {
     .marcacao-header {
-        padding: 0.55rem 0.85rem;
-        padding-top: max(0.55rem, env(safe-area-inset-top, 0px));
-        min-height: 56px;
+        height: calc(var(--mobile-header-h, 68px) + env(safe-area-inset-top, 0px));
+        padding: 0 0.85rem;
+        padding-top: env(safe-area-inset-top, 0px);
+        min-height: 0;
     }
 
     .marcacao-header-inner {
         gap: 0.5rem;
+        height: var(--mobile-header-h, 68px);
     }
 
-    .marcacao-brand-text,
     .marcacao-header-lang,
     .marcacao-header .lang-switcher {
         display: none !important;
     }
 
     .marcacao-brand img {
-        height: 44px;
-        width: auto;
+        height: 52px;
+        max-width: min(42vw, 130px);
     }
 
     .marcacao-user {
@@ -819,7 +823,7 @@
 
     .marcacao-layout {
         grid-template-columns: 1fr;
-        padding: calc(56px + env(safe-area-inset-top, 0px) + 1rem) 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+        padding: calc(var(--mobile-header-h, 68px) + env(safe-area-inset-top, 0px) + 1rem) 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
     }
 
     .marcacao-sidebar {
