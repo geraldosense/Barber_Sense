@@ -560,9 +560,6 @@ button {
     justify-content: center;
 }
 
-.site-end .social-icon .social-tooltip {
-    display: none;
-}
 
 /* ===== SERVIÇOS (estilo courses-section) ===== */
 .courses-section {
@@ -586,7 +583,7 @@ button {
 }
 
 /* Com muitos serviços: mostra só a 1.ª “vitrine” até expandir */
-.course-grid--truncated:not(.is-expanded) .course-item:nth-child(n+5) {
+.course-grid--collapsed:not(.is-expanded) .course-item:nth-child(n+5) {
     display: none;
 }
 
@@ -1152,22 +1149,6 @@ button {
     transition: transform 0.3s ease;
 }
 
-.social-icon .social-tooltip {
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 10px;
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    font-size: 0.8rem;
-    border-radius: 4px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    font-weight: 600;
-}
 
 .social-icon:hover {
     transform: translateY(-3px);
@@ -1178,11 +1159,6 @@ button {
     transform: scale(1.1);
 }
 
-.social-icon:hover .social-tooltip {
-    opacity: 1;
-    visibility: visible;
-    top: -45px;
-}
 
 .social-icon.instagram { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
 .social-icon.tiktok { background: #010101; }
@@ -1473,23 +1449,6 @@ select:focus {
     transform: translateY(-1px);
 }
 
-.register-btn-outline {
-    padding: 0.42rem 0.9rem;
-    border-radius: 999px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.78rem;
-    color: var(--secondary-color);
-    border: 1.5px solid var(--secondary-color);
-    margin-right: 0.35rem;
-    transition: all 0.25s ease;
-    white-space: nowrap;
-}
-
-.register-btn-outline:hover {
-    background-color: var(--secondary-color);
-    color: var(--white);
-}
 
 .auth-buttons {
     gap: 0.45rem;
@@ -1665,92 +1624,6 @@ select:focus {
     gap: 1rem;
 }
 
-.upload-preview {
-    margin-top: 0.75rem;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid rgba(212, 175, 55, 0.35);
-}
-
-.upload-preview img {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    display: block;
-}
-
-.form-hint {
-    display: block;
-    margin-top: 0.35rem;
-    font-size: 0.8rem;
-    color: #777;
-}
-
-.servicos-admin-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.servico-admin-item {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 0.75rem;
-    align-items: center;
-    padding: 0.85rem 1rem;
-    background: var(--light-gray);
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.servico-admin-item strong {
-    display: block;
-    color: var(--primary-color);
-}
-
-.servico-admin-item small {
-    color: #666;
-}
-
-.servico-admin-item input[type="number"] {
-    width: 90px;
-    padding: 0.45rem 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.btn-save-preco {
-    padding: 0.45rem 0.75rem;
-    background: var(--secondary-color);
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 0.85rem;
-    cursor: pointer;
-}
-
-.servico-admin-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    align-items: center;
-}
-
-.btn-remove-admin {
-    padding: 0.45rem 0.75rem;
-    background: #c0392b;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.btn-remove-admin:hover {
-    background: #a93226;
-}
-
 .galeria-preco {
     display: inline-block;
     margin-top: 0.35rem;
@@ -1924,6 +1797,19 @@ select:focus {
     color: #856404;
     border: 1px solid #ffeeba;
 }
+
+.perfil-badge {
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin: 0.2rem;
+}
+
+.perfil-badge.cliente { background: #e3f2fd; color: #1565c0; }
+.perfil-badge.barbeiro { background: #fff3e0; color: #e65100; }
+.perfil-badge.admin { background: #f3e5f5; color: #6a1b9a; }
 
 /* ===== PÁGINAS AUTH STANDALONE ===== */
 body.auth-page {
@@ -2130,79 +2016,6 @@ body.auth-page::before {
     color: var(--secondary-color);
 }
 
-/* ===== PAINEL ADMIN (login) ===== */
-
-.adm-brand {
-    text-align: center;
-    padding: 0.25rem 0.5rem 1.5rem;
-    margin-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-}
-
-.adm-brand-logo-wrap {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 108px;
-    height: 108px;
-    margin: 0 auto 1rem;
-    padding: 0.85rem;
-    background: linear-gradient(160deg, #ffffff 0%, #f5f5f5 100%);
-    border: 2px solid rgba(212, 175, 55, 0.45);
-    border-radius: 50%;
-    box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.adm-brand-logo {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-}
-
-.adm-brand-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    color: #1a1a1a;
-    display: block;
-    line-height: 1.2;
-    letter-spacing: 0.02em;
-}
-
-.adm-brand-tag {
-    display: block;
-    margin-top: 0.35rem;
-    font-size: 0.68rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--secondary-color);
-}
-
-.adm-subtitle {
-    font-size: 0.85rem;
-    color: #666;
-    text-align: center;
-    margin-bottom: 1.25rem;
-    margin-top: 0.25rem;
-}
-
-.adm-err {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
-    border-radius: 8px;
-    padding: 0.65rem 0.85rem;
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
-}
-
-.adm-err.hidden {
-    display: none;
-}
-
 .footer-admin-link {
     color: rgba(255, 255, 255, 0.35);
     text-decoration: none;
@@ -2260,6 +2073,18 @@ body.auth-page::before {
     display: block;
     margin-bottom: 0.3rem;
     color: var(--primary-color);
+}
+
+.pending-meta {
+    color: #888;
+    font-size: 0.75rem;
+    margin-top: 0.2rem;
+}
+
+.pending-desc {
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
 }
 
 .pending-preview {

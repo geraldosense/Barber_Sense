@@ -405,12 +405,12 @@ body.menu-open {
         max-width: 100%;
     }
 
-    .course-grid--truncated:not(.is-expanded) .course-item:nth-child(n+5) {
+    .course-grid--collapsed:not(.is-expanded) .course-item:nth-child(n+5) {
         display: none;
     }
 
     /* No preview (4 cards), o último ímpar visível não deve “flutuar” ao centro */
-    .course-grid--truncated:not(.is-expanded) .course-item:last-child:nth-child(odd) {
+    .course-grid--collapsed:not(.is-expanded) .course-item:last-child:nth-child(odd) {
         grid-column: auto;
         width: auto;
         max-width: none;
@@ -607,9 +607,6 @@ body.menu-open {
         justify-content: center;
     }
 
-    .social-icon .social-tooltip {
-        display: none;
-    }
 
     .footer-bottom {
         padding-bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
