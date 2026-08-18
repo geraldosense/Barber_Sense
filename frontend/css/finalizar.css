@@ -15,48 +15,64 @@ body.finalizar-page::before {
 }
 
 .finalizar-header {
-    background: var(--primary-color, #1a1a1a);
-    border-bottom: 1px solid rgba(212, 175, 55, 0.28);
-    padding: 0.85rem 1.25rem;
+    background: var(--header-bg, #0d0d0d);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.22);
+    padding: 0.85rem 1.5rem;
     padding-top: max(0.85rem, env(safe-area-inset-top, 0px));
     position: sticky;
     top: 0;
     z-index: 50;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
 }
 
 .finalizar-header-inner {
-    max-width: 560px;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
 .finalizar-brand {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.75rem;
     color: var(--secondary-color, #d4af37);
     text-decoration: none;
     font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     min-width: 0;
 }
 
-.finalizar-brand img {
-    width: 44px;
-    height: 44px;
-    object-fit: contain;
-    background: transparent;
+.finalizar-brand-logo-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
     flex-shrink: 0;
+    padding: 0.45rem;
+    background: radial-gradient(circle at 50% 42%, #141414 0%, #050505 100%);
+    border: 2px solid rgba(212, 175, 55, 0.55);
+    border-radius: 50%;
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.35),
+        inset 0 0 12px rgba(0, 0, 0, 0.5);
 }
 
-.finalizar-brand span {
+.finalizar-brand img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: transparent;
+}
+
+.finalizar-brand-text {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--secondary-color, #d4af37);
 }
 
 .finalizar-header-actions {
@@ -67,15 +83,16 @@ body.finalizar-page::before {
 }
 
 .finalizar-voltar {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.92);
     font-size: 0.85rem;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    padding: 0.4rem 0.65rem;
-    border-radius: 6px;
-    border: 1px solid rgba(212, 175, 55, 0.35);
+    padding: 0.42rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.06);
     transition: color 0.2s, border-color 0.2s, background 0.2s;
 }
 
@@ -115,28 +132,30 @@ body.finalizar-page::before {
 
 .finalizar-resumo {
     position: relative;
-    background: #fff;
-    color: #1a1a1a;
-    border: 1px solid rgba(212, 175, 55, 0.35);
-    border-top: 4px solid var(--secondary-color, #d4af37);
-    border-radius: 12px;
-    padding: 1.15rem 1.25rem 1rem;
-    margin-bottom: 1.25rem;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    background: linear-gradient(165deg, rgba(26, 26, 26, 0.98) 0%, rgba(12, 12, 12, 0.98) 100%);
+    color: #f5f5f5;
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    border-radius: 14px;
+    padding: 1.35rem 1.35rem 1.1rem;
+    margin-bottom: 1.35rem;
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.finalizar-resumo-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin: 0 0 0.85rem;
-    background: var(--primary-color, #1a1a1a);
-    color: var(--secondary-color, #d4af37);
-    font-size: 0.7rem;
+.finalizar-resumo-head {
+    margin-bottom: 1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.finalizar-resumo-kicker {
+    display: block;
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.03em;
-    padding: 0.35rem 0.65rem;
-    border-radius: 4px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--secondary-color, #d4af37);
 }
 
 .finalizar-resumo-row {
@@ -144,13 +163,13 @@ body.finalizar-page::before {
     justify-content: space-between;
     align-items: baseline;
     gap: 1rem;
-    padding: 0.7rem 0;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     font-size: 0.95rem;
 }
 
 .finalizar-resumo-row span {
-    color: #666;
+    color: rgba(255, 255, 255, 0.58);
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -165,7 +184,7 @@ body.finalizar-page::before {
 }
 
 .finalizar-resumo-row strong {
-    color: #1a1a1a;
+    color: #fff;
     text-align: right;
     font-weight: 600;
 }
@@ -174,29 +193,29 @@ body.finalizar-page::before {
     border-bottom: none;
     font-weight: 700;
     font-size: 1.08rem;
-    padding-top: 0.95rem;
+    padding-top: 1rem;
     margin-top: 0.15rem;
-    border-top: 1px dashed rgba(212, 175, 55, 0.45);
+    border-top: 1px solid rgba(212, 175, 55, 0.22);
 }
 
 .finalizar-resumo-total span {
-    color: #1a1a1a;
+    color: #fff;
     font-weight: 700;
 }
 
 .finalizar-resumo-total strong {
     color: var(--secondary-color, #d4af37);
     font-family: 'Playfair Display', serif;
-    font-size: 1.35rem;
+    font-size: 1.45rem;
 }
 
 .btn-finalizar-compra {
     width: 100%;
     padding: 1rem 1.5rem;
-    background: var(--secondary-color, #d4af37);
+    background: linear-gradient(135deg, #d4af37 0%, #c9a227 100%);
     color: var(--primary-color, #1a1a1a);
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 1.05rem;
     font-weight: 700;
     cursor: pointer;
@@ -205,7 +224,8 @@ body.finalizar-page::before {
     align-items: center;
     justify-content: center;
     gap: 0.65rem;
-    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.28);
+    box-shadow: 0 10px 28px rgba(212, 175, 55, 0.22);
+    letter-spacing: 0.01em;
 }
 
 .btn-finalizar-compra:hover {
@@ -578,12 +598,30 @@ body.finalizar-page::before {
 }
 
 .pagamento-brand-logo-wrap {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 72px;
-    margin-bottom: 0.35rem;
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 0.5rem;
+    padding: 0.75rem;
+    background: radial-gradient(circle at 50% 42%, #141414 0%, #050505 100%);
+    border: 2px solid rgba(212, 175, 55, 0.55);
+    border-radius: 50%;
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.12),
+        inset 0 0 16px rgba(0, 0, 0, 0.45);
+}
+
+.pagamento-brand-logo-wrap:has(.pagamento-brand-logos-pay:not(.hidden)) {
+    width: auto;
+    height: auto;
+    min-height: 48px;
+    padding: 0;
     background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 .pagamento-brand-logo {
@@ -592,9 +630,9 @@ body.finalizar-page::before {
 }
 
 .pagamento-brand-logo--sense {
-    width: 96px;
-    height: auto;
-    max-height: 96px;
+    width: 100%;
+    height: 100%;
+    max-height: none;
     mix-blend-mode: normal;
     filter: none;
     background: transparent !important;
@@ -660,9 +698,9 @@ body.finalizar-page::before {
 
 .pagamento-brand-titulo {
     margin: 0;
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #888;
 }

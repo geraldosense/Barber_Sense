@@ -132,7 +132,9 @@ function formatarEuro(valor) {
 
 function renderizarResumo() {
     document.getElementById('finalizarResumo').innerHTML = `
-        <div class="finalizar-resumo-badge"><i class="fas fa-calendar-check"></i> Reservar Marcação</div>
+        <div class="finalizar-resumo-head">
+            <span class="finalizar-resumo-kicker">Resumo da marcação</span>
+        </div>
         <div class="finalizar-resumo-row">
             <span><i class="fas fa-scissors"></i> Serviço</span>
             <strong>${esc(dadosReserva.servico_nome || '—')}</strong>

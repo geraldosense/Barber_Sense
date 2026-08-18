@@ -24,19 +24,27 @@
     animation: none;
 }
 
-/* No cabeçalho cinzento do site */
+/* No cabeçalho escuro do site — pill branco legível */
 .header .lang-switcher-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(212, 175, 55, 0.35);
-    color: #f2f2f2;
+    background: #ffffff;
+    border-color: rgba(255, 255, 255, 0.92);
+    color: #1a1a1a;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
 }
 
 .header .lang-switcher-btn:hover,
 .header .lang-switcher-btn:focus-visible,
 .header .lang-switcher-btn.is-open {
-    background: rgba(212, 175, 55, 0.18);
+    background: #f5f5f5;
     border-color: rgba(212, 175, 55, 0.65);
-    color: #fff;
+    color: #1a1a1a;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+
+.header .lang-switcher-current,
+.header .lang-switcher-globe,
+.header .lang-switcher-chevron {
+    color: #1a1a1a;
 }
 
 .lang-switcher-glow,
