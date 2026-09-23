@@ -101,6 +101,119 @@ body.conta-page--cliente::before {
     display: block;
 }
 
+/* ===== Foto de perfil no registo ===== */
+.registo-foto-block {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 1.15rem;
+    padding: 0.85rem 0.95rem;
+    background: #f7f7f8;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+}
+
+.registo-foto-picker {
+    flex-shrink: 0;
+}
+
+.registo-foto-btn {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 50%;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.registo-foto-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(145deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 1.55rem;
+    border: 2px solid rgba(212, 175, 55, 0.55);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.registo-foto-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.registo-foto-camera {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--secondary-color, #d4af37);
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.registo-foto-btn:hover .registo-foto-preview,
+.registo-foto-btn:focus-visible .registo-foto-preview {
+    border-color: var(--secondary-color, #d4af37);
+}
+
+.registo-foto-btn:focus-visible {
+    outline: 2px solid var(--secondary-color, #d4af37);
+    outline-offset: 3px;
+}
+
+.registo-foto-meta {
+    min-width: 0;
+    flex: 1;
+}
+
+.registo-foto-meta strong {
+    display: block;
+    font-size: 0.9rem;
+    color: #1a1a1a;
+    margin-bottom: 0.15rem;
+}
+
+.registo-foto-meta p {
+    margin: 0;
+    font-size: 0.78rem;
+    color: #777;
+    line-height: 1.35;
+}
+
+.registo-foto-remove {
+    margin-top: 0.45rem;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #b45309;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.registo-foto-remove:hover {
+    color: #92400e;
+}
+
 .conta-card--cliente .conta-card-header {
     text-align: left;
     margin-bottom: 0.85rem;

@@ -58,11 +58,20 @@ async function verificarAcessoMarcacao() {
 
     document.getElementById('marcacaoNome').textContent = obterNomePerfilCliente(utilizadorAtual);
     document.getElementById('marcacaoEmail').textContent = utilizadorAtual.email || '—';
-    const inicial = obterInicialPerfilCliente(utilizadorAtual);
     const avatar = document.getElementById('marcacaoAvatar');
     const avatarMenu = document.getElementById('marcacaoAvatarMenu');
-    if (avatar) avatar.textContent = inicial;
-    if (avatarMenu) avatarMenu.textContent = inicial;
+    const fotoUrl = utilizadorAtual.foto_url
+        ? (typeof resolveMediaUrl === 'function' ? resolveMediaUrl(utilizadorAtual.foto_url) : utilizadorAtual.foto_url)
+        : '';
+    if (fotoUrl) {
+        const img = `<img src="${fotoUrl.replace(/"/g, '&quot;')}" alt="">`;
+        if (avatar) avatar.innerHTML = img;
+        if (avatarMenu) avatarMenu.innerHTML = img;
+    } else {
+        const inicial = obterInicialPerfilCliente(utilizadorAtual);
+        if (avatar) avatar.textContent = inicial;
+        if (avatarMenu) avatarMenu.textContent = inicial;
+    }
 }
 
 function obterNomePerfilCliente(u) {

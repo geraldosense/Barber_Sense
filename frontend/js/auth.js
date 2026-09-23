@@ -106,6 +106,25 @@ function botaoReservarHtml(id) {
     return `<a href="marcacao.html" class="register-btn" id="${id}"><span class="btn-text-full">${full}</span><span class="btn-text-short">${short}</span></a>`;
 }
 
+function urlFotoUtilizador(u) {
+    const raw = u?.foto_url;
+    if (!raw) return '';
+    return typeof resolveMediaUrl === 'function' ? resolveMediaUrl(raw) : raw;
+}
+
+function avatarUtilizadorHtml(u, fallbackIcon = 'fa-user') {
+    const url = urlFotoUtilizador(u);
+    if (url) {
+        return `<img src="${escapeHtml(url)}" alt="" loading="lazy" decoding="async">`;
+    }
+    const perfilIcon = {
+        cliente: 'fa-user',
+        barbeiro: 'fa-cut',
+        administrador: 'fa-cog'
+    }[u?.perfil] || fallbackIcon;
+    return `<i class="fas ${perfilIcon}"></i>`;
+}
+
 function atualizarUIAuth() {
     const authButtons = document.getElementById('authButtons');
     const authMobile = document.getElementById('authButtonsMobile');
@@ -116,12 +135,6 @@ function atualizarUIAuth() {
     const logoutLabel = typeof t === 'function' ? t('auth.logout') : 'Sair';
 
     if (utilizadorAtual && obterToken()) {
-        const perfilIcon = {
-            cliente: 'fa-user',
-            barbeiro: 'fa-cut',
-            administrador: 'fa-cog'
-        }[utilizadorAtual.perfil] || 'fa-user';
-
         const perfilLabel = {
             cliente: 'Cliente',
             barbeiro: 'Barbeiro',
@@ -129,12 +142,13 @@ function atualizarUIAuth() {
         }[utilizadorAtual.perfil] || 'Utilizador';
 
         const nome = escapeHtml(utilizadorAtual.nome.split(' ')[0]);
+        const avatarMarkup = avatarUtilizadorHtml(utilizadorAtual);
 
         if (authButtons) {
             authButtons.classList.remove('auth-buttons--empty');
             authButtons.innerHTML = `
                 <div class="user-profile">
-                    <div class="user-avatar"><i class="fas ${perfilIcon}"></i></div>
+                    <div class="user-avatar">${avatarMarkup}</div>
                     <div class="user-info">
                         <span class="user-name">${nome}</span>
                         <span class="user-perfil">${perfilLabel}</span>
@@ -149,7 +163,7 @@ function atualizarUIAuth() {
             const minhaAreaLabel = typeof t === 'function' ? t('nav.myArea') : 'Minha Área';
             authMobile.innerHTML = `
                 <div class="nav-auth-user">
-                    <i class="fas ${perfilIcon}"></i>
+                    <span class="nav-auth-avatar">${avatarMarkup}</span>
                     <div>
                         <strong>${nome}</strong>
                         <span>${perfilLabel}</span>
@@ -730,6 +744,7 @@ async function submeterRegisto(e) {
     const telefone = document.getElementById('regTelefone').value.trim();
     const password = document.getElementById('regPassword').value;
     const confirm = document.getElementById('regPasswordConfirm').value;
+    const fotoFile = document.getElementById('regFoto')?.files?.[0] || null;
 
     if (password !== confirm) {
         mostrarAuthMessage('As palavras-passe não coincidem.', 'error');
@@ -738,6 +753,11 @@ async function submeterRegisto(e) {
 
     if (!telefoneValido(telefone)) {
         mostrarAuthMessage('Indique um telefone válido.', 'error');
+        return;
+    }
+
+    if (fotoFile && fotoFile.size > 8 * 1024 * 1024) {
+        mostrarAuthMessage('A foto deve ter no máximo 8 MB.', 'error');
         return;
     }
 
@@ -776,8 +796,24 @@ async function submeterRegisto(e) {
         if (data.token && data.utilizador) {
             guardarSessao(data.token, data.utilizador);
             guardarEmailCliente(email);
+
+            if (fotoFile) {
+                if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A guardar foto…';
+                try {
+                    await enviarFotoPerfil(fotoFile, data.token);
+                } catch (fotoErr) {
+                    console.warn('Foto de perfil:', fotoErr);
+                    mostrarAuthMessage(
+                        'Conta criada. Não foi possível guardar a foto agora — pode adicioná-la mais tarde.',
+                        'info'
+                    );
+                    setTimeout(() => redirecionarAposAuth(utilizadorAtual || data.utilizador), 1200);
+                    return;
+                }
+            }
+
             mostrarAuthMessage(data.mensagem || 'Conta criada! A iniciar sessão…', 'success');
-            setTimeout(() => redirecionarAposAuth(data.utilizador), 700);
+            setTimeout(() => redirecionarAposAuth(utilizadorAtual || data.utilizador), 700);
             return;
         }
 
@@ -793,6 +829,96 @@ async function submeterRegisto(e) {
             btn.textContent = btn.dataset.label || (typeof t === 'function' ? t('auth.createAccount') : 'Criar Conta');
         }
     }
+}
+
+async function enviarFotoPerfil(file, token) {
+    const formData = new FormData();
+    formData.append('imagem', file);
+
+    const upRes = await fetch(`${API_URL}/upload/perfil`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+    });
+    const upData = await upRes.json();
+    if (!upRes.ok) {
+        throw new Error(upData.erro || 'Falha no upload da foto.');
+    }
+
+    const patchRes = await fetch(`${API_URL}/auth/foto`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ foto_url: upData.url })
+    });
+    const patchData = await patchRes.json();
+    if (!patchRes.ok) {
+        throw new Error(patchData.erro || 'Não foi possível guardar a foto.');
+    }
+
+    if (patchData.token && patchData.utilizador) {
+        guardarSessao(patchData.token, patchData.utilizador);
+    }
+    return patchData.utilizador;
+}
+
+let registoFotoObjectUrl = null;
+
+function limparPreviewFotoRegisto() {
+    if (registoFotoObjectUrl) {
+        URL.revokeObjectURL(registoFotoObjectUrl);
+        registoFotoObjectUrl = null;
+    }
+    const preview = document.getElementById('registoFotoPreview');
+    const input = document.getElementById('regFoto');
+    const btnRemover = document.getElementById('btnRegistoFotoRemover');
+    if (preview) preview.innerHTML = '<i class="fas fa-user" aria-hidden="true"></i>';
+    if (input) input.value = '';
+    btnRemover?.classList.add('hidden');
+}
+
+function aplicarPreviewFotoRegisto(file) {
+    const preview = document.getElementById('registoFotoPreview');
+    const btnRemover = document.getElementById('btnRegistoFotoRemover');
+    if (!preview || !file) return;
+
+    if (registoFotoObjectUrl) URL.revokeObjectURL(registoFotoObjectUrl);
+    registoFotoObjectUrl = URL.createObjectURL(file);
+    preview.innerHTML = `<img src="${registoFotoObjectUrl}" alt="Pré-visualização">`;
+    btnRemover?.classList.remove('hidden');
+}
+
+function configurarFotoRegisto() {
+    const input = document.getElementById('regFoto');
+    const btn = document.getElementById('btnRegistoFoto');
+    const btnRemover = document.getElementById('btnRegistoFotoRemover');
+    if (!input || !btn) return;
+
+    btn.addEventListener('click', () => input.click());
+    btnRemover?.addEventListener('click', (e) => {
+        e.preventDefault();
+        limparPreviewFotoRegisto();
+    });
+    input.addEventListener('change', () => {
+        const file = input.files?.[0];
+        if (!file) {
+            limparPreviewFotoRegisto();
+            return;
+        }
+        if (!/^image\//i.test(file.type) && !/\.(jpe?g|png|webp|gif|heic|heif)$/i.test(file.name)) {
+            mostrarAuthMessage('Selecione uma imagem JPG ou PNG.', 'error');
+            limparPreviewFotoRegisto();
+            return;
+        }
+        if (file.size > 8 * 1024 * 1024) {
+            mostrarAuthMessage('A foto deve ter no máximo 8 MB.', 'error');
+            limparPreviewFotoRegisto();
+            return;
+        }
+        aplicarPreviewFotoRegisto(file);
+    });
 }
 
 async function submeterLogin(e) {
@@ -899,6 +1025,7 @@ function configurarAuth() {
     document.getElementById('formCompletarPerfil')?.addEventListener('submit', submeterCompletarPerfil);
     document.getElementById('formRecuperar')?.addEventListener('submit', submeterRecuperar);
     document.getElementById('formRecuperarCodigo')?.addEventListener('submit', submeterRecuperarCodigo);
+    configurarFotoRegisto();
 
     document.getElementById('linkEsqueciPassword')?.addEventListener('click', (e) => {
         e.preventDefault();

@@ -105,15 +105,18 @@ function tratarUploadDisco(upload, subdir) {
 
 const uploadGaleriaDisco = criarUploaderDisco('galeria');
 const uploadServicoDisco = criarUploaderDisco('servicos');
+const uploadPerfilDisco = criarUploaderDisco('perfil');
 
 if (cloudinaryAtivo) {
     console.log('✓ Uploads persistentes: Cloudinary');
     router.post('/galeria', verificarToken, verificarPerfil('barbeiro', 'administrador'), tratarUploadCloud('galeria'));
     router.post('/servico', verificarToken, verificarPerfil('administrador'), tratarUploadCloud('servicos'));
+    router.post('/perfil', verificarToken, tratarUploadCloud('perfil'));
 } else {
     console.warn('⚠️  Uploads locais (efémeros no Render Free). Configure CLOUDINARY_URL.');
     router.post('/galeria', verificarToken, verificarPerfil('barbeiro', 'administrador'), tratarUploadDisco(uploadGaleriaDisco, 'galeria'));
     router.post('/servico', verificarToken, verificarPerfil('administrador'), tratarUploadDisco(uploadServicoDisco, 'servicos'));
+    router.post('/perfil', verificarToken, tratarUploadDisco(uploadPerfilDisco, 'perfil'));
 }
 
 module.exports = router;

@@ -312,16 +312,17 @@ router.post('/registo', async (req, res) => {
             });
         }
 
+        const fotoUrl = typeof req.body.foto_url === 'string' ? req.body.foto_url.trim() : '';
         const passwordHash = await bcrypt.hash(password, 12);
         const perfil = perfilParaEmail(email.toLowerCase().trim());
         const resultado = await req.db.run(
-            `INSERT INTO utilizadores (nome, email, telefone, password_hash, perfil, ativo, email_confirmado, auth_provider, perfil_completo)
-             VALUES (?, ?, ?, ?, ?, 1, 1, 'local', 1)`,
-            [nome.trim(), email.toLowerCase().trim(), telefone.trim(), passwordHash, perfil]
+            `INSERT INTO utilizadores (nome, email, telefone, password_hash, perfil, ativo, email_confirmado, auth_provider, perfil_completo, foto_url)
+             VALUES (?, ?, ?, ?, ?, 1, 1, 'local', 1, ?)`,
+            [nome.trim(), email.toLowerCase().trim(), telefone.trim(), passwordHash, perfil, fotoUrl || null]
         );
 
         const utilizador = await req.db.get(
-            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo, auth_provider
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo, auth_provider, foto_url
              FROM utilizadores WHERE id = ?`,
             [resultado.id]
         );
@@ -492,7 +493,7 @@ router.post('/login', async (req, res) => {
 
         const utilizador = await req.db.get(
             `SELECT id, nome, email, telefone, password_hash, perfil, ativo, email_confirmado, barbeiro_id,
-                    metodo_pagamento, perfil_completo, auth_provider, google_id
+                    metodo_pagamento, perfil_completo, auth_provider, google_id, foto_url
              FROM utilizadores WHERE email = ?`,
             [email.toLowerCase().trim()]
         );
@@ -639,6 +640,47 @@ router.get('/me', verificarToken, async (req, res) => {
         const sessaoPublica = req.utilizador.perfil === 'cliente';
         const dados = sessaoPublica ? utilizadorCliente(utilizador) : utilizador;
         res.json({ utilizador: formatarUtilizador(dados) });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+/**
+ * PATCH /api/auth/foto — atualizar foto de perfil do utilizador autenticado
+ */
+router.patch('/foto', verificarToken, async (req, res) => {
+    try {
+        const fotoUrl = typeof req.body.foto_url === 'string' ? req.body.foto_url.trim() : '';
+        if (!fotoUrl) {
+            return res.status(400).json({ erro: 'Indique a URL da foto de perfil.' });
+        }
+        if (!/^https?:\/\//i.test(fotoUrl) && !fotoUrl.startsWith('/uploads/')) {
+            return res.status(400).json({ erro: 'URL de foto inválida.' });
+        }
+
+        await req.db.run(
+            'UPDATE utilizadores SET foto_url = ? WHERE id = ?',
+            [fotoUrl, req.utilizador.id]
+        );
+
+        const utilizador = await req.db.get(
+            `SELECT id, nome, email, telefone, perfil, ativo, email_confirmado, barbeiro_id, metodo_pagamento, perfil_completo, auth_provider, foto_url
+             FROM utilizadores WHERE id = ?`,
+            [req.utilizador.id]
+        );
+
+        if (!utilizador || !utilizador.ativo) {
+            return res.status(401).json({ erro: 'Conta inativa ou não encontrada.' });
+        }
+
+        const sessaoPublica = req.utilizador.perfil === 'cliente';
+        const dados = sessaoPublica ? utilizadorCliente(utilizador) : utilizador;
+
+        res.json({
+            mensagem: 'Foto de perfil atualizada.',
+            utilizador: formatarUtilizador(dados),
+            token: gerarToken(dados)
+        });
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
