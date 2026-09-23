@@ -83,10 +83,12 @@ router.get('/', async (req, res) => {
                    a.cliente_telefone, a.cliente_email, a.data, a.hora, 
                    a.status, a.criado_em, a.metodo_pagamento, a.referencia_pagamento, a.valor_pago,
                    s.nome as servico_nome, s.preco, s.tempo_estimado,
-                   b.nome as barbeiro_nome
+                   b.nome as barbeiro_nome,
+                   u.foto_url as cliente_foto_url
             FROM agendamentos a
             JOIN servicos s ON a.servico_id = s.id
             JOIN barbeiros b ON a.barbeiro_id = b.id
+            LEFT JOIN utilizadores u ON LOWER(u.email) = LOWER(a.cliente_email)
             WHERE 1=1
         `;
         let params = [];
@@ -131,6 +133,7 @@ router.get('/', async (req, res) => {
             nome: a.cliente_nome,
             telefone: a.cliente_telefone,
             email: a.cliente_email,
+            foto_url: a.cliente_foto_url || null,
             data: a.data,
             hora: a.hora,
             status: a.status,
@@ -225,10 +228,12 @@ router.get('/:id', async (req, res) => {
                     a.cliente_telefone, a.cliente_email, a.data, a.hora, 
                     a.status, a.observacoes, a.criado_em,
                     s.nome as servico_nome, s.preco, s.tempo_estimado,
-                    b.nome as barbeiro_nome
+                    b.nome as barbeiro_nome,
+                    u.foto_url as cliente_foto_url
              FROM agendamentos a
              JOIN servicos s ON a.servico_id = s.id
              JOIN barbeiros b ON a.barbeiro_id = b.id
+             LEFT JOIN utilizadores u ON LOWER(u.email) = LOWER(a.cliente_email)
              WHERE a.id = ?`,
             [id]
         );
@@ -252,6 +257,7 @@ router.get('/:id', async (req, res) => {
             nome: agendamento.cliente_nome,
             telefone: agendamento.cliente_telefone,
             email: agendamento.cliente_email,
+            foto_url: agendamento.cliente_foto_url || null,
             data: agendamento.data,
             hora: agendamento.hora,
             status: agendamento.status,

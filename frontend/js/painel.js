@@ -190,6 +190,25 @@ function escAttr(text) {
         .replace(/</g, '&lt;');
 }
 
+function iniciaisCliente(nome) {
+    const partes = String(nome || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+    if (!partes.length) return '?';
+    if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+}
+
+function avatarClienteHtml(a, classe = 'agendamento-admin-avatar') {
+    const nome = a.nome || a.cliente_nome || 'Cliente';
+    const foto = a.foto_url || a.cliente_foto_url || '';
+    if (foto) {
+        return `<div class="${classe}" aria-hidden="true"><img src="${escAttr(foto)}" alt="" loading="lazy" decoding="async"></div>`;
+    }
+    return `<div class="${classe} ${classe}--fallback" aria-hidden="true"><span>${esc(iniciaisCliente(nome))}</span></div>`;
+}
+
 function toast(msg, tipo = 'success') {
     const n = document.createElement('div');
     n.className = `notification ${tipo}`;
@@ -443,6 +462,7 @@ function renderizarProximasMarcacoes(lista, soHoje = true) {
 
     box.innerHTML = lista.slice(0, 4).map(a => `
         <article class="painel-proxima-item">
+            ${avatarClienteHtml(a, 'painel-proxima-avatar')}
             <div class="painel-proxima-hora">${esc(a.hora || '—')}</div>
             <div class="painel-proxima-info">
                 <strong>${esc(a.nome || a.cliente_nome || 'Cliente')}</strong>
@@ -861,9 +881,12 @@ async function carregarAgendamentos() {
                 ${items.map(a => `
                     <article class="agendamento-admin-card">
                         <div class="agendamento-admin-card-top">
-                            <div>
-                                <strong>${esc(a.nome)}</strong>
-                                <span class="agendamento-admin-email">${esc(a.email || '')}</span>
+                            <div class="agendamento-admin-card-identity">
+                                ${avatarClienteHtml(a)}
+                                <div>
+                                    <strong>${esc(a.nome)}</strong>
+                                    <span class="agendamento-admin-email">${esc(a.email || '')}</span>
+                                </div>
                             </div>
                             <span class="status">${esc(a.status)}</span>
                         </div>
