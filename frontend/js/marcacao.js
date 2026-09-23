@@ -56,6 +56,11 @@ async function verificarAcessoMarcacao() {
         return;
     }
 
+    atualizarAvatarMarcacao();
+}
+
+function atualizarAvatarMarcacao() {
+    if (!utilizadorAtual) return;
     document.getElementById('marcacaoNome').textContent = obterNomePerfilCliente(utilizadorAtual);
     document.getElementById('marcacaoEmail').textContent = utilizadorAtual.email || '—';
     const avatar = document.getElementById('marcacaoAvatar');
@@ -71,6 +76,12 @@ async function verificarAcessoMarcacao() {
         const inicial = obterInicialPerfilCliente(utilizadorAtual);
         if (avatar) avatar.textContent = inicial;
         if (avatarMenu) avatarMenu.textContent = inicial;
+    }
+    const fotoLabel = document.getElementById('btnMarcacaoFotoLabel');
+    if (fotoLabel) {
+        fotoLabel.textContent = utilizadorAtual.foto_url
+            ? (typeof t === 'function' ? t('auth.photoChange') : 'Alterar foto')
+            : (typeof t === 'function' ? t('auth.photoAdd') : 'Adicionar foto');
     }
 }
 
@@ -119,6 +130,36 @@ function configurarMarcacaoPage() {
     document.getElementById('btnMarcacaoPerfil')?.addEventListener('click', (e) => {
         e.stopPropagation();
         alternarPerfilMarcacao();
+    });
+
+    document.getElementById('btnMarcacaoFoto')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('marcacaoFotoInput')?.click();
+    });
+
+    document.getElementById('marcacaoFotoInput')?.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        if (typeof processarFotoPerfilExistente !== 'function') {
+            alert('Não foi possível atualizar a foto. Recarregue a página.');
+            return;
+        }
+        const btn = document.getElementById('btnMarcacaoFoto');
+        const label = document.getElementById('btnMarcacaoFotoLabel');
+        const prevLabel = label?.textContent;
+        if (btn) btn.disabled = true;
+        if (label) label.textContent = 'A guardar…';
+        try {
+            await processarFotoPerfilExistente(file);
+            atualizarAvatarMarcacao();
+            fecharPerfilMarcacao();
+        } catch (err) {
+            alert(err.message || 'Não foi possível guardar a foto.');
+            if (label && prevLabel) label.textContent = prevLabel;
+        } finally {
+            if (btn) btn.disabled = false;
+        }
     });
 
     document.addEventListener('click', (e) => {

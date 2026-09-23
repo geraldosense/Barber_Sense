@@ -98,6 +98,52 @@ function ligarBotoesAuth(prefix) {
         e.preventDefault();
         irParaMarcacao();
     });
+
+    document.getElementById(authElId(prefix, 'btnHeaderFoto'))?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById(authElId(prefix, 'headerFotoInput'))?.click();
+    });
+
+    document.getElementById(authElId(prefix, 'headerFotoInput'))?.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        const btn = document.getElementById(authElId(prefix, 'btnHeaderFoto'));
+        const label = btn?.querySelector('span');
+        const prev = label?.textContent;
+        if (btn) btn.disabled = true;
+        if (label) label.textContent = 'A guardar…';
+        try {
+            await processarFotoPerfilExistente(file);
+            fecharMenuPerfilHeader();
+            mostrarNotificacaoAuth('Foto de perfil atualizada.', 'success');
+            if (typeof atualizarAvatarMarcacao === 'function') atualizarAvatarMarcacao();
+            if (typeof mostrarAreaLogada === 'function') mostrarAreaLogada(false);
+        } catch (err) {
+            mostrarNotificacaoAuth(err.message || 'Não foi possível guardar a foto.', 'error');
+            if (label && prev) label.textContent = prev;
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    });
+
+    document.getElementById(authElId(prefix, 'btnPerfilToggle'))?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const menu = document.getElementById(authElId(prefix, 'perfilMenu'));
+        const open = menu && !menu.classList.contains('hidden');
+        fecharMenuPerfilHeader();
+        if (!open && menu) {
+            menu.classList.remove('hidden');
+            e.currentTarget.setAttribute('aria-expanded', 'true');
+        }
+    });
+}
+
+function fecharMenuPerfilHeader() {
+    document.querySelectorAll('.header-perfil-menu').forEach((m) => m.classList.add('hidden'));
+    document.querySelectorAll('.user-profile-toggle').forEach((b) => b.setAttribute('aria-expanded', 'false'));
 }
 
 function botaoReservarHtml(id) {
@@ -143,24 +189,55 @@ function atualizarUIAuth() {
 
         const nome = escapeHtml(utilizadorAtual.nome.split(' ')[0]);
         const avatarMarkup = avatarUtilizadorHtml(utilizadorAtual);
+        const fotoLabel = utilizadorAtual.foto_url
+            ? (typeof t === 'function' ? t('auth.photoChange') : 'Alterar foto')
+            : (typeof t === 'function' ? t('auth.photoAdd') : 'Adicionar foto');
+        const minhaAreaLabel = typeof t === 'function' ? t('nav.myArea') : 'Minha Área';
 
         if (authButtons) {
             authButtons.classList.remove('auth-buttons--empty');
             authButtons.innerHTML = `
                 <div class="user-profile">
-                    <div class="user-avatar">${avatarMarkup}</div>
-                    <div class="user-info">
-                        <span class="user-name">${nome}</span>
-                        <span class="user-perfil">${perfilLabel}</span>
+                    <button type="button" class="user-profile-toggle" id="btnPerfilToggle" aria-haspopup="menu" aria-expanded="false" aria-label="Perfil">
+                        <div class="user-avatar">${avatarMarkup}</div>
+                        <div class="user-info">
+                            <span class="user-name">${nome}</span>
+                            <span class="user-perfil">${perfilLabel}</span>
+                        </div>
+                        <i class="fas fa-chevron-down user-profile-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="header-perfil-menu hidden" id="perfilMenu" role="menu">
+                        <div class="header-perfil-head">
+                            <div class="user-avatar user-avatar--lg">${avatarMarkup}</div>
+                            <div>
+                                <strong>${nome}</strong>
+                                <span>${escapeHtml(utilizadorAtual.email || '')}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="header-perfil-item" id="btnHeaderFoto" role="menuitem">
+                            <i class="fas fa-camera"></i>
+                            <span>${fotoLabel}</span>
+                        </button>
+                        <input type="file" id="headerFotoInput" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" hidden>
+                        <a href="#minha-area" class="header-perfil-item" id="btnIrMinhaArea" role="menuitem">
+                            <i class="fas fa-user-circle"></i>
+                            <span>${minhaAreaLabel}</span>
+                        </a>
+                        <button type="button" class="header-perfil-item header-perfil-item--danger" id="btnLogout" role="menuitem">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>${logoutLabel}</span>
+                        </button>
                     </div>
-                    <button type="button" class="logout-btn" id="btnLogout">${logoutLabel}</button>
                 </div>
             `;
             ligarBotoesAuth('');
+            document.getElementById('btnIrMinhaArea')?.addEventListener('click', () => {
+                fecharMenuPerfilHeader();
+                if (typeof mostrarAreaLogada === 'function') mostrarAreaLogada(true);
+            });
         }
 
         if (authMobile) {
-            const minhaAreaLabel = typeof t === 'function' ? t('nav.myArea') : 'Minha Área';
             authMobile.innerHTML = `
                 <div class="nav-auth-user">
                     <span class="nav-auth-avatar">${avatarMarkup}</span>
@@ -169,6 +246,10 @@ function atualizarUIAuth() {
                         <span>${perfilLabel}</span>
                     </div>
                 </div>
+                <button type="button" class="nav-auth-btn nav-auth-btn--outline" id="mBtnHeaderFoto">
+                    <i class="fas fa-camera"></i> ${fotoLabel}
+                </button>
+                <input type="file" id="mHeaderFotoInput" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" hidden>
                 <a href="#minha-area" class="nav-auth-btn nav-auth-btn--outline" id="mBtnMinhaArea"><i class="fas fa-user-circle"></i> ${minhaAreaLabel}</a>
                 <a href="marcacao.html" class="nav-auth-btn nav-auth-btn--gold" id="mBtnAgendarNav"><i class="fas fa-calendar-check"></i> ${bookLabel}</a>
                 <button type="button" class="nav-auth-btn nav-auth-btn--ghost" id="mBtnLogout"><i class="fas fa-sign-out-alt"></i> ${logoutLabel}</button>
@@ -178,6 +259,7 @@ function atualizarUIAuth() {
                 document.getElementById('navMenu')?.classList.remove('active');
                 document.getElementById('navOverlay')?.classList.remove('active');
                 document.body.classList.remove('menu-open');
+                if (typeof mostrarAreaLogada === 'function') mostrarAreaLogada(true);
             });
         }
 
@@ -861,7 +943,25 @@ async function enviarFotoPerfil(file, token) {
     if (patchData.token && patchData.utilizador) {
         guardarSessao(patchData.token, patchData.utilizador);
     }
+    document.dispatchEvent(new CustomEvent('sense:fotoperfil', { detail: { utilizador: patchData.utilizador } }));
     return patchData.utilizador;
+}
+
+async function processarFotoPerfilExistente(file) {
+    const token = obterToken();
+    if (!token || !utilizadorAtual) {
+        throw new Error('Sessão expirada. Entre novamente.');
+    }
+    if (!file) {
+        throw new Error('Selecione uma imagem.');
+    }
+    if (!/^image\//i.test(file.type) && !/\.(jpe?g|png|webp|gif|heic|heif)$/i.test(file.name)) {
+        throw new Error('Selecione uma imagem JPG ou PNG.');
+    }
+    if (file.size > 8 * 1024 * 1024) {
+        throw new Error('A foto deve ter no máximo 8 MB.');
+    }
+    return enviarFotoPerfil(file, token);
 }
 
 let registoFotoObjectUrl = null;
@@ -1044,6 +1144,17 @@ function configurarAuth() {
     document.getElementById('formRecuperar')?.addEventListener('submit', submeterRecuperar);
     document.getElementById('formRecuperarCodigo')?.addEventListener('submit', submeterRecuperarCodigo);
     configurarFotoRegisto();
+
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.user-profile') || e.target.closest('.header-perfil-menu')) return;
+        fecharMenuPerfilHeader();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') fecharMenuPerfilHeader();
+    });
+    document.addEventListener('sense:fotoperfil', () => {
+        if (typeof atualizarAvatarMarcacao === 'function') atualizarAvatarMarcacao();
+    });
 
     document.getElementById('linkEsqueciPassword')?.addEventListener('click', (e) => {
         e.preventDefault();

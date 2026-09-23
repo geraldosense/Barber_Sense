@@ -164,11 +164,70 @@ function renderDashInicio(el) {
     el.innerHTML = `
         <h3 class="area-main-title">Área de ${utilizadorAtual.nome}</h3>
         <p class="area-main-sub">Bem-vindo à sua área privada. Escolha uma opção abaixo.</p>
+        <div class="dash-foto-block">
+            <div class="dash-foto-preview" id="dashFotoPreview">${avatarDashHtml()}</div>
+            <div class="dash-foto-meta">
+                <strong>${utilizadorAtual.foto_url ? 'Foto de perfil' : 'Adicionar foto de perfil'}</strong>
+                <p>Opcional — JPG ou PNG, máx. 8 MB</p>
+                <div class="dash-foto-actions">
+                    <button type="button" class="dash-foto-btn" id="btnDashFoto">
+                        <i class="fas ${utilizadorAtual.foto_url ? 'fa-sync-alt' : 'fa-camera'}"></i>
+                        ${utilizadorAtual.foto_url ? 'Alterar foto' : 'Adicionar foto'}
+                    </button>
+                    <input type="file" id="dashFotoInput" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" hidden>
+                </div>
+                <p class="dash-foto-status hidden" id="dashFotoStatus"></p>
+            </div>
+        </div>
         <div class="dash-cards">${cards}</div>
         <div class="dash-info">
             <p><i class="fas fa-envelope"></i> ${escDash(utilizadorAtual.email)}</p>
             <p><i class="fas fa-phone"></i> ${escDash(utilizadorAtual.telefone || '—')}</p>
         </div>`;
+
+    document.getElementById('btnDashFoto')?.addEventListener('click', () => {
+        document.getElementById('dashFotoInput')?.click();
+    });
+    document.getElementById('dashFotoInput')?.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        const status = document.getElementById('dashFotoStatus');
+        const btn = document.getElementById('btnDashFoto');
+        if (status) {
+            status.classList.remove('hidden', 'is-error', 'is-ok');
+            status.textContent = 'A guardar foto…';
+        }
+        if (btn) btn.disabled = true;
+        try {
+            if (typeof processarFotoPerfilExistente !== 'function') {
+                throw new Error('Recarregue a página e tente novamente.');
+            }
+            await processarFotoPerfilExistente(file);
+            if (status) {
+                status.textContent = 'Foto atualizada.';
+                status.classList.add('is-ok');
+            }
+            renderDashInicio(el);
+        } catch (err) {
+            if (status) {
+                status.textContent = err.message || 'Não foi possível guardar a foto.';
+                status.classList.add('is-error');
+            }
+            if (btn) btn.disabled = false;
+        }
+    });
+}
+
+function avatarDashHtml() {
+    const url = utilizadorAtual?.foto_url
+        ? (typeof resolveMediaUrl === 'function' ? resolveMediaUrl(utilizadorAtual.foto_url) : utilizadorAtual.foto_url)
+        : '';
+    if (url) {
+        return `<img src="${escDash(url)}" alt="">`;
+    }
+    const inicial = String(utilizadorAtual?.nome || utilizadorAtual?.email || 'U').charAt(0).toUpperCase();
+    return `<span>${escDash(inicial)}</span>`;
 }
 
 async function renderDashAgendamentos(el) {

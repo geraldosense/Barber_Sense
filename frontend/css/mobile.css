@@ -161,11 +161,20 @@ body.menu-open {
         display: flex !important;
         align-items: center;
         gap: 0.35rem;
-        max-width: 42vw;
+        max-width: none;
     }
 
     .header-actions .user-info {
         display: none;
+    }
+
+    .header-actions .user-profile-chevron {
+        display: none;
+    }
+
+    .header-actions .user-profile-toggle {
+        padding: 0.15rem;
+        border-radius: 50%;
     }
 
     .header-actions .user-avatar {
@@ -175,12 +184,12 @@ body.menu-open {
     }
 
     .header-actions .logout-btn {
-        display: inline-flex !important;
-        align-items: center;
-        min-height: 34px;
-        padding: 0.3rem 0.55rem;
-        font-size: 0.72rem;
-        border-radius: 4px;
+        display: none !important;
+    }
+
+    .header-perfil-menu {
+        right: 0;
+        min-width: 220px;
     }
 
     .header-actions .lang-switcher-btn {
