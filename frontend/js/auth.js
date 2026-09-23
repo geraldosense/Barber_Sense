@@ -874,29 +874,47 @@ function limparPreviewFotoRegisto() {
     const preview = document.getElementById('registoFotoPreview');
     const input = document.getElementById('regFoto');
     const btnRemover = document.getElementById('btnRegistoFotoRemover');
-    if (preview) preview.innerHTML = '<i class="fas fa-user" aria-hidden="true"></i>';
+    const btnAdd = document.getElementById('btnRegistoFotoTexto');
+    if (preview) {
+        preview.classList.remove('has-photo');
+        preview.innerHTML = '<i class="fas fa-user" aria-hidden="true"></i>';
+    }
     if (input) input.value = '';
     btnRemover?.classList.add('hidden');
+    if (btnAdd) {
+        const label = typeof t === 'function' ? t('auth.photoAdd') : 'Adicionar foto';
+        btnAdd.innerHTML = `<i class="fas fa-plus" aria-hidden="true"></i><span data-i18n="auth.photoAdd">${label}</span>`;
+        btnAdd.classList.remove('hidden');
+    }
 }
 
 function aplicarPreviewFotoRegisto(file) {
     const preview = document.getElementById('registoFotoPreview');
     const btnRemover = document.getElementById('btnRegistoFotoRemover');
+    const btnAdd = document.getElementById('btnRegistoFotoTexto');
     if (!preview || !file) return;
 
     if (registoFotoObjectUrl) URL.revokeObjectURL(registoFotoObjectUrl);
     registoFotoObjectUrl = URL.createObjectURL(file);
+    preview.classList.add('has-photo');
     preview.innerHTML = `<img src="${registoFotoObjectUrl}" alt="Pré-visualização">`;
     btnRemover?.classList.remove('hidden');
+    if (btnAdd) {
+        const label = typeof t === 'function' ? t('auth.photoChange') : 'Alterar foto';
+        btnAdd.innerHTML = `<i class="fas fa-sync-alt" aria-hidden="true"></i><span data-i18n="auth.photoChange">${label}</span>`;
+    }
 }
 
 function configurarFotoRegisto() {
     const input = document.getElementById('regFoto');
     const btn = document.getElementById('btnRegistoFoto');
+    const btnTexto = document.getElementById('btnRegistoFotoTexto');
     const btnRemover = document.getElementById('btnRegistoFotoRemover');
     if (!input || !btn) return;
 
-    btn.addEventListener('click', () => input.click());
+    const abrir = () => input.click();
+    btn.addEventListener('click', abrir);
+    btnTexto?.addEventListener('click', abrir);
     btnRemover?.addEventListener('click', (e) => {
         e.preventDefault();
         limparPreviewFotoRegisto();
