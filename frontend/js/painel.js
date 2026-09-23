@@ -462,11 +462,13 @@ function renderizarProximasMarcacoes(lista, soHoje = true) {
 
     box.innerHTML = lista.slice(0, 4).map(a => `
         <article class="painel-proxima-item">
-            ${avatarClienteHtml(a, 'painel-proxima-avatar')}
             <div class="painel-proxima-hora">${esc(a.hora || '—')}</div>
-            <div class="painel-proxima-info">
-                <strong>${esc(a.nome || a.cliente_nome || 'Cliente')}</strong>
-                <span>${esc(a.servico?.nome || a.servico_nome || 'Serviço')}${!soHoje && a.data ? ` · ${esc(a.data)}` : ''}</span>
+            <div class="painel-proxima-cliente">
+                ${avatarClienteHtml(a, 'painel-proxima-avatar')}
+                <div class="painel-proxima-info">
+                    <strong>${esc(a.nome || a.cliente_nome || 'Cliente')}</strong>
+                    <span>${esc(a.servico?.nome || a.servico_nome || 'Serviço')}${!soHoje && a.data ? ` · ${esc(a.data)}` : ''}</span>
+                </div>
             </div>
             <span class="painel-proxima-status">${esc(String(a.status || 'confirmado').toUpperCase())}</span>
         </article>
