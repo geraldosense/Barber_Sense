@@ -19,6 +19,9 @@ let notifHoje = 0;
 let ultimoToastNovos = 0;
 let cacheAgendamentos = [];
 let pollPainelTimer = null;
+let fingerprintProximas = '';
+let fingerprintStats = '';
+let fingerprintAgendamentos = '';
 
 const SEEN_BOOKINGS_KEY = 'painelAgendamentosVistosIds';
 
@@ -204,9 +207,25 @@ function avatarClienteHtml(a, classe = 'agendamento-admin-avatar') {
     const nome = a.nome || a.cliente_nome || 'Cliente';
     const foto = a.foto_url || a.cliente_foto_url || '';
     if (foto) {
-        return `<div class="${classe}" aria-hidden="true"><img src="${escAttr(foto)}" alt="" loading="lazy" decoding="async"></div>`;
+        return `<div class="${classe}" aria-hidden="true"><img src="${escAttr(foto)}" alt="" decoding="async"></div>`;
     }
     return `<div class="${classe} ${classe}--fallback" aria-hidden="true"><span>${esc(iniciaisCliente(nome))}</span></div>`;
+}
+
+function fingerprintMarcacao(a) {
+    return [
+        a.id,
+        a.data,
+        a.hora,
+        a.status,
+        a.nome || a.cliente_nome || '',
+        a.email || a.cliente_email || '',
+        a.foto_url || a.cliente_foto_url || '',
+        a.servico?.nome || a.servico_nome || '',
+        a.metodo_pagamento || '',
+        a.valor_pago ?? '',
+        a.referencia_pagamento || ''
+    ].join('|');
 }
 
 function toast(msg, tipo = 'success') {
@@ -424,13 +443,17 @@ async function carregarStats(opts = {}) {
         const hojeCount = hojeLista.length;
         const novos = contarAgendamentosNovos(cacheAgendamentos);
         const servicosAtivos = Array.isArray(serv) ? serv.length : 0;
+        const statsKey = `${hojeCount}|${novos}|${pend.total || 0}|${servicosAtivos}`;
 
-        el.innerHTML = `
-            <div class="painel-stat"><i class="fas fa-calendar-day"></i><strong>${hojeCount}</strong><span>Marcações</span></div>
-            <div class="painel-stat"><i class="fas fa-bell"></i><strong>${novos}</strong><span>Novas marcações</span></div>
-            <div class="painel-stat"><i class="fas fa-clock"></i><strong>${pend.total || 0}</strong><span>Cortes pendentes</span></div>
-            <div class="painel-stat"><i class="fas fa-cut"></i><strong>${servicosAtivos}</strong><span>Serviços ativos</span></div>
-        `;
+        if (statsKey !== fingerprintStats) {
+            fingerprintStats = statsKey;
+            el.innerHTML = `
+                <div class="painel-stat"><i class="fas fa-calendar-day"></i><strong>${hojeCount}</strong><span>Marcações</span></div>
+                <div class="painel-stat"><i class="fas fa-bell"></i><strong>${novos}</strong><span>Novas marcações</span></div>
+                <div class="painel-stat"><i class="fas fa-clock"></i><strong>${pend.total || 0}</strong><span>Cortes pendentes</span></div>
+                <div class="painel-stat"><i class="fas fa-cut"></i><strong>${servicosAtivos}</strong><span>Serviços ativos</span></div>
+            `;
+        }
 
         renderizarProximasMarcacoes(hojeLista.length ? hojeLista : proximasLista.slice(0, 4), hojeLista.length > 0);
 
@@ -455,12 +478,20 @@ function renderizarProximasMarcacoes(lista, soHoje = true) {
     const box = document.getElementById('painelProximasList');
     if (!box) return;
 
-    if (!lista.length) {
+    const vista = lista.slice(0, 4);
+    if (!vista.length) {
+        const emptyKey = 'empty';
+        if (fingerprintProximas === emptyKey) return;
+        fingerprintProximas = emptyKey;
         box.innerHTML = '<p class="painel-proximas-empty"><i class="far fa-calendar"></i> Nenhuma marcação agendada para hoje.</p>';
         return;
     }
 
-    box.innerHTML = lista.slice(0, 4).map(a => `
+    const key = `${soHoje ? 'hoje' : 'prox'}::${vista.map(fingerprintMarcacao).join(';;')}`;
+    if (key === fingerprintProximas) return;
+    fingerprintProximas = key;
+
+    box.innerHTML = vista.map(a => `
         <article class="painel-proxima-item">
             <div class="painel-proxima-hora">${esc(a.hora || '—')}</div>
             <div class="painel-proxima-cliente">
@@ -867,16 +898,27 @@ async function atualizarBadgeAgendamentos(agendamentosCache) {
 
 async function carregarAgendamentos() {
     const list = document.getElementById('agendamentos-admin-list');
-    list.innerHTML = '<p class="painel-loading"><i class="fas fa-spinner fa-spin"></i></p>';
+    if (!list) return;
+
+    const primeiroLoad = !list.querySelector('.agendamentos-admin-cards') && !list.querySelector('.painel-empty');
+    if (primeiroLoad) {
+        list.innerHTML = '<p class="painel-loading"><i class="fas fa-spinner fa-spin"></i></p>';
+    }
 
     try {
         const res = await fetch(`${API_URL}/agendamentos`, { headers: authHeaders() });
         const items = res.ok ? await res.json() : [];
 
         if (!items.length) {
+            if (fingerprintAgendamentos === 'empty') return;
+            fingerprintAgendamentos = 'empty';
             list.innerHTML = '<p class="painel-empty">Nenhuma marcação.</p>';
             return;
         }
+
+        const key = items.map(fingerprintMarcacao).join(';;');
+        if (key === fingerprintAgendamentos) return;
+        fingerprintAgendamentos = key;
 
         list.innerHTML = `
             <div class="agendamentos-admin-cards">
@@ -904,6 +946,7 @@ async function carregarAgendamentos() {
             </div>`;
     } catch {
         list.innerHTML = '<p class="painel-empty">Erro ao carregar.</p>';
+        fingerprintAgendamentos = '';
     }
 }
 
